@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { BarChart2, Users, TrendingUp, DollarSign, Plus, LogOut } from 'lucide-react'
 
-const API = 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
+const API = 'http://187.77.248.115:3001'
 
 export default function Admin() {
   const router = useRouter()

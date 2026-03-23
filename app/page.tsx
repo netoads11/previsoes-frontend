@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, TrendingUp, Zap, Clock, ChevronRight, BarChart2 } from 'lucide-react'
 
-const API = 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
+const API = 'http://187.77.248.115:3001'
 
 const CATEGORIAS = [
   { name: 'Todos', icon: '🔥' },
