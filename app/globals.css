@@ -14,11 +14,7 @@
   --destructive: #ef4444;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   background: var(--background);
@@ -29,54 +25,81 @@ body {
   min-height: 100vh;
 }
 
-::-webkit-scrollbar {
-  width: 4px;
+input, select, button, textarea {
+  font-family: 'Kanit', system-ui, sans-serif;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 @keyframes pulse-green {
   0%, 100% { box-shadow: 0 0 0 0 rgba(106,221,0,0.4); }
   50% { box-shadow: 0 0 0 8px rgba(106,221,0,0); }
 }
-
 @keyframes pulse-red {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
   50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
 }
-
 @keyframes live-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
-
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-.animate-fade-up {
-  animation: fade-up 0.4s ease forwards;
-}
-
-.animate-live {
-  animation: live-dot 1s ease-in-out infinite;
-}
-
+.animate-fade-up { animation: fade-up 0.4s ease forwards; }
+.animate-live { animation: live-dot 1s ease-in-out infinite; }
 .shimmer {
   background: linear-gradient(90deg, var(--surface) 25%, var(--muted) 50%, var(--surface) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .sidebar-left { display: none !important; }
+  .sidebar-right { display: none !important; }
+  .header-search { max-width: 100% !important; }
+  .auth-left { display: none !important; }
+  .auth-right {
+    width: 100% !important;
+    padding: 32px 24px !important;
+    border-left: none !important;
+  }
+  .admin-sidebar { display: none !important; }
+  .admin-main { padding: 16px !important; }
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .market-grid { grid-template-columns: 1fr !important; }
+  .bet-buttons { flex-direction: column !important; }
+  .banner-title { font-size: 22px !important; }
+  .header-balance { display: none !important; }
+  .mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    padding: 8px 0;
+  }
+  .main-content { padding-bottom: 70px !important; }
+}
+
+@media (min-width: 769px) {
+  .mobile-nav { display: none !important; }
+}
+
+/* TABLET */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .sidebar-right { display: none !important; }
+  .sidebar-left { width: 160px !important; }
 }
