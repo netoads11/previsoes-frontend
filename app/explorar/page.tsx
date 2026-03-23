@@ -2,13 +2,15 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
+const API = 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
+
 export default function Explorar() {
-  const [markets, setMarkets] = useState([])
+  const [markets, setMarkets] = useState<any[]>([])
 
   useEffect(() => {
-    fetch(process.env.NEXT_PUBLIC_API_URL + '/api/markets')
+    fetch(API + '/api/markets')
       .then(r => r.json())
-      .then(data => setMarkets(data))
+      .then(data => setMarkets(Array.isArray(data) ? data : []))
       .catch(() => setMarkets([]))
   }, [])
 
