@@ -304,30 +304,27 @@ export default function Home() {
 
       {/* BOTTOM NAV */}
       {isMobile && (
-        <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'#111',borderTop:'1px solid rgba(255,255,255,0.08)',zIndex:100,padding:'5px 0 8px',display:'flex'}}>
+        <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',borderTop:'1px solid #222222',display:'flex',justifyContent:'space-around',alignItems:'center',height:'60px',zIndex:1000,paddingBottom:'env(safe-area-inset-bottom)'}}>
           {[
-            {label:'Mercados',id:'mercados',path:'/',svg:<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>, svg2:<polyline points="9 22 9 12 15 12 15 22"/>},
-            {label:'Portfólio',id:'portfolio',path:'/perfil',svg:<line x1="18" y1="20" x2="18" y2="10"/>, svg2:<><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>},
-            {label:'Depositar',id:'depositar',path:'/perfil',svg:<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></>},
-            {label:'Dúvidas',id:'duvidas',path:'/duvidas',svg:<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>},
-            {label:'Perfil',id:'perfil',path:user?'/perfil':'/login',svg:<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>},
+            {label:'Mercados',id:'mercados',path:'/'},
+            {label:'Portfolio',id:'portfolio',path:'/perfil'},
+            {label:'Depositar',id:'depositar',path:'/perfil'},
+            {label:'Duvidas',id:'duvidas',path:'/duvidas'},
           ].map(item=>{
             const active=activeNav===item.id
             return (
               <button key={item.id} onClick={()=>{setActiveNav(item.id);router.push(item.path)}}
-                style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'2px',border:'none',background:'transparent',cursor:'pointer',color:active?'#00c853':'#555',padding:'3px 0',transition:'color 0.15s'}}>
+                style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:active?'#00e676':'#666666',fontSize:'11px',transition:'color 0.15s',flex:1,height:'100%',justifyContent:'center'}}>
                 {item.label==='Mercados'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>}
-              {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
-              {item.label==='Depositar'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.59V8h2v8.59l2.3-2.3 1.41 1.41L12 20l-4.71-4.71 1.41-1.41L11 16.59z"/></svg>}
-              {item.label==='Duvidas'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>}
-              {item.label==='Perfil'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
-                <span style={{fontSize:'9px',fontWeight:active?700:400}}>{item.label}</span>
+                {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
+                {item.label==='Depositar'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.59V8h2v8.59l2.3-2.3 1.41 1.41L12 20l-4.71-4.71 1.41-1.41L11 16.59z"/></svg>}
+                {item.label==='Duvidas'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>}
+                <span>{item.label}</span>
               </button>
             )
           })}
         </nav>
       )}
-    </div>
   )
 }
 
