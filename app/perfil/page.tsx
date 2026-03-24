@@ -15,6 +15,13 @@ export default function Portfolio() {
   const [busca, setBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [depositModal, setDepositModal] = useState(false)
+  const [withdrawModal, setWithdrawModal] = useState(false)
+  const [modalAmount, setModalAmount] = useState('')
+  const [modalPix, setModalPix] = useState('')
+  const [modalLoading, setModalLoading] = useState(false)
+  const [modalMsg, setModalMsg] = useState('')
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -38,6 +45,10 @@ export default function Portfolio() {
       .then(r => r.json())
       .then(data => { setBets(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
+    fetch(API + '/api/wallet/transactions', { headers: { 'Authorization': 'Bearer ' + t } })
+      .then(r => r.json())
+      .then(data => setTransactions(Array.isArray(data) ? data : []))
+      .catch(() => {})
   }
 
   function refresh() {
@@ -46,6 +57,65 @@ export default function Portfolio() {
   }
 
   const filteredBets = bets.filter(b => b.question?.toLowerCase().includes(busca.toLowerCase()))
+
+
+  async function handleDeposit(e: any) {
+    e.preventDefault()
+    const token = localStorage.getItem('token')
+    if (!token || !modalAmount) return
+    setModalLoading(true)
+    setModalMsg('')
+    try {
+      const res = await fetch(API + '/api/wallet/deposit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ amount: Number(modalAmount), pix_key: modalPix })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro')
+      setModalMsg('Solicitacao enviada! Aguarde confirmacao do admin.')
+      setModalAmount('')
+      setModalPix('')
+      refresh()
+    } catch (err: any) {
+      setModalMsg(err.message)
+    } finally {
+      setModalLoading(false)
+    }
+  }
+
+  async function handleWithdraw(e: any) {
+    e.preventDefault()
+    const token = localStorage.getItem('token')
+    if (!token || !modalAmount || !modalPix) return
+    setModalLoading(true)
+    setModalMsg('')
+    try {
+      const res = await fetch(API + '/api/wallet/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ amount: Number(modalAmount), pix_key: modalPix })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro')
+      setModalMsg('Saque solicitado com sucesso!')
+      setModalAmount('')
+      setModalPix('')
+      refresh()
+    } catch (err: any) {
+      setModalMsg(err.message)
+    } finally {
+      setModalLoading(false)
+    }
+  }
+
+  function openModal(type: 'deposit' | 'withdraw') {
+    setModalAmount('')
+    setModalPix('')
+    setModalMsg('')
+    if (type === 'deposit') { setDepositModal(true); setWithdrawModal(false) }
+    else { setWithdrawModal(true); setDepositModal(false) }
+  }
 
   if (!user) return null
 
@@ -87,7 +157,7 @@ export default function Portfolio() {
               <div style={{fontSize:'10px',color:'rgba(255,255,255,0.35)'}}>Saldo</div>
               <div style={{fontSize:'14px',fontWeight:800,color:'#00ff88'}}>R$ {Number(balance).toFixed(2)}</div>
             </div>
-            <button style={{background:'linear-gradient(135deg,#00ff88,#00cc66)',color:'#0a0a0a',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:800,fontSize:'13px',cursor:'pointer',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 14px rgba(0,255,136,0.35)'}}>
+            <button onClick={()=>openModal('deposit')} style={{background:'linear-gradient(135deg,#00ff88,#00cc66)',color:'#0a0a0a',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:800,fontSize:'13px',cursor:'pointer',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 14px rgba(0,255,136,0.35)'}}>
               + Depositar
             </button>
           </div>
@@ -124,11 +194,11 @@ export default function Portfolio() {
               <span style={{fontSize:'20px',fontWeight:900,color:'#00ff88'}}>R$ {Number(balance).toFixed(2)}</span>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-              <button className="btn-green">
+              <button className="btn-green" onClick={()=>openModal('deposit')}>
                 <ArrowDownCircle style={{width:'16px',height:'16px'}}/>
                 Depositar
               </button>
-              <button className="btn-gray">
+              <button className="btn-gray" onClick={()=>openModal('withdraw')}>
                 <ArrowUpCircle style={{width:'16px',height:'16px'}}/>
                 Retirar
               </button>
@@ -203,24 +273,131 @@ export default function Portfolio() {
             )}
 
             {tab === 'depositos' && (
-              <div style={{textAlign:'center',padding:'40px 0'}}>
-                <div style={{fontSize:'32px',marginBottom:'12px'}}>💰</div>
-                <p style={{color:'rgba(255,255,255,0.35)',fontSize:'14px',marginBottom:'16px'}}>Nenhum depósito ainda</p>
-                <button className="btn-green" style={{maxWidth:'200px',margin:'0 auto'}}>
-                  <ArrowDownCircle style={{width:'15px',height:'15px'}}/>
-                  Depositar via PIX
-                </button>
+              <div>
+                {transactions.filter(t => t.type === 'deposit').length === 0 ? (
+                  <div style={{textAlign:'center',padding:'40px 0'}}>
+                    <div style={{fontSize:'32px',marginBottom:'12px'}}>💰</div>
+                    <p style={{color:'rgba(255,255,255,0.35)',fontSize:'14px',marginBottom:'16px'}}>Nenhum depósito ainda</p>
+                    <button className="btn-green" onClick={()=>openModal('deposit')} style={{maxWidth:'200px',margin:'0 auto'}}>
+                      <ArrowDownCircle style={{width:'15px',height:'15px'}}/>
+                      Depositar via PIX
+                    </button>
+                  </div>
+                ) : (
+                  transactions.filter(t => t.type === 'deposit').map((t: any) => (
+                    <div key={t.id} className="bet-item">
+                      <div style={{flex:1}}>
+                        <p style={{fontSize:'13px',fontWeight:600,marginBottom:'3px'}}>Depósito via PIX</p>
+                        <p style={{fontSize:'11px',color:'rgba(255,255,255,0.35)'}}>{new Date(t.created_at).toLocaleDateString('pt-BR')}</p>
+                      </div>
+                      <div style={{textAlign:'right'}}>
+                        <p style={{fontSize:'14px',fontWeight:800,color:'#00ff88',marginBottom:'3px'}}>+R$ {Number(t.amount).toFixed(2)}</p>
+                        <span style={{fontSize:'10px',padding:'2px 8px',borderRadius:'4px',
+                          background: t.status==='completed'?'rgba(0,255,136,0.1)':'rgba(255,200,0,0.1)',
+                          color: t.status==='completed'?'#00ff88':'#ffc800',fontWeight:600}}>
+                          {t.status==='completed'?'Confirmado':t.status==='pending'?'Pendente':'Estornado'}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             )}
 
             {tab === 'retiradas' && (
-              <div style={{textAlign:'center',padding:'40px 0'}}>
-                <div style={{fontSize:'32px',marginBottom:'12px'}}>🏦</div>
-                <p style={{color:'rgba(255,255,255,0.35)',fontSize:'14px'}}>Nenhuma retirada ainda</p>
+              <div>
+                {transactions.filter(t => t.type === 'withdrawal').length === 0 ? (
+                  <div style={{textAlign:'center',padding:'40px 0'}}>
+                    <div style={{fontSize:'32px',marginBottom:'12px'}}>🏦</div>
+                    <p style={{color:'rgba(255,255,255,0.35)',fontSize:'14px'}}>Nenhuma retirada ainda</p>
+                  </div>
+                ) : (
+                  transactions.filter(t => t.type === 'withdrawal').map((t: any) => (
+                    <div key={t.id} className="bet-item">
+                      <div style={{flex:1}}>
+                        <p style={{fontSize:'13px',fontWeight:600,marginBottom:'3px'}}>Saque · {t.pix_key || 'PIX'}</p>
+                        <p style={{fontSize:'11px',color:'rgba(255,255,255,0.35)'}}>{new Date(t.created_at).toLocaleDateString('pt-BR')}</p>
+                      </div>
+                      <div style={{textAlign:'right'}}>
+                        <p style={{fontSize:'14px',fontWeight:800,color:'#ff4d4d',marginBottom:'3px'}}>-R$ {Number(t.amount).toFixed(2)}</p>
+                        <span style={{fontSize:'10px',padding:'2px 8px',borderRadius:'4px',
+                          background: t.status==='paid'?'rgba(0,255,136,0.1)':t.status==='rejected'?'rgba(255,77,77,0.1)':'rgba(255,200,0,0.1)',
+                          color: t.status==='paid'?'#00ff88':t.status==='rejected'?'#ff4d4d':'#ffc800',fontWeight:600}}>
+                          {t.status==='paid'?'Pago':t.status==='rejected'?'Recusado':t.status==='completed'?'Aprovado':'Pendente'}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
         </div>
+
+      {depositModal && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>{setDepositModal(false);setModalMsg('')}}>
+          <div style={{background:'#1a1a1a',borderRadius:'16px',padding:'28px',width:'100%',maxWidth:'400px',border:'1px solid rgba(255,255,255,0.1)'}} onClick={e=>e.stopPropagation()}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
+              <h3 style={{fontSize:'18px',fontWeight:800,color:'#fff'}}>Depositar via PIX</h3>
+              <button onClick={()=>{setDepositModal(false);setModalMsg('')}} style={{background:'none',border:'none',color:'#888',cursor:'pointer',fontSize:'22px',lineHeight:1,padding:'0'}}>×</button>
+            </div>
+            {modalMsg && (
+              <div style={{background:modalMsg.includes('Erro')||modalMsg.includes('erro')?'rgba(239,68,68,0.1)':'rgba(0,255,136,0.1)',border:'1px solid '+(modalMsg.includes('Erro')||modalMsg.includes('erro')?'rgba(239,68,68,0.3)':'rgba(0,255,136,0.3)'),borderRadius:'8px',padding:'12px 14px',marginBottom:'16px',color:modalMsg.includes('Erro')||modalMsg.includes('erro')?'#f87171':'#00ff88',fontSize:'13px'}}>
+                {modalMsg}
+              </div>
+            )}
+            <form onSubmit={handleDeposit} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
+              <div>
+                <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Valor (R$)</label>
+                <input type="number" min="1" step="0.01" value={modalAmount} onChange={e=>setModalAmount(e.target.value)} required placeholder="Ex: 50.00"
+                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}/>
+              </div>
+              <div>
+                <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Sua chave PIX (opcional)</label>
+                <input type="text" value={modalPix} onChange={e=>setModalPix(e.target.value)} placeholder="CPF, email ou telefone"
+                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}/>
+              </div>
+              <button type="submit" disabled={modalLoading} className="btn-green" style={{marginTop:'4px',opacity:modalLoading?0.7:1}}>
+                <ArrowDownCircle style={{width:'16px',height:'16px'}}/>
+                {modalLoading?'Enviando...':'Solicitar Depósito'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {withdrawModal && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>{setWithdrawModal(false);setModalMsg('')}}>
+          <div style={{background:'#1a1a1a',borderRadius:'16px',padding:'28px',width:'100%',maxWidth:'400px',border:'1px solid rgba(255,255,255,0.1)'}} onClick={e=>e.stopPropagation()}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
+              <h3 style={{fontSize:'18px',fontWeight:800,color:'#fff'}}>Sacar via PIX</h3>
+              <button onClick={()=>{setWithdrawModal(false);setModalMsg('')}} style={{background:'none',border:'none',color:'#888',cursor:'pointer',fontSize:'22px',lineHeight:1,padding:'0'}}>×</button>
+            </div>
+            <p style={{fontSize:'13px',color:'rgba(255,255,255,0.4)',marginBottom:'16px'}}>Saldo disponível: <strong style={{color:'#00ff88'}}>R$ {Number(balance).toFixed(2)}</strong></p>
+            {modalMsg && (
+              <div style={{background:modalMsg.includes('Erro')||modalMsg.includes('erro')||modalMsg.includes('insuficiente')?'rgba(239,68,68,0.1)':'rgba(0,255,136,0.1)',border:'1px solid '+(modalMsg.includes('Erro')||modalMsg.includes('erro')||modalMsg.includes('insuficiente')?'rgba(239,68,68,0.3)':'rgba(0,255,136,0.3)'),borderRadius:'8px',padding:'12px 14px',marginBottom:'16px',color:modalMsg.includes('Erro')||modalMsg.includes('erro')||modalMsg.includes('insuficiente')?'#f87171':'#00ff88',fontSize:'13px'}}>
+                {modalMsg}
+              </div>
+            )}
+            <form onSubmit={handleWithdraw} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
+              <div>
+                <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Valor (R$)</label>
+                <input type="number" min="1" max={balance} step="0.01" value={modalAmount} onChange={e=>setModalAmount(e.target.value)} required placeholder="Ex: 50.00"
+                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}/>
+              </div>
+              <div>
+                <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Chave PIX de destino</label>
+                <input type="text" value={modalPix} onChange={e=>setModalPix(e.target.value)} required placeholder="CPF, email ou telefone"
+                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}/>
+              </div>
+              <button type="submit" disabled={modalLoading} className="btn-gray" style={{marginTop:'4px',opacity:modalLoading?0.7:1}}>
+                <ArrowUpCircle style={{width:'16px',height:'16px'}}/>
+                {modalLoading?'Enviando...':'Solicitar Saque'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
         {/* BOTTOM NAV MOBILE */}
         {isMobile && (

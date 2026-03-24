@@ -42,6 +42,13 @@ export default function Home() {
   useEffect(() => {
     const u = localStorage.getItem('user')
     if (u) setUser(JSON.parse(u))
+    const t = localStorage.getItem('token')
+    if (t) {
+      fetch(API + '/api/wallet/balance', { headers: { 'Authorization': 'Bearer ' + t } })
+        .then(r => r.json())
+        .then(d => setBalance(Number(d.balance) || 0))
+        .catch(() => {})
+    }
     const check = () => setIsMobile(window.innerWidth <= 768)
     check()
     window.addEventListener('resize', check)
@@ -69,7 +76,7 @@ export default function Home() {
     return acc
   },[])
 
-  const balance = 0
+  const [balance, setBalance] = useState(0)
 
   // BET PANEL VALUES
   const betMarket = betPanel?.market
@@ -81,6 +88,27 @@ export default function Home() {
   const gain = (betNum*Number(mult)).toFixed(2)
   const noBalance = betNum > balance
   const VALS = ['10','20','50','100']
+
+
+  async function handleBet() {
+    const token = localStorage.getItem('token')
+    if (!token) { router.push('/login'); return }
+    if (!betNum || betNum <= 0) return
+    try {
+      const res = await fetch(API + '/api/bets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ market_id: betMarket?.id, choice: betChoice, amount: betNum })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao apostar')
+      setBalance(b => b - betNum)
+      setBetPanel(null)
+      setBetValue('')
+    } catch (err: any) {
+      alert(err.message)
+    }
+  }
 
   return (
     <div style={{background:'#111',minHeight:'100vh',color:'#fff',fontFamily:'Inter,Kanit,sans-serif'}}>
@@ -285,7 +313,7 @@ export default function Home() {
                   Depositar R$ {(betNum-balance).toFixed(2)}
                 </button>
               ) : (
-                <button style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background: betNum>0?'#00e676':'#333',color: betNum>0?'#000':'#666',fontWeight:900,fontSize:'14px',boxShadow: betNum>0?'0 0 16px rgba(0,230,118,0.3)':'none',transition:'all 0.2s'}}>
+                <button style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background: betNum>0?'#00e676':'#333',color: betNum>0?'#000':'#666',fontWeight:900,fontSize:'14px',boxShadow: betNum>0?'0 0 16px rgba(0,230,118,0.3)':'none',transition:'all 0.2s'}} onClick={handleBet} disabled={betNum<=0}>
                   {betChoice==='yes'?'SIM':'NÃO'} R$ {betNum.toFixed(2)}
                 </button>
               )}
