@@ -37,7 +37,7 @@ export default function Previmarket() {
   const [betPanel, setBetPanel] = useState<BetPanelType | null>(null)
   const [betValue, setBetValue] = useState('10')
   const [user, setUser] = useState<any>(null)
-  const [favorites, setFavorites] = useState<string[]>([])
+  const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('favorites') || '[]') } catch { return [] } })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -169,7 +169,7 @@ export default function Previmarket() {
                 <MarketCard key={m.id} market={m} index={i}
                   onBet={(market,choice)=>{setBetPanel({market,choice});setBetValue('10')}}
                   isFav={favorites.includes(m.id)}
-                  onFav={id=>setFavorites(f=>f.includes(id)?f.filter(x=>x!==id):[...f,id])}/>
+                  onFav={id=>setFavorites(f=>{ const n = f.includes(id)?f.filter(x=>x!==id):[...f,id]; localStorage.setItem('favorites',JSON.stringify(n)); return n })}/>
               ))}
             </div>
           )}
