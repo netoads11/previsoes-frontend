@@ -138,7 +138,7 @@ export default function Admin() {
   async function saveSettings(e: any) {
     e.preventDefault()
     const r = await api('/api/admin/settings','PUT',settings)
-    if(r.success){toast_('Configuracoes salvas'use client')}else{toast_(r.error||'Erro','error')}
+    if(r.success){toast_('Configuracoes salvas!')}else{toast_(r.error||'Erro','error')}
   }
 
   const totalDep = deposits.filter((d:any)=>d.status==='completed').reduce((a:number,d:any)=>a+Number(d.amount),0)
