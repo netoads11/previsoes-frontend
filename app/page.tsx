@@ -316,9 +316,11 @@ export default function Home() {
             return (
               <button key={item.id} onClick={()=>{setActiveNav(item.id);router.push(item.path)}}
                 style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'2px',border:'none',background:'transparent',cursor:'pointer',color:active?'#00c853':'#555',padding:'3px 0',transition:'color 0.15s'}}>
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                  {item.svg}{item.svg2}
-                </svg>
+                {item.label==='Mercados'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>}
+              {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
+              {item.label==='Depositar'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.59V8h2v8.59l2.3-2.3 1.41 1.41L12 20l-4.71-4.71 1.41-1.41L11 16.59z"/></svg>}
+              {item.label==='Duvidas'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>}
+              {item.label==='Perfil'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
                 <span style={{fontSize:'9px',fontWeight:active?700:400}}>{item.label}</span>
               </button>
             )
@@ -404,7 +406,7 @@ function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|
       </div>
 
       <div style={{display:'flex',alignItems:'center',gap:'4px'}}>
-        <svg width="10" height="10" fill="none" stroke={getTimeColor(m.expires_at)} strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill={getTimeColor(m.expires_at)}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
         <span style={{fontSize:'10px',color:getTimeColor(m.expires_at)}}>{getTimeLabel(m.expires_at)}</span>
       </div>
     </div>
@@ -417,18 +419,18 @@ function getTimeLabel(d?:string):string {
   if(diff<=0) return 'Encerrado'
   const dy=Math.floor(diff/86400000)
   const h=Math.floor((diff%86400000)/3600000)
-  if(dy>0) return `${dy}d ${h}h`
   const m=Math.floor((diff%3600000)/60000)
+  if(dy>0) return `${dy}d ${h}h`
   if(h>0) return `${h}h ${m}m`
   return `${m}m`
 }
 
 function getTimeColor(d?:string):string {
-  if(!d) return '#555'
+  if(!d) return '#888'
   const diff=new Date(d).getTime()-Date.now()
-  if(diff<=0) return '#ef5350'
-  if(diff<86400000) return '#ff6b35'
-  return '#555'
+  if(diff<=0) return '#f44336'
+  if(diff<86400000) return '#ff9800'
+  return '#888'
 }
 
 function isUrgent(d:string):boolean {

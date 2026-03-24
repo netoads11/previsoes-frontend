@@ -226,15 +226,19 @@ export default function Portfolio() {
         {isMobile && (
           <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'rgba(15,15,15,0.97)',borderTop:'1px solid rgba(255,255,255,0.08)',zIndex:100,padding:'6px 0 8px',display:'flex',backdropFilter:'blur(16px)'}}>
             {[
-              {emoji:'🏠',label:'Mercados',action:()=>router.push('/'),active:false},
-              {emoji:'📊',label:'Portfolio',action:()=>{},active:true},
-              {emoji:'💰',label:'Depositar',action:()=>{},active:false},
-              {emoji:'❓',label:'Duvidas',action:()=>router.push('/duvidas'),active:false},
-              {emoji:'👤',label:'Perfil',action:()=>{},active:false},
+              {label:'Mercados',action:()=>router.push('/'),active:false},
+              {label:'Portfolio',action:()=>{},active:true},
+              {label:'Depositar',action:()=>{},active:false},
+              {label:'Duvidas',action:()=>router.push('/duvidas'),active:false},
+              {label:'Perfil',action:()=>{},active:false},
             ].map(item=>(
               <button key={item.label} onClick={item.action}
                 style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'3px',border:'none',background:'transparent',cursor:'pointer',color:item.active?'#00ff88':'rgba(255,255,255,0.35)',padding:'4px 0',fontFamily:'Kanit,sans-serif'}}>
-                <span style={{fontSize:'18px'}}>{item.emoji}</span>
+                {item.label==='Mercados'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>}
+              {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
+              {item.label==='Depositar'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.59V8h2v8.59l2.3-2.3 1.41 1.41L12 20l-4.71-4.71 1.41-1.41L11 16.59z"/></svg>}
+              {item.label==='Duvidas'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>}
+              {item.label==='Perfil'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
                 <span style={{fontSize:'10px',fontWeight:item.active?700:400}}>{item.label}</span>
               </button>
             ))}

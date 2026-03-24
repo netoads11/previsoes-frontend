@@ -14,6 +14,7 @@ export default function Admin() {
   const [category, setCategory] = useState('Financeiro')
   const [yesOdds, setYesOdds] = useState('50')
   const [noOdds, setNoOdds] = useState('50')
+  const [expiresAt, setExpiresAt] = useState('')
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'success'|'error'>('success')
   const [token, setToken] = useState('')
@@ -48,7 +49,7 @@ export default function Admin() {
       const res = await fetch(API + '/api/admin/markets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ question, category, yes_odds: Number(yesOdds), no_odds: Number(noOdds) })
+        body: JSON.stringify({ question, category, yes_odds: Number(yesOdds), no_odds: Number(noOdds), expires_at: expiresAt || null })
       })
       if (res.ok) {
         setMsg('Mercado criado com sucesso!')
