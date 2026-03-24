@@ -6,14 +6,14 @@ import Link from 'next/link'
 const API = 'http://187.77.248.115:3001'
 
 const CATS = [
-  { name: 'Live', svg: '<circle cx="6" cy="6" r="4" fill="#ff4444"/>' },
-  { name: 'Explorar', svg: '' },
-  { name: 'Economia', svg: '' },
-  { name: 'Entretenimento', svg: '' },
-  { name: 'Esportes', svg: '' },
-  { name: 'Criptomoedas', svg: '' },
-  { name: 'Geopolitica', svg: '' },
-  { name: 'Politica', svg: '' },
+  { name: 'Live' },
+  { name: 'Explorar' },
+  { name: 'Economia' },
+  { name: 'Entretenimento' },
+  { name: 'Esportes' },
+  { name: 'Criptomoedas' },
+  { name: 'Geopolitica' },
+  { name: 'Politica' },
 ]
 
 interface Market {
@@ -124,10 +124,10 @@ export default function Home() {
             </div>
             <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>Previmarket</span>
           </Link>
-          <div style={{flex:1,position:'relative',maxWidth:'400px',margin:'0 auto'}}>
+          <div style={{flex:1,position:'relative',margin:'0 12px'}}>
             <svg style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',width:'14px',height:'14px',color:'#666'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" placeholder="Buscar mercado..." value={busca} onChange={e=>setBusca(e.target.value)}
-              style={{width:'100%',background:'#2a2a2a',border:'1px solid #333',borderRadius:'20px',padding:'7px 12px 7px 30px',color:'#fff',fontSize:'13px',outline:'none'}}
+              style={{width:'100%',background:'#2a2a2a',border:'1px solid #333',borderRadius:'20px',padding:'0 12px 0 30px',color:'#fff',fontSize:'13px',outline:'none',height:'36px'}}
               onFocus={e=>e.target.style.borderColor='#00c853'}
               onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.08)'}/>
           </div>
@@ -154,17 +154,13 @@ export default function Home() {
             <button key={c.name} onClick={()=>setCat(c.name)}
               style={{flexShrink:0,display:'flex',alignItems:'center',gap:'5px',padding:'5px 14px',borderRadius:'20px',border:'none',cursor:'pointer',background:active?'#00c853':'transparent',color:active?'#000':'rgba(255,255,255,0.6)',fontSize:'12px',fontWeight:active?700:400,transition:'all 0.15s'}}>
               {isLive && <span className="live-dot" style={{width:'6px',height:'6px',borderRadius:'50%',background:'#ff4444',display:'inline-block',flexShrink:0}}/>}
-              {!isLive && (
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.6}}>
-                  {c.name==='Economia'&&<><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>}
-                  {c.name==='Entretenimento'&&<><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></>}
-                  {c.name==='Esportes'&&<><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></>}
-                  {c.name==='Criptomoedas'&&<><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></>}
-                  {c.name==='Geopolitica'&&<><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></>}
-                  {c.name==='Politica'&&<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>}
-                  {c.name==='Explorar'&&<><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>}
-                </svg>
-              )}
+              {c.name==='Explorar' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>}
+              {c.name==='Economia' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>}
+              {c.name==='Entretenimento' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><polygon points="5 3 19 12 5 21 5 3"/></svg>}
+              {c.name==='Esportes' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>}
+              {c.name==='Criptomoedas' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></svg>}
+              {c.name==='Geopolitica' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>}
+              {c.name==='Politica' && <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{opacity:0.7}}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
               {c.name}
             </button>
           )
@@ -408,11 +404,31 @@ function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|
       </div>
 
       <div style={{display:'flex',alignItems:'center',gap:'4px'}}>
-        <svg width="10" height="10" fill="none" stroke="#555" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span style={{fontSize:'10px',color:m.expires_at&&isUrgent(m.expires_at)?"#ff6b35":"#555"}}>{m.expires_at?`Encerra em ${getTime(m.expires_at)}`:"Aberto"}</span>
+        <svg width="10" height="10" fill="none" stroke={getTimeColor(m.expires_at)} strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span style={{fontSize:'10px',color:getTimeColor(m.expires_at)}}>{getTimeLabel(m.expires_at)}</span>
       </div>
     </div>
   )
+}
+
+function getTimeLabel(d?:string):string {
+  if(!d) return 'Aberto'
+  const diff=new Date(d).getTime()-Date.now()
+  if(diff<=0) return 'Encerrado'
+  const dy=Math.floor(diff/86400000)
+  const h=Math.floor((diff%86400000)/3600000)
+  if(dy>0) return `${dy}d ${h}h`
+  const m=Math.floor((diff%3600000)/60000)
+  if(h>0) return `${h}h ${m}m`
+  return `${m}m`
+}
+
+function getTimeColor(d?:string):string {
+  if(!d) return '#555'
+  const diff=new Date(d).getTime()-Date.now()
+  if(diff<=0) return '#ef5350'
+  if(diff<86400000) return '#ff6b35'
+  return '#555'
 }
 
 function isUrgent(d:string):boolean {
