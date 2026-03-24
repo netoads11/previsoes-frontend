@@ -1007,7 +1007,7 @@ function RelatorioPage() {
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Relatório de Afiliados</h1>
-        <GhostBtn onClick={()={}}><FileDown size={13}/> Exportar CSV</GhostBtn>
+        <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
       <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
@@ -1044,7 +1044,7 @@ function HistoricoPage() {
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Histórico</h1>
-        <GhostBtn onClick={()={}}><FileDown size={13}/> Exportar CSV</GhostBtn>
+        <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
       <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
@@ -1296,7 +1296,7 @@ function BannersPage() {
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Banners</h1>
-        <PrimaryBtn onClick={()={}}><Upload size={14}/> Upload Banner</PrimaryBtn>
+        <PrimaryBtn onClick={()=>{}}><Upload size={14}/> Upload Banner</PrimaryBtn>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
         {banners.map(banner=>(
