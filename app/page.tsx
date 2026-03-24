@@ -53,6 +53,7 @@ export default function Previmarket() {
   }, [])
 
   const filtrados = markets.filter(m => {
+    if (categoria === 'Favoritos') return favorites.includes(m.id)
     const matchCat = categoria === 'Inicio' || m.category === categoria
     const matchBusca = m.question.toLowerCase().includes(busca.toLowerCase())
     return matchCat && matchBusca
@@ -201,7 +202,7 @@ function BottomNav({categoria,setCategoria,user,router,busca,setBusca}:any) {
     <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'var(--surface)',borderTop:'1px solid var(--border)',zIndex:100,padding:'6px 0',display:'flex'}}>
       {[
         {emoji:'🏠',label:'Inicio',action:()=>setCategoria('Inicio'),active:categoria==='Inicio'},
-        {emoji:'🔍',label:'Buscar',action:()=>{const el=document.querySelector('input');if(el)(el as HTMLInputElement).focus()},active:false},
+        {emoji:'🔍',label:'Buscar',action:()=>{const el=document.querySelector('input[type=text]') as HTMLInputElement;if(el){el.scrollIntoView();el.focus()}},active:false},
         {emoji:'⭐',label:'Favoritos',action:()=>setCategoria('Favoritos'),active:categoria==='Favoritos'},
         {emoji:'👤',label:'Perfil',action:()=>router.push(user?'/perfil':'/login'),active:false},
       ].map(item=>(
