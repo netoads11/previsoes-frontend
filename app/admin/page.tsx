@@ -901,7 +901,7 @@ function AfiliadosPage() {
                 <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{a.saldo}</td>
                 <td style={{padding:'11px 14px',color:'#888'}}>{a.indicados}</td>
                 <td style={{padding:'11px 14px'}}><SBadge status={a.status}/></td>
-                <td style={{padding:'11px 14px'}}><GhostBtn onClick={(e:any)=>{e.stopPropagation();setSelected(a);setEditOpen(true)}}>Editar</GhostBtn></td>
+                <td style={{padding:'11px 14px'}}><GhostBtn onClick={()=>{setSelected(a);setEditOpen(true)}}>Editar</GhostBtn></td>
               </tr>
             ))}
           </tbody>
