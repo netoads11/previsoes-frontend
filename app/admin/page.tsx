@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, Image, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Edit, Plus } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, GripVertical, Upload, HelpCircle, Pencil } from 'lucide-react'
 
 const API = 'http://187.77.248.115:3001'
 
@@ -33,7 +33,7 @@ const NAV_SECTIONS = [
   ]},
   { title: 'Customização', items: [
     { label: 'Estilo', icon: Palette, id: 'estilo' },
-    { label: 'Banners', icon: Image, id: 'banners' },
+    { label: 'Banners', icon: ImageIcon, id: 'banners' },
   ]},
 ]
 
@@ -483,41 +483,18 @@ export default function Admin() {
           )}
 
           {/* ═══ CONFIGURAÇÕES ═══ */}
-          {tab==='configs' && (
-            <div className="fade-in" style={{maxWidth:'520px'}}>
-              <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif",marginBottom:'20px'}}>Configurações</h1>
-              <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,padding:'24px'}}>
-                <h3 style={{fontSize:'14px',fontWeight:600,marginBottom:'18px',color:'#ccc'}}>Parâmetros Financeiros</h3>
-                <form onSubmit={saveSettings} style={{display:'flex',flexDirection:'column',gap:'4px'}}>
-                  {[
-                    {k:'taxa_vitoria',l:'Taxa de vitória (%)'},
-                    {k:'taxa_deposito',l:'Taxa de depósito (%)'},
-                    {k:'taxa_saque',l:'Taxa de saque (%)'},
-                    {k:'saque_minimo',l:'Saque mínimo (R$)'},
-                    {k:'saque_maximo',l:'Saque máximo (R$)'},
-                    {k:'saque_diario',l:'Limite saque diário (R$)'},
-                    {k:'rollover',l:'Rollover base (multiplicador)'},
-                  ].map(f=>(
-                    <div key={f.k} style={{display:'flex',alignItems:'center',gap:'12px',padding:'10px 0',borderBottom:`1px solid #1a1a1a`}}>
-                      <label style={{fontSize:'13px',color:'#888',flex:1}}>{f.l}</label>
-                      <FInput type="number" step="0.01" value={settings[f.k]||''} style={{width:'120px',color:V.green,fontWeight:600,textAlign:'right'}} onChange={(e:any)=>setSettings({...settings,[f.k]:e.target.value})}/>
-                    </div>
-                  ))}
-                  <PrimaryBtn type="submit" style={{marginTop:'16px'}}>SALVAR CONFIGURAÇÕES</PrimaryBtn>
-                </form>
-              </div>
-            </div>
-          )}
+          {tab==='configs' && <div className="fade-in"><ConfiguracoesFullPage settings={settings} setSettings={setSettings} api={api} showToast={showToast}/></div>}
 
-          {/* PÁGINAS PLACEHOLDER */}
-          {['metricas','admins','afiliados','saques-afiliados','relatorio','historico','eventos','estilo','banners'].includes(tab) && (
-            <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
-              <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>{currentLabel}</h1>
-              <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,padding:'48px',textAlign:'center'}}>
-                <p style={{color:V.muted,fontSize:'14px'}}>Em desenvolvimento...</p>
-              </div>
-            </div>
-          )}
+          {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
+          {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
+          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage/></div>}
+          {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage/></div>}
+          {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
+          {tab==='historico' && <div className="fade-in"><HistoricoPage/></div>}
+          {tab==='eventos' && <div className="fade-in"><EventosPage/></div>}
+          {tab==='configs' && tab==='configs' && false && null}
+          {tab==='estilo' && <div className="fade-in"><EstiloPage/></div>}
+          {tab==='banners' && <div className="fade-in"><BannersPage/></div>}
         </main>
       </div>
 
@@ -760,4 +737,583 @@ function GhostBtn({children,onClick,color='gray'}:{children:any,onClick:()=>void
   const m:any={green:{bg:'rgba(0,230,118,0.08)',c:'#00e676',b:'rgba(0,230,118,0.2)'},red:{bg:'rgba(244,67,54,0.08)',c:'#f44336',b:'rgba(244,67,54,0.2)'},gray:{bg:'rgba(255,255,255,0.04)',c:'#888',b:'#222'}}
   const s=m[color]||m.gray
   return <button onClick={onClick} style={{padding:'5px 12px',borderRadius:'6px',cursor:'pointer',fontSize:'12px',fontWeight:500,background:s.bg,color:s.c,border:`1px solid ${s.b}`,transition:'opacity 0.12s',whiteSpace:'nowrap'}} onMouseEnter={(e:any)=>e.currentTarget.style.opacity='0.75'} onMouseLeave={(e:any)=>e.currentTarget.style.opacity='1'}>{children}</button>
+}
+
+// ══════════════════════════════════════════════════════════
+// PÁGINAS COMPLETAS
+// ══════════════════════════════════════════════════════════
+
+function MetricasPage() {
+  const [activeTab, setActiveTab] = useState('Comissões')
+  const tabs = ['Comissões', 'Depósitos', 'Convites']
+  const mockData = [
+    { pos: 1, nome: 'Carlos Silva', valor: 'R$ 12.480' },
+    { pos: 2, nome: 'Ana Martins', valor: 'R$ 9.320' },
+    { pos: 3, nome: 'João Oliveira', valor: 'R$ 7.150' },
+    { pos: 4, nome: 'Maria Santos', valor: 'R$ 5.890' },
+    { pos: 5, nome: 'Pedro Costa', valor: 'R$ 4.200' },
+  ]
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Métricas - Top Afiliados</h1>
+        <GhostBtn onClick={()=>{}}><RefreshCw size={13}/> Atualizar Ranking</GhostBtn>
+      </div>
+      <div style={{display:'flex',gap:'8px'}}>
+        {tabs.map(t=>(
+          <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'#00e676':'#222'}`,background:t===activeTab?'rgba(0,230,118,0.1)':'transparent',color:t===activeTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s'}}>{t}</button>
+        ))}
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead>
+            <tr style={{background:'#141414'}}>
+              {['#','Nome',activeTab==='Convites'?'Convites':'Valor'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {mockData.map((item,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px'}}><span style={{fontWeight:700,color:'#00e676'}}>{item.pos}</span></td>
+                <td style={{padding:'11px 14px',color:'#ccc'}}>{item.nome}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{item.valor}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function AdminsPage() {
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [selected, setSelected] = useState<any>(null)
+  const [form, setForm] = useState({nome:'',email:'',senha:'',cargo:'suporte',ativo:true})
+  const [admins, setAdmins] = useState([
+    { id:1, nome:'Master Admin', email:'master@admin.com', cargo:'super_admin', ativo:true },
+    { id:2, nome:'João Admin', email:'joao@admin.com', cargo:'admin', ativo:true },
+    { id:3, nome:'Carlos Mod', email:'carlos@admin.com', cargo:'moderador', ativo:true },
+    { id:4, nome:'Ana Suporte', email:'ana@admin.com', cargo:'suporte', ativo:false },
+  ])
+  const cargoColors:any = {super_admin:{bg:'rgba(139,92,246,0.1)',c:'#a78bfa',b:'rgba(139,92,246,0.2)'},admin:{bg:'rgba(59,130,246,0.1)',c:'#3b82f6',b:'rgba(59,130,246,0.2)'},moderador:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',b:'rgba(255,179,0,0.2)'},suporte:{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'}}
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Admins</h1>
+        <PrimaryBtn onClick={()=>{setSelected(null);setForm({nome:'',email:'',senha:'',cargo:'suporte',ativo:true});setEditOpen(true)}}><Plus size={14}/> Criar Admin</PrimaryBtn>
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead><tr style={{background:'#141414'}}>
+            {['Nome','E-mail','Cargo','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+          </tr></thead>
+          <tbody>
+            {admins.map((a,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.nome}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
+                <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,...cargoColors[a.cargo]}}>{a.cargo.replace('_',' ')}</span></td>
+                <td style={{padding:'11px 14px'}}><SBadge status={a.ativo?'active':'inactive'}/></td>
+                <td style={{padding:'11px 14px'}}>
+                  <div style={{display:'flex',gap:'5px'}}>
+                    <GhostBtn onClick={()=>{setSelected(a);setForm({nome:a.nome,email:a.email,senha:'',cargo:a.cargo,ativo:a.ativo});setEditOpen(true)}}><Pencil size={12}/></GhostBtn>
+                    <GhostBtn color="red" onClick={()=>{setSelected(a);setDeleteOpen(true)}}><Trash2 size={12}/></GhostBtn>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {editOpen&&(
+        <Overlay onClose={()=>setEditOpen(false)}>
+          <Modal title={selected?'Editar Admin':'Criar Admin'} onClose={()=>setEditOpen(false)}>
+            <FField label="Nome *"><FInput value={form.nome} onChange={(e:any)=>setForm({...form,nome:e.target.value})}/></FField>
+            <FField label="E-mail *"><FInput value={form.email} onChange={(e:any)=>setForm({...form,email:e.target.value})}/></FField>
+            <FField label="Senha *"><FInput type="password" value={form.senha} onChange={(e:any)=>setForm({...form,senha:e.target.value})}/></FField>
+            <FField label="Cargo *">
+              <FSelect value={form.cargo} onChange={(e:any)=>setForm({...form,cargo:e.target.value})}>
+                <option value="super_admin">Super Admin</option>
+                <option value="admin">Admin</option>
+                <option value="moderador">Moderador</option>
+                <option value="suporte">Suporte</option>
+              </FSelect>
+            </FField>
+            <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+              <div onClick={()=>setForm({...form,ativo:!form.ativo})} style={{width:'36px',height:'20px',borderRadius:'10px',background:form.ativo?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s'}}>
+                <div style={{position:'absolute',top:'2px',left:form.ativo?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
+              </div>
+              <span style={{fontSize:'13px',color:'#888'}}>Ativo</span>
+            </div>
+            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+              <PrimaryBtn onClick={()=>setEditOpen(false)}>SALVAR</PrimaryBtn>
+              <GhostBtn onClick={()=>setEditOpen(false)}>Cancelar</GhostBtn>
+            </div>
+          </Modal>
+        </Overlay>
+      )}
+      {deleteOpen&&(
+        <Overlay onClose={()=>setDeleteOpen(false)}>
+          <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
+            <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(244,67,54,0.1)',border:'1px solid rgba(244,67,54,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#f44336"/></div>
+            <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>Excluir admin <strong>{selected?.nome}</strong>?</p>
+            <p style={{fontSize:'11px',color:'#888',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
+            <div style={{display:'flex',gap:'8px'}}>
+              <button onClick={()=>setDeleteOpen(false)} style={{flex:1,background:'rgba(244,67,54,0.08)',color:'#f44336',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>Excluir</button>
+              <GhostBtn onClick={()=>setDeleteOpen(false)}>Cancelar</GhostBtn>
+            </div>
+          </div>
+        </Overlay>
+      )}
+    </div>
+  )
+}
+
+function AfiliadosPage() {
+  const [editOpen, setEditOpen] = useState(false)
+  const [selected, setSelected] = useState<any>(null)
+  const mockAfiliados = [
+    { id:1, nome:'Carlos Silva', email:'carlos@email.com', saldo:'R$ 4.200', indicados:84, status:'active' },
+    { id:2, nome:'Ana Martins', email:'ana@email.com', saldo:'R$ 2.100', indicados:42, status:'active' },
+    { id:3, nome:'Pedro Costa', email:'pedro@email.com', saldo:'R$ 890', indicados:18, status:'blocked' },
+  ]
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Afiliados</h1>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
+        <MCard title="Saldo Total" value="R$ 7.190" sub="Todos afiliados" icon={Wallet} color="green"/>
+        <MCard title="Saques" value="R$ 304.000" sub="Total sacado" icon={TrendingUp} color="blue"/>
+        <MCard title="Total Convidados" value="144" sub="Todos os indicados" icon={Users} color="blue"/>
+        <MCard title="Convidados Ativos" value="98" sub="Com depósito" icon={UserCheck} color="green"/>
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead><tr style={{background:'#141414'}}>
+            {['Nome','E-mail','Saldo Comissão','Indicados','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+          </tr></thead>
+          <tbody>
+            {mockAfiliados.map((a,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e',cursor:'pointer'}} onClick={()=>{setSelected(a);setEditOpen(true)}}>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.nome}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{a.saldo}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{a.indicados}</td>
+                <td style={{padding:'11px 14px'}}><SBadge status={a.status}/></td>
+                <td style={{padding:'11px 14px'}}><GhostBtn onClick={(e:any)=>{e.stopPropagation();setSelected(a);setEditOpen(true)}}>Editar</GhostBtn></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {editOpen&&selected&&(
+        <Overlay onClose={()=>setEditOpen(false)}>
+          <Modal title="Editar Afiliado" onClose={()=>setEditOpen(false)}>
+            <FField label="Saldo de Comissão"><FInput defaultValue={selected.saldo}/></FField>
+            <FField label="Total de Indicados"><FInput type="number" defaultValue={selected.indicados}/></FField>
+            <FField label="Código de Indicação"><FInput defaultValue={`AFF${selected.id}`}/></FField>
+            <FField label="Comissão Individual (%)"><FInput type="number" placeholder="Sobrescreve global"/></FField>
+            <FField label="Status">
+              <FSelect defaultValue={selected.status}>
+                <option value="active">Ativo</option>
+                <option value="blocked">Bloqueado</option>
+              </FSelect>
+            </FField>
+            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+              <PrimaryBtn onClick={()=>setEditOpen(false)}>SALVAR</PrimaryBtn>
+              <GhostBtn onClick={()=>setEditOpen(false)}>Cancelar</GhostBtn>
+            </div>
+          </Modal>
+        </Overlay>
+      )}
+    </div>
+  )
+}
+
+function SaquesAfiliadosPage() {
+  const [activeTab, setActiveTab] = useState('todos')
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmMsg, setConfirmMsg] = useState('')
+  const mockData = [
+    { id:1, afiliado:'Carlos Silva', valor:'R$ 1.500', pix:'***456', data:'24/03/2026', status:'pending' },
+    { id:2, afiliado:'Ana Martins', valor:'R$ 800', pix:'***789', data:'23/03/2026', status:'paid' },
+    { id:3, afiliado:'Pedro Costa', valor:'R$ 450', pix:'***321', data:'22/03/2026', status:'paid' },
+  ]
+  const filtered = activeTab==='todos'?mockData:mockData.filter(d=>d.status===activeTab)
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Saques Afiliados</h1>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+        <MCard title="Pendentes" value="R$ 3.200" sub="4 saques" icon={ArrowUpFromLine} color="yellow"/>
+        <MCard title="Pagos Hoje" value="R$ 1.800" sub="3 saques" icon={ArrowUpFromLine} color="green"/>
+        <MCard title="Total Pago" value="R$ 304.000" sub="Acumulado" icon={ArrowUpFromLine} color="blue"/>
+      </div>
+      <div style={{display:'flex',gap:'8px'}}>
+        {['pending','paid','todos'].map(t=>(
+          <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'#00e676':'#222'}`,background:t===activeTab?'rgba(0,230,118,0.1)':'transparent',color:t===activeTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s',textTransform:'capitalize'}}>{t==='todos'?'Todos':t==='pending'?'Pendentes':'Pagos'}</button>
+        ))}
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead><tr style={{background:'#141414'}}>
+            {['Afiliado','Valor','PIX','Data','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+          </tr></thead>
+          <tbody>
+            {filtered.map((item,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{item.afiliado}</td>
+                <td style={{padding:'11px 14px',color:'#f44336',fontWeight:600}}>{item.valor}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.pix}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.data}</td>
+                <td style={{padding:'11px 14px'}}><SBadge status={item.status}/></td>
+                <td style={{padding:'11px 14px'}}>
+                  {item.status==='pending'&&(
+                    <div style={{display:'flex',gap:'5px'}}>
+                      <GhostBtn color="green" onClick={()=>{setConfirmMsg('Aprovar este saque?');setConfirmOpen(true)}}>Aprovar</GhostBtn>
+                      <GhostBtn color="red" onClick={()=>{setConfirmMsg('Recusar este saque?');setConfirmOpen(true)}}>Recusar</GhostBtn>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {confirmOpen&&(
+        <Overlay onClose={()=>setConfirmOpen(false)}>
+          <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
+            <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(255,179,0,0.1)',border:'1px solid rgba(255,179,0,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#ffb300"/></div>
+            <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>{confirmMsg}</p>
+            <p style={{fontSize:'11px',color:'#888',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
+            <div style={{display:'flex',gap:'8px'}}>
+              <PrimaryBtn onClick={()=>setConfirmOpen(false)}>Confirmar</PrimaryBtn>
+              <GhostBtn onClick={()=>setConfirmOpen(false)}>Cancelar</GhostBtn>
+            </div>
+          </div>
+        </Overlay>
+      )}
+    </div>
+  )
+}
+
+function RelatorioPage() {
+  const mockData = [
+    { afiliado:'Carlos Silva', indicados:84, depositaram:52, comissao:'R$ 12.480', conversao:'61.9%' },
+    { afiliado:'Ana Martins', indicados:42, depositaram:28, comissao:'R$ 9.320', conversao:'66.7%' },
+    { afiliado:'Pedro Costa', indicados:18, depositaram:8, comissao:'R$ 3.100', conversao:'44.4%' },
+  ]
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Relatório de Afiliados</h1>
+        <GhostBtn onClick={()={}}><FileDown size={13}/> Exportar CSV</GhostBtn>
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead><tr style={{background:'#141414'}}>
+            {['Afiliado','Indicados','Depositaram','Comissão','Conversão'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+          </tr></thead>
+          <tbody>
+            {mockData.map((item,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{item.afiliado}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{item.indicados}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{item.depositaram}</td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{item.comissao}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{item.conversao}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function HistoricoPage() {
+  const mockData = [
+    { tipo:'Depósito', usuario:'Ricardo Alves', descricao:'Depósito PIX R$ 200', admin:'Sistema', data:'24/03/2026 14:32', acao:'creation' },
+    { tipo:'Saque', usuario:'Fernanda Lima', descricao:'Saque aprovado R$ 1.200', admin:'Admin Master', data:'24/03/2026 13:18', acao:'edition' },
+    { tipo:'Mercado', usuario:'-', descricao:'Mercado #48 encerrado', admin:'Admin Master', data:'24/03/2026 12:00', acao:'edition' },
+    { tipo:'Usuário', usuario:'Lucas Costa', descricao:'Status: ativo → bloqueado', admin:'Admin Master', data:'24/03/2026 11:45', acao:'edition' },
+    { tipo:'Admin', usuario:'Ana Suporte', descricao:'Admin removido', admin:'Admin Master', data:'24/03/2026 10:20', acao:'deletion' },
+  ]
+  const acaoBadge:any = { creation:{bg:'rgba(0,230,118,0.1)',c:'#00e676'}, edition:{bg:'rgba(255,179,0,0.1)',c:'#ffb300'}, deletion:{bg:'rgba(244,67,54,0.1)',c:'#f44336'} }
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Histórico</h1>
+        <GhostBtn onClick={()={}}><FileDown size={13}/> Exportar CSV</GhostBtn>
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead><tr style={{background:'#141414'}}>
+            {['Tipo','Usuário','Descrição','Ação','Admin','Data'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+          </tr></thead>
+          <tbody>
+            {mockData.map((item,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#ccc'}}>{item.tipo}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.usuario}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px',maxWidth:'200px'}}>{item.descricao}</td>
+                <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,...acaoBadge[item.acao]}}>{item.acao}</span></td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.admin}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.data}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function EventosPage() {
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState({titulo:'',categoria:'',subcategoria:'',descricao:'',status:'active'})
+  const mockEventos = [
+    { id:1, categoria:'Futebol', subcategoria:'Copa do Mundo', titulo:'Brasil vs Argentina', volume:'R$ 284.000', mercados:5, status:'active' },
+    { id:2, categoria:'Política', subcategoria:'Eleições', titulo:'Eleições 2026', volume:'R$ 120.000', mercados:3, status:'active' },
+    { id:3, categoria:'Entretenimento', subcategoria:'TV', titulo:'BBB 26', volume:'R$ 45.000', mercados:8, status:'inactive' },
+  ]
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Eventos</h1>
+        <PrimaryBtn onClick={()=>setCreateOpen(true)}><Plus size={14}/> Criar Evento</PrimaryBtn>
+      </div>
+      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+          <thead><tr style={{background:'#141414'}}>
+            {['Categoria','Subcategoria','Título','Volume Total','Mercados','Status'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+          </tr></thead>
+          <tbody>
+            {mockEventos.map((e,i)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.categoria}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.subcategoria}</td>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{e.titulo}</td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{e.volume}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{e.mercados}</td>
+                <td style={{padding:'11px 14px'}}><SBadge status={e.status}/></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {createOpen&&(
+        <Overlay onClose={()=>setCreateOpen(false)}>
+          <Modal title="Criar Evento" onClose={()=>setCreateOpen(false)}>
+            <FField label="Título *"><FInput value={form.titulo} onChange={(e:any)=>setForm({...form,titulo:e.target.value})}/></FField>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+              <FField label="Categoria *"><FInput value={form.categoria} onChange={(e:any)=>setForm({...form,categoria:e.target.value})}/></FField>
+              <FField label="Subcategoria"><FInput value={form.subcategoria} onChange={(e:any)=>setForm({...form,subcategoria:e.target.value})}/></FField>
+            </div>
+            <FField label="Descrição"><textarea value={form.descricao} onChange={(e:any)=>setForm({...form,descricao:e.target.value})} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',resize:'vertical',minHeight:'80px'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/></FField>
+            <FField label="Status"><FSelect value={form.status} onChange={(e:any)=>setForm({...form,status:e.target.value})}><option value="active">Ativo</option><option value="inactive">Inativo</option></FSelect></FField>
+            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+              <PrimaryBtn onClick={()=>setCreateOpen(false)}>CRIAR</PrimaryBtn>
+              <GhostBtn onClick={()=>setCreateOpen(false)}>Cancelar</GhostBtn>
+            </div>
+          </Modal>
+        </Overlay>
+      )}
+    </div>
+  )
+}
+
+function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:any,setSettings:any,api:any,showToast:any}) {
+  const [activeTab, setActiveTab] = useState('seo')
+  const [finTab, setFinTab] = useState('usuario')
+  const [keywords, setKeywords] = useState<string[]>(['apostas','mercados','pix'])
+  const [kwInput, setKwInput] = useState('')
+  const [cpaType, setCpaType] = useState('fixed')
+  const tabs = [{id:'seo',l:'SEO'},{id:'cpa',l:'Afiliados CPA'},{id:'financeiro',l:'Financeiro'},{id:'scripts',l:'Scripts'},{id:'social',l:'Social'}]
+  const finTabs = [{id:'usuario',l:'Usuário'},{id:'taxas',l:'Taxas'},{id:'afiliado',l:'Afiliado'}]
+  const addKw = () => { if(kwInput.trim()&&!keywords.includes(kwInput.trim())){setKeywords([...keywords,kwInput.trim()]);setKwInput('')} }
+  const InputStyle = {width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}
+  const LabelStyle = {fontSize:'11px',color:'#555',display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Configurações</h1>
+      <div style={{display:'flex',gap:'6px',borderBottom:'1px solid #222',paddingBottom:'0'}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{padding:'8px 16px',border:'none',background:'transparent',cursor:'pointer',color:t.id===activeTab?'#00e676':'#888',fontSize:'13px',fontWeight:t.id===activeTab?600:400,borderBottom:t.id===activeTab?'2px solid #00e676':'2px solid transparent',transition:'all 0.15s',marginBottom:'-1px'}}>{t.l}</button>
+        ))}
+      </div>
+
+      {activeTab==='seo'&&(
+        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div><label style={LabelStyle}>Título do site *</label><input defaultValue="Minha Plataforma" style={InputStyle}/></div>
+          <div><label style={LabelStyle}>Descrição *</label><textarea defaultValue="A melhor plataforma de apostas" style={{...InputStyle,resize:'vertical',minHeight:'80px'} as any}/></div>
+          <div>
+            <label style={LabelStyle}>Palavras-chave</label>
+            <div style={{display:'flex',gap:'8px',marginBottom:'8px'}}>
+              <input value={kwInput} onChange={(e:any)=>setKwInput(e.target.value)} onKeyDown={(e:any)=>{if(e.key==='Enter'){e.preventDefault();addKw()}}} placeholder="Digite e pressione Enter" style={InputStyle}/>
+              <button onClick={addKw} style={{padding:'9px 14px',borderRadius:'8px',border:'1px solid #222',background:'#141414',color:'#888',cursor:'pointer'}}><Plus size={14}/></button>
+            </div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:'6px'}}>
+              {keywords.map(kw=>(
+                <span key={kw} style={{display:'flex',alignItems:'center',gap:'5px',background:'#222',borderRadius:'99px',padding:'4px 10px',fontSize:'12px',color:'#888'}}>
+                  {kw}<button onClick={()=>setKeywords(keywords.filter(k=>k!==kw))} style={{background:'none',border:'none',cursor:'pointer',color:'#555',display:'flex'}}><X size={11}/></button>
+                </span>
+              ))}
+            </div>
+          </div>
+          <PrimaryBtn onClick={()=>showToast('SEO salvo!')}>Salvar</PrimaryBtn>
+        </div>
+      )}
+
+      {activeTab==='cpa'&&(
+        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <label style={LabelStyle}>Tipo:</label>
+            <button onClick={()=>setCpaType('fixed')} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${cpaType==='fixed'?'#00e676':'#222'}`,background:cpaType==='fixed'?'rgba(0,230,118,0.1)':'transparent',color:cpaType==='fixed'?'#00e676':'#888',fontSize:'12px',cursor:'pointer'}}>Fixo (R$)</button>
+            <button onClick={()=>setCpaType('percent')} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${cpaType==='percent'?'#00e676':'#222'}`,background:cpaType==='percent'?'rgba(0,230,118,0.1)':'transparent',color:cpaType==='percent'?'#00e676':'#888',fontSize:'12px',cursor:'pointer'}}>Percentual (%)</button>
+          </div>
+          <div><label style={LabelStyle}>Valor da comissão *</label><input type="number" defaultValue="25" style={InputStyle}/></div>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
+              <label style={{...LabelStyle,marginBottom:0}}>Chance de Comissionar (%)</label>
+              <div title="70% = de 100 indicados, 70 contabilizam comissão" style={{cursor:'help'}}><HelpCircle size={13} color="#555"/></div>
+            </div>
+            <input type="number" defaultValue="70" style={InputStyle}/>
+          </div>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
+              <label style={{...LabelStyle,marginBottom:0}}>Mínimo baseline (R$)</label>
+              <div title="Valor mínimo que indicado precisa depositar" style={{cursor:'help'}}><HelpCircle size={13} color="#555"/></div>
+            </div>
+            <input type="number" defaultValue="30" style={InputStyle}/>
+          </div>
+          <div><label style={LabelStyle}>Sub-afiliação (%)</label><input type="number" defaultValue="5" style={InputStyle}/></div>
+          <PrimaryBtn onClick={()=>showToast('CPA salvo!')}>Salvar</PrimaryBtn>
+        </div>
+      )}
+
+      {activeTab==='financeiro'&&(
+        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div style={{display:'flex',gap:'6px'}}>
+            {finTabs.map(t=>(
+              <button key={t.id} onClick={()=>setFinTab(t.id)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t.id===finTab?'#00e676':'#222'}`,background:t.id===finTab?'rgba(0,230,118,0.1)':'transparent',color:t.id===finTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t.id===finTab?600:400,transition:'all 0.15s'}}>{t.l}</button>
+            ))}
+          </div>
+          {finTab==='usuario'&&(
+            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" value={settings.saque_minimo||''} onChange={(e:any)=>setSettings({...settings,saque_minimo:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" value={settings.saque_maximo||''} onChange={(e:any)=>setSettings({...settings,saque_maximo:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Rollover Base *</label><input type="number" value={settings.rollover||''} onChange={(e:any)=>setSettings({...settings,rollover:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" value={settings.saque_diario||''} onChange={(e:any)=>setSettings({...settings,saque_diario:e.target.value})} style={InputStyle}/></div>
+              </div>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',settings).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
+            </div>
+          )}
+          {finTab==='taxas'&&(
+            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
+                <div><label style={LabelStyle}>Taxa Saque (%)</label><input type="number" value={settings.taxa_saque||''} onChange={(e:any)=>setSettings({...settings,taxa_saque:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Taxa Depósito (%)</label><input type="number" value={settings.taxa_deposito||''} onChange={(e:any)=>setSettings({...settings,taxa_deposito:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Taxa Vitória (%)</label><input type="number" value={settings.taxa_vitoria||''} onChange={(e:any)=>setSettings({...settings,taxa_vitoria:e.target.value})} style={InputStyle}/></div>
+              </div>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',settings).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
+            </div>
+          )}
+          {finTab==='afiliado'&&(
+            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
+                <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" defaultValue="50" style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" defaultValue="10000" style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" defaultValue="20000" style={InputStyle}/></div>
+              </div>
+              <PrimaryBtn onClick={()=>showToast('Salvo!')}>Salvar</PrimaryBtn>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab==='scripts'&&(
+        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div><label style={LabelStyle}>Scripts externos</label><textarea rows={10} placeholder="Cole seus scripts aqui..." style={{...InputStyle,resize:'vertical',fontFamily:"monospace",fontSize:'12px'} as any}/></div>
+          <PrimaryBtn onClick={()=>showToast('Scripts salvos!')}>Salvar</PrimaryBtn>
+        </div>
+      )}
+
+      {activeTab==='social'&&(
+        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          {['Instagram','Telegram','WhatsApp','Twitter/X','YouTube','TikTok'].map(s=>(
+            <div key={s}><label style={LabelStyle}>{s}</label><input placeholder={`URL do ${s}`} style={InputStyle}/></div>
+          ))}
+          <PrimaryBtn onClick={()=>showToast('Social salvo!')}>Salvar</PrimaryBtn>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EstiloPage() {
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Customização - Estilo</h1>
+      <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'20px',maxWidth:'500px'}}>
+        <div>
+          <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Cor Primária</label>
+          <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+            <input type="color" defaultValue="#00e676" style={{width:'48px',height:'40px',cursor:'pointer',borderRadius:'6px',border:'1px solid #222',background:'transparent',padding:'2px'}}/>
+            <input defaultValue="#00e676" style={{width:'120px',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}}/>
+          </div>
+        </div>
+        <div>
+          <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Logo</label>
+          <div style={{height:'100px',border:'2px dashed #222',borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'border-color 0.15s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='rgba(0,230,118,0.3)'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#222'}>
+            <div style={{textAlign:'center'}}>
+              <Upload size={24} color="#555" style={{margin:'0 auto 6px'}}/>
+              <p style={{fontSize:'12px',color:'#555'}}>Clique para enviar</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Favicon</label>
+          <div style={{width:'80px',height:'80px',border:'2px dashed #222',borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='rgba(0,230,118,0.3)'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#222'}>
+            <Upload size={18} color="#555"/>
+          </div>
+        </div>
+        <PrimaryBtn onClick={()=>{}}>Salvar</PrimaryBtn>
+      </div>
+    </div>
+  )
+}
+
+function BannersPage() {
+  const [banners, setBanners] = useState([
+    { id:1, name:'Banner Principal', active:true },
+    { id:2, name:'Promoção Boas-Vindas', active:true },
+    { id:3, name:'Banner Evento', active:false },
+  ])
+  const toggle = (id:number) => setBanners(banners.map(b=>b.id===id?{...b,active:!b.active}:b))
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Banners</h1>
+        <PrimaryBtn onClick={()={}}><Upload size={14}/> Upload Banner</PrimaryBtn>
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+        {banners.map(banner=>(
+          <div key={banner.id} style={{display:'flex',alignItems:'center',gap:'14px',background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'14px'}}>
+            <GripVertical size={16} color="#555" style={{cursor:'grab',flexShrink:0}}/>
+            <div style={{width:'100px',height:'56px',background:'#222',borderRadius:'6px',flexShrink:0}}/>
+            <div style={{flex:1}}>
+              <p style={{fontSize:'13px',fontWeight:500,color:'#ccc',marginBottom:'3px'}}>{banner.name}</p>
+              <p style={{fontSize:'11px',color:'#555'}}>1920x480px</p>
+            </div>
+            <div onClick={()=>toggle(banner.id)} style={{width:'36px',height:'20px',borderRadius:'10px',background:banner.active?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
+              <div style={{position:'absolute',top:'2px',left:banner.active?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
+            </div>
+            <button style={{width:'32px',height:'32px',borderRadius:'6px',border:'none',background:'transparent',cursor:'pointer',color:'#f44336',display:'flex',alignItems:'center',justifyContent:'center'}}><Trash2 size={14}/></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
