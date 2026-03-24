@@ -119,7 +119,7 @@ export default function Home() {
         <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:'8px'}}>
           {user ? (
             <>
-              <div className="hide-mob" style={{textAlign:'right'}}>
+              <div style={{textAlign:'right'}}>
                 <div style={{fontSize:'9px',color:'rgba(255,255,255,0.3)',lineHeight:1,textTransform:'uppercase',letterSpacing:'0.08em'}}>Saldo</div>
                 <div style={{fontSize:'13px',fontWeight:800,color:'#00ff88'}}>R$ 0,00</div>
               </div>
