@@ -109,7 +109,7 @@ export default function Admin() {
   const fMarkets=markets.filter((m:any)=>(!fStatus||m.status===fStatus)&&(!fQ||m.question?.toLowerCase().includes(fQ.toLowerCase())))
 
   return(
-    <div style={{display:'flex',minHeight:'100vh',background:'#050505',color:'#fff',fontFamily:"'Inter','Manrope',system-ui,sans-serif"}}>
+    <div style={{display:'flex',minHeight:'100vh',background:'#0e0e0e',color:'#fff',fontFamily:"'Manrope','Inter',system-ui,sans-serif"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
@@ -118,16 +118,16 @@ export default function Admin() {
         ::-webkit-scrollbar-thumb{background:#1a1a1a;border-radius:2px}
         ::-webkit-scrollbar-track{background:transparent}
         .mono{font-family:'JetBrains Mono','Courier New',monospace}
-        .label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.2em;color:#444}
-        .trow:hover td{background:#0d0d0d!important}
+        .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:#555;font-family:'Inter',sans-serif}
+        .trow:hover td{background:#262626!important;transition:background 0.1s}
         .nav-btn:hover{background:rgba(0,230,118,0.04)!important;color:#888!important}
-        .card:hover{border-color:#1e1e1e!important}
+        .metric-card{transition:transform 0.2s,box-shadow 0.2s}.metric-card:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(0,230,118,0.06)!important}
         @keyframes toastIn{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
-        @keyframes skel{0%,100%{opacity:.2}50%{opacity:.5}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
         @keyframes ping{0%{transform:scale(1);opacity:1}75%,100%{transform:scale(2);opacity:0}}
         @keyframes glow{0%,100%{text-shadow:0 0 8px rgba(0,230,118,0.4)}50%{text-shadow:0 0 16px rgba(0,230,118,0.7)}}
         @keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
-        .skel{animation:skel 1.8s ease infinite;background:#0a0a0a;border-radius:4px}
+        .skel{background:linear-gradient(90deg,#1a1919 25%,#262626 50%,#1a1919 75%);background-size:200% 100%;animation:shimmer 1.8s ease infinite;border-radius:8px}
         .glow-green{animation:glow 3s ease infinite}
         .ping{animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite}
       `}</style>
@@ -136,8 +136,8 @@ export default function Admin() {
       <div style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:0,backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)'}}/>
 
       {/* ── SIDEBAR ── */}
-      <aside style={{width:'200px',flexShrink:0,background:'#080808',borderRight:'1px solid #0f0f0f',display:'flex',flexDirection:'column',position:'sticky',top:0,height:'100vh',zIndex:30}}>
-        <div style={{padding:'16px 14px 12px',borderBottom:'1px solid #0f0f0f'}}>
+      <aside style={{width:'200px',flexShrink:0,background:'#111',boxShadow:'inset -1px 0 0 rgba(255,255,255,0.04)',display:'flex',flexDirection:'column',position:'sticky',top:0,height:'100vh',zIndex:30}}>
+        <div style={{padding:'16px 14px 12px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'6px'}}>
             <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#00e676',position:'relative',flexShrink:0,boxShadow:'0 0 8px #00e676'}}>
               <div className="ping" style={{position:'absolute',inset:'-2px',borderRadius:'50%',background:'#00e676',opacity:0.4}}/>
@@ -162,8 +162,8 @@ export default function Admin() {
           ))}
         </nav>
 
-        <div style={{padding:'10px',borderTop:'1px solid #0f0f0f',display:'flex',gap:'5px'}}>
-          <a href="/" target="_blank" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:'4px',padding:'6px',borderRadius:'6px',background:'transparent',border:'1px solid #111',color:'#333',fontSize:'10px',textDecoration:'none',letterSpacing:'0.08em',fontWeight:600,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
+        <div style={{padding:'10px',display:'flex',gap:'5px'}}>
+          <a href="/" target="_blank" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:'4px',padding:'6px',borderRadius:'6px',background:'transparent',color:'#333',fontSize:'10px',textDecoration:'none',letterSpacing:'0.08em',fontWeight:600,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
             {I.ext} SITE
           </a>
           <button onClick={()=>{localStorage.clear();router.push('/')}} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:'4px',padding:'6px',borderRadius:'6px',background:'rgba(255,23,68,0.06)',border:'1px solid rgba(255,23,68,0.12)',color:'#ff1744',fontSize:'10px',cursor:'pointer',letterSpacing:'0.08em',fontWeight:600,transition:'all 0.1s'}}>
@@ -176,7 +176,7 @@ export default function Admin() {
       <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0,position:'relative',zIndex:1}}>
 
         {/* HEADER */}
-        <header style={{background:'rgba(5,5,5,0.95)',backdropFilter:'blur(20px)',borderBottom:'1px solid #0f0f0f',height:'44px',display:'flex',alignItems:'center',padding:'0 16px',gap:'10px',position:'sticky',top:0,zIndex:20,flexShrink:0}}>
+        <header style={{background:'rgba(14,14,14,0.95)',backdropFilter:'blur(20px)',boxShadow:'0 1px 0 rgba(255,255,255,0.04)',height:'44px',display:'flex',alignItems:'center',padding:'0 16px',gap:'10px',position:'sticky',top:0,zIndex:20,flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:'16px',flex:1}}>
             <span className="label" style={{color:'#222',letterSpacing:'0.08em',fontSize:'9px'}}>{NAV.flatMap(s=>s.items).find(i=>i.id===tab)?.label||'SYSTEM'}</span>
             <span style={{color:'#111',fontSize:'9px',fontFamily:"'JetBrains Mono',monospace"}}>──</span>
@@ -184,15 +184,15 @@ export default function Admin() {
             <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',letterSpacing:'0.06em'}}>LATENCY: 12ms</span>
             <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',letterSpacing:'0.06em'}}>LOAD: 0.42</span>
           </div>
-          <button onClick={()=>setSearchOpen(true)} style={{display:'flex',alignItems:'center',gap:'6px',background:'#0a0a0a',border:'1px solid #111',borderRadius:'6px',padding:'5px 10px',color:'#333',cursor:'pointer',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
+          <button onClick={()=>setSearchOpen(true)} style={{display:'flex',alignItems:'center',gap:'6px',background:'#1a1919',borderRadius:'6px',padding:'5px 10px',color:'#333',cursor:'pointer',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
             {I.search}
             <span style={{fontSize:'10px',color:'#222',letterSpacing:'0.08em',fontWeight:600}}>SEARCH</span>
             <kbd style={{background:'#0f0f0f',border:'1px solid #1a1a1a',borderRadius:'3px',padding:'1px 5px',fontSize:'9px',color:'#222',fontFamily:"'JetBrains Mono',monospace"}}>^K</kbd>
           </button>
-          <button onClick={()=>load(token)} style={{width:'28px',height:'28px',borderRadius:'6px',border:'1px solid #111',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#222',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
+          <button onClick={()=>load(token)} style={{width:'28px',height:'28px',borderRadius:'6px',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#222',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           </button>
-          <div style={{width:'28px',height:'28px',borderRadius:'50%',background:'#0a0a0a',border:'1px solid #111',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <div style={{width:'28px',height:'28px',borderRadius:'50%',background:'#1a1919',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <span style={{color:'#00e676',fontWeight:800,fontSize:'11px',fontFamily:"'JetBrains Mono',monospace"}}>{adminName[0]}</span>
           </div>
         </header>
@@ -216,7 +216,7 @@ export default function Admin() {
                       {id:'WITHDRAWAL_FLOW',value:`R$ ${fmt(totalWith)}`,sub:`${withdrawals.filter((w:any)=>w.status==='paid'||w.status==='completed').length}_PROCESSED`,color:'#ff1744',border:'rgba(255,23,68,0.15)'},
                       {id:'USER_COUNT',value:users.length,sub:`${users.filter((u:any)=>u.status!=='blocked').length}_ACTIVE_NODES`,color:'#818cf8',border:'rgba(129,140,248,0.15)'},
                     ].map(c=>(
-                      <div key={c.id} className="card" style={{background:'#0a0a0a',border:`1px solid ${c.border}`,borderRadius:'8px',padding:'14px',transition:'border-color 0.15s',position:'relative',overflow:'hidden'}}>
+                      <div key={c.id} className="metric-card" style={{background:'#1a1919',border:`1px solid ${c.border}`,borderRadius:'8px',padding:'14px',transition:'border-color 0.15s',position:'relative',overflow:'hidden'}}>
                         <div style={{position:'absolute',top:0,left:0,right:0,height:'1px',background:`linear-gradient(90deg,${c.color},transparent)`}}/>
                         <p className="label" style={{marginBottom:'10px',color:'#333'}}>{c.id}</p>
                         <p className="mono glow-green" style={{fontSize:'26px',fontWeight:700,color:c.color,letterSpacing:'-0.5px',lineHeight:1,marginBottom:'6px',textShadow:`0 0 12px ${c.color}40`}}>{c.value}</p>
@@ -236,17 +236,17 @@ export default function Admin() {
                       {id:'PENDING_DEPOSITS',value:deposits.filter((d:any)=>d.status==='pending').length,color:'#ffb300'},
                       {id:'AUDIT_RECORDS',value:audit.length,color:'#333'},
                     ].map(c=>(
-                      <div key={c.id} className="card" style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'8px',padding:'12px',transition:'border-color 0.15s'}}>
+                      <div key={c.id} className="metric-card" style={{background:'#1a1919',borderRadius:'8px',padding:'12px',transition:'border-color 0.15s'}}>
                         <p className="label" style={{marginBottom:'8px',color:'#222'}}>{c.id}</p>
-                        <p className="mono" style={{fontSize:'30px',fontWeight:700,color:c.color,letterSpacing:'-1px',lineHeight:1,textShadow:c.color!=='#333'?`0 0 10px ${c.color}30`:undefined}}>{c.value}</p>
+                        <p className="mono" style={{fontSize:'36px',fontWeight:800,color:c.color,letterSpacing:'-1.5px',lineHeight:1,fontFamily:"'Manrope',sans-serif",textShadow:c.color!=='#333'?`0 0 10px ${c.color}30`:undefined}}>{c.value}</p>
                       </div>
                     ))}
                   </div>
 
                   {/* TABELAS RECENTES */}
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
-                    <div style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'8px',padding:'14px'}}>
-                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px',paddingBottom:'8px',borderBottom:'1px solid #0f0f0f'}}>
+                    <div style={{background:'#1a1919',borderRadius:'8px',padding:'14px'}}>
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px',paddingBottom:'8px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
                         <p className="label" style={{color:'#222'}}>MARKET_LOG</p>
                         <button onClick={()=>setTab('markets')} style={{fontSize:'9px',color:'#00e676',background:'none',border:'none',cursor:'pointer',fontWeight:700,letterSpacing:'0.1em'}}>VIEW_ALL →</button>
                       </div>
@@ -257,8 +257,8 @@ export default function Admin() {
                         </div>
                       ))}
                     </div>
-                    <div style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'8px',padding:'14px'}}>
-                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px',paddingBottom:'8px',borderBottom:'1px solid #0f0f0f'}}>
+                    <div style={{background:'#1a1919',borderRadius:'8px',padding:'14px'}}>
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px',paddingBottom:'8px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
                         <p className="label" style={{color:'#222'}}>TX_STREAM</p>
                         <button onClick={()=>setTab('deposits')} style={{fontSize:'9px',color:'#00e676',background:'none',border:'none',cursor:'pointer',fontWeight:700,letterSpacing:'0.1em'}}>VIEW_ALL →</button>
                       </div>
@@ -314,7 +314,7 @@ export default function Admin() {
                     <Fd l="ODDS_SIM (%)"><In type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:'#00e676',fontFamily:"'JetBrains Mono',monospace",fontWeight:700}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/></Fd>
                     <Fd l="ODDS_NAO (%)"><In type="number" min="1" max="99" value={newMarket.no_odds} style={{color:'#ff1744',fontFamily:"'JetBrains Mono',monospace",fontWeight:700}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/></Fd>
                   </div>
-                  <div style={{background:'#050505',border:'1px solid #0f0f0f',borderRadius:'6px',padding:'12px',display:'flex',justifyContent:'space-around'}}>
+                  <div style={{background:'#0e0e0e',borderRadius:'6px',padding:'12px',display:'flex',justifyContent:'space-around'}}>
                     <div style={{textAlign:'center'}}>
                       <p className="label" style={{marginBottom:'5px',color:'#222'}}>MULT_SIM</p>
                       <p className="mono" style={{fontSize:'24px',fontWeight:700,color:'#00e676',textShadow:'0 0 12px rgba(0,230,118,0.4)'}}>{(100/Number(newMarket.yes_odds||1)).toFixed(2)}x</p>
@@ -325,7 +325,7 @@ export default function Admin() {
                       <p className="mono" style={{fontSize:'24px',fontWeight:700,color:'#ff1744',textShadow:'0 0 12px rgba(255,23,68,0.4)'}}>{(100/Number(newMarket.no_odds||1)).toFixed(2)}x</p>
                     </div>
                   </div>
-                  <div style={{height:'2px',background:'#0a0a0a',borderRadius:'1px',overflow:'hidden'}}>
+                  <div style={{height:'2px',background:'#1a1919',borderRadius:'1px',overflow:'hidden'}}>
                     <div style={{height:'100%',background:'linear-gradient(90deg,#00e676,rgba(0,230,118,0.1))',width:`${newMarket.yes_odds}%`,transition:'width 0.3s',boxShadow:'0 0 6px rgba(0,230,118,0.5)'}}/>
                   </div>
                   <Fd l="EXPIRY_TIMESTAMP"><In type="datetime-local" value={newMarket.expires_at} onChange={(e:any)=>setNewMarket({...newMarket,expires_at:e.target.value})}/></Fd>
@@ -366,9 +366,9 @@ export default function Admin() {
                   {id:'PROCESSED_TX',v:withdrawals.filter((w:any)=>w.status==='paid'||w.status==='completed').length,c:'#00e676'},
                   {id:'TOTAL_OUTFLOW',v:`R$ ${fmt(totalWith)}`,c:'#ff1744'},
                 ].map(c=>(
-                  <div key={c.id} style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'8px',padding:'12px'}}>
+                  <div key={c.id} style={{background:'#1a1919',borderRadius:'8px',padding:'12px'}}>
                     <p className="label" style={{marginBottom:'7px',color:'#222'}}>{c.id}</p>
-                    <p className="mono" style={{fontSize:'22px',fontWeight:700,color:c.c,textShadow:`0 0 10px ${c.c}30`}}>{c.v}</p>
+                    <p className="mono" style={{fontSize:'28px',fontWeight:800,color:c.c,letterSpacing:'-1px',fontFamily:"'Manrope',sans-serif",textShadow:`0 0 16px ${c.c}20`}}>{c.v}</p>
                   </div>
                 ))}
               </div>
@@ -400,9 +400,9 @@ export default function Admin() {
                   {id:'CONFIRMED_TX',v:deposits.filter((d:any)=>d.status==='completed').length,c:'#00e676'},
                   {id:'TOTAL_INFLOW',v:`R$ ${fmt(totalDep)}`,c:'#00b0ff'},
                 ].map(c=>(
-                  <div key={c.id} style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'8px',padding:'12px'}}>
+                  <div key={c.id} style={{background:'#1a1919',borderRadius:'8px',padding:'12px'}}>
                     <p className="label" style={{marginBottom:'7px',color:'#222'}}>{c.id}</p>
-                    <p className="mono" style={{fontSize:'22px',fontWeight:700,color:c.c,textShadow:`0 0 10px ${c.c}30`}}>{c.v}</p>
+                    <p className="mono" style={{fontSize:'28px',fontWeight:800,color:c.c,letterSpacing:'-1px',fontFamily:"'Manrope',sans-serif",textShadow:`0 0 16px ${c.c}20`}}>{c.v}</p>
                   </div>
                 ))}
               </div>
@@ -523,13 +523,13 @@ export default function Admin() {
 
       {confirm&&(
         <Ov onClose={()=>setConfirm(null)}>
-          <div style={{background:'#0a0a0a',border:'1px solid rgba(255,179,0,0.15)',borderRadius:'8px',padding:'24px',maxWidth:'360px',width:'100%',textAlign:'center'}}>
+          <div style={{background:'#1a1919',border:'1px solid rgba(255,179,0,0.15)',borderRadius:'8px',padding:'24px',maxWidth:'360px',width:'100%',textAlign:'center'}}>
             <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'rgba(255,179,0,0.06)',border:'1px solid rgba(255,179,0,0.12)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}>{I.warn}</div>
             <p className="mono" style={{fontSize:'12px',color:'#888',lineHeight:1.7,marginBottom:'6px',letterSpacing:'0.04em'}}>{confirm.msg}</p>
             <p style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',marginBottom:'18px',letterSpacing:'0.08em'}}>// ACTION_WILL_BE_LOGGED_TO_AUDIT</p>
             <div style={{display:'flex',gap:'6px'}}>
               <button onClick={async()=>{await confirm.action();setConfirm(null)}} style={{flex:1,background:'rgba(0,230,118,0.06)',color:'#00e676',border:'1px solid rgba(0,230,118,0.15)',borderRadius:'6px',padding:'10px',fontWeight:700,fontSize:'10px',cursor:'pointer',letterSpacing:'0.12em',textTransform:'uppercase',boxShadow:'0 0 12px rgba(0,230,118,0.06)',transition:'all 0.15s'}}>CONFIRM_EXEC</button>
-              <button onClick={()=>setConfirm(null)} style={{flex:1,background:'transparent',color:'#333',border:'1px solid #111',borderRadius:'6px',padding:'10px',fontSize:'10px',cursor:'pointer',letterSpacing:'0.12em',textTransform:'uppercase',transition:'all 0.1s'}}>ABORT</button>
+              <button onClick={()=>setConfirm(null)} style={{flex:1,background:'transparent',color:'#333',borderRadius:'6px',padding:'10px',fontSize:'10px',cursor:'pointer',letterSpacing:'0.12em',textTransform:'uppercase',transition:'all 0.1s'}}>ABORT</button>
             </div>
           </div>
         </Ov>
@@ -537,11 +537,11 @@ export default function Admin() {
 
       {searchOpen&&(
         <Ov onClose={()=>setSearchOpen(false)}>
-          <div style={{background:'#0a0a0a',border:'1px solid #111',borderRadius:'8px',width:'100%',maxWidth:'460px',overflow:'hidden',boxShadow:'0 24px 60px rgba(0,0,0,0.8)'}}>
-            <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'12px 14px',borderBottom:'1px solid #0f0f0f'}}>
+          <div style={{background:'#1a1919',borderRadius:'8px',width:'100%',maxWidth:'460px',overflow:'hidden',boxShadow:'0 24px 60px rgba(0,0,0,0.8)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'12px 14px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
               <span style={{color:'#222',flexShrink:0}}>{I.search}</span>
               <input autoFocus value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)} placeholder="SEARCH_COMMAND..." style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#888',fontSize:'13px',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}} onKeyDown={(e:any)=>{if(e.key==='Escape')setSearchOpen(false)}}/>
-              <kbd style={{background:'#050505',border:'1px solid #0f0f0f',borderRadius:'3px',padding:'2px 6px',fontSize:'9px',color:'#222',fontFamily:"'JetBrains Mono',monospace"}}>ESC</kbd>
+              <kbd style={{background:'#0e0e0e',borderRadius:'3px',padding:'2px 6px',fontSize:'9px',color:'#222',fontFamily:"'JetBrains Mono',monospace"}}>ESC</kbd>
             </div>
             <div style={{padding:'4px'}}>
               {NAV.flatMap(s=>s.items).filter(i=>!searchQ||i.label.includes(searchQ.toUpperCase())).map(item=>(
@@ -556,7 +556,7 @@ export default function Admin() {
       )}
 
       {toast&&(
-        <div style={{position:'fixed',bottom:'16px',right:'16px',zIndex:999,animation:'toastIn 0.2s ease',display:'flex',alignItems:'center',gap:'8px',background:'#0a0a0a',border:`1px solid ${toast.type==='err'?'rgba(255,23,68,0.2)':'rgba(0,230,118,0.2)'}`,borderRadius:'6px',padding:'10px 14px',boxShadow:`0 8px 32px rgba(0,0,0,0.8), 0 0 20px ${toast.type==='err'?'rgba(255,23,68,0.05)':'rgba(0,230,118,0.05)'}`}}>
+        <div style={{position:'fixed',bottom:'16px',right:'16px',zIndex:999,animation:'toastIn 0.2s ease',display:'flex',alignItems:'center',gap:'8px',background:'#1a1919',border:`1px solid ${toast.type==='err'?'rgba(255,23,68,0.2)':'rgba(0,230,118,0.2)'}`,borderRadius:'6px',padding:'10px 14px',boxShadow:`0 8px 32px rgba(0,0,0,0.8), 0 0 20px ${toast.type==='err'?'rgba(255,23,68,0.05)':'rgba(0,230,118,0.05)'}`}}>
           {toast.type==='err'?I.err:I.ok}
           <span className="mono" style={{fontSize:'11px',color:toast.type==='err'?'#ff1744':'#00e676',fontWeight:600,letterSpacing:'0.06em'}}>{toast.text}</span>
         </div>
@@ -588,12 +588,12 @@ function Tag({status}:{status:string}){
 
 function TBL({cols,rows,loading}:{cols:string[],rows:any[][],loading:boolean}){
   if(loading) return <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>{Array(5).fill(0).map((_,i)=><div key={i} className="skel" style={{height:'38px'}}/>)}</div>
-  if(!rows.length) return <div style={{background:'#0a0a0a',border:'1px solid #0d0d0d',borderRadius:'6px',padding:'40px',textAlign:'center'}}><p className="mono" style={{color:'#111',fontSize:'11px',letterSpacing:'0.1em'}}>// NO_DATA_FOUND</p></div>
+  if(!rows.length) return <div style={{background:'#1a1919',borderRadius:'6px',padding:'40px',textAlign:'center'}}><p className="mono" style={{color:'#111',fontSize:'11px',letterSpacing:'0.1em'}}>// NO_DATA_FOUND</p></div>
   return(
-    <div style={{overflowX:'auto',borderRadius:'6px',border:'1px solid #0d0d0d'}}>
-      <table style={{width:'100%',borderCollapse:'collapse',background:'#0a0a0a'}}>
+    <div style={{overflowX:'auto',borderRadius:'6px'}}>
+      <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1919'}}>
         <thead>
-          <tr style={{background:'#0d0d0d',borderBottom:'1px solid #0f0f0f'}}>
+          <tr style={{background:'#1a1919',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
             {cols.map(c=><th key={c} className="label" style={{textAlign:'left',padding:'9px 12px',borderBottom:'none',color:'#222'}}>{c}</th>)}
           </tr>
         </thead>
@@ -614,13 +614,13 @@ function FB({q,onQ,s,onS,opts,action}:any){
     <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'8px',flexWrap:'wrap'}}>
       <div style={{position:'relative',flex:1,minWidth:'160px',maxWidth:'280px'}}>
         <span style={{position:'absolute',left:'8px',top:'50%',transform:'translateY(-50%)',color:'#111',pointerEvents:'none'}}><svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-        <input value={q} onChange={(e:any)=>onQ(e.target.value)} placeholder="FILTER_QUERY..." style={{width:'100%',background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'5px',padding:'6px 8px 6px 26px',color:'#555',fontSize:'10px',outline:'none',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',transition:'border-color 0.12s'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.2)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
+        <input value={q} onChange={(e:any)=>onQ(e.target.value)} placeholder="FILTER_QUERY..." style={{width:'100%',background:'#1a1919',borderRadius:'5px',padding:'6px 8px 6px 26px',color:'#555',fontSize:'10px',outline:'none',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',transition:'border-color 0.12s'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.2)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
       </div>
-      {opts&&<select value={s} onChange={(e:any)=>onS(e.target.value)} style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'5px',padding:'6px 8px',color:s?'#555':'#222',fontSize:'10px',outline:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}}>
+      {opts&&<select value={s} onChange={(e:any)=>onS(e.target.value)} style={{background:'#1a1919',borderRadius:'5px',padding:'6px 8px',color:s?'#555':'#222',fontSize:'10px',outline:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}}>
         <option value="">ALL_STATUS</option>
         {opts.map((o:string)=><option key={o} value={o}>{o.toUpperCase()}</option>)}
       </select>}
-      {(q||s)&&<button onClick={()=>{onQ('');onS('')}} style={{background:'transparent',border:'1px solid #0f0f0f',borderRadius:'5px',padding:'6px 10px',color:'#222',fontSize:'9px',cursor:'pointer',letterSpacing:'0.1em',fontFamily:"'JetBrains Mono',monospace",fontWeight:700,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>CLEAR</button>}
+      {(q||s)&&<button onClick={()=>{onQ('');onS('')}} style={{background:'transparent',borderRadius:'5px',padding:'6px 10px',color:'#222',fontSize:'9px',cursor:'pointer',letterSpacing:'0.1em',fontFamily:"'JetBrains Mono',monospace",fontWeight:700,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>CLEAR</button>}
       {action&&<div style={{marginLeft:'auto'}}>{action}</div>}
     </div>
   )
@@ -632,28 +632,28 @@ function Ov({children,onClose}:{children:any,onClose:()=>void}){
 
 function MB({title,onClose,children}:{title:string,onClose:()=>void,children:any}){
   return(
-    <div style={{background:'#0a0a0a',border:'1px solid #111',borderRadius:'8px',padding:'20px',width:'100%',maxWidth:'460px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 60px rgba(0,0,0,0.9)'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'18px',paddingBottom:'12px',borderBottom:'1px solid #0f0f0f'}}>
+    <div style={{background:'#1a1919',borderRadius:'8px',padding:'20px',width:'100%',maxWidth:'460px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 60px rgba(0,0,0,0.9)'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'18px',paddingBottom:'12px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
         <h3 className="mono" style={{fontSize:'12px',fontWeight:700,color:'#555',letterSpacing:'0.08em'}}>{title}</h3>
-        <button onClick={onClose} style={{background:'transparent',border:'1px solid #111',cursor:'pointer',color:'#222',width:'24px',height:'24px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'14px',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>×</button>
+        <button onClick={onClose} style={{background:'transparent',cursor:'pointer',color:'#222',width:'24px',height:'24px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'14px',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>×</button>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>{children}</div>
     </div>
   )
 }
 
-function Box({children}:{children:any}){return<div style={{background:'#0a0a0a',border:'1px solid #0f0f0f',borderRadius:'8px',padding:'18px'}}>{children}</div>}
+function Box({children}:{children:any}){return<div style={{background:'#1a1919',borderRadius:'8px',padding:'18px'}}>{children}</div>}
 
 function Fd({l,children}:{l:string,children:any}){
   return<div><label className="label" style={{display:'block',marginBottom:'5px',color:'#222'}}>{l}</label>{children}</div>
 }
 
 function In({style,...p}:any){
-  return<input {...p} style={{width:'100%',background:'#050505',border:'1px solid #0f0f0f',borderRadius:'5px',padding:'8px 10px',color:'#888',fontSize:'12px',outline:'none',transition:'border-color 0.12s',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.02em',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.25)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
+  return<input {...p} style={{width:'100%',background:'#0e0e0e',borderRadius:'5px',padding:'8px 10px',color:'#888',fontSize:'12px',outline:'none',transition:'border-color 0.12s',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.02em',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.25)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
 }
 
 function Sl({style,...p}:any){
-  return<select {...p} style={{width:'100%',background:'#050505',border:'1px solid #0f0f0f',borderRadius:'5px',padding:'8px 10px',color:'#888',fontSize:'12px',outline:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',...style}}/>
+  return<select {...p} style={{width:'100%',background:'#0e0e0e',borderRadius:'5px',padding:'8px 10px',color:'#888',fontSize:'12px',outline:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',...style}}/>
 }
 
 function Btn({children,onClick,color='gray'}:{children:any,onClick:()=>void,color?:string}){
