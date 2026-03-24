@@ -273,18 +273,18 @@ export default function Admin() {
             <div style={{maxWidth:'560px'}}>
               <Card>
                 <form onSubmit={createMarket} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
-                  <Field label="Pergunta *"><Input value={newMarket.question} onChange={e=>setNewMarket({...newMarket,question:e.target.value})} placeholder="Ex: Bitcoin vai superar $100k?" required/></Field>
+                  <Field label="Pergunta *"><Input value={newMarket.question} onChange={(e:any)=>setNewMarket({...newMarket,question:e.target.value})} placeholder="Ex: Bitcoin vai superar $100k?" required/></Field>
                   <Field label="Categoria">
-                    <Select value={newMarket.category} onChange={e=>setNewMarket({...newMarket,category:e.target.value})}>
+                    <Select value={newMarket.category} onChange={(e:any)=>setNewMarket({...newMarket,category:e.target.value})}>
                       {CATS.map(c=><option key={c} value={c}>{c}</option>)}
                     </Select>
                   </Field>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                     <Field label="% Chance SIM">
-                      <Input type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:'#00e676'}} onChange={e=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/>
+                      <Input type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:'#00e676'}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/>
                     </Field>
                     <Field label="% Chance NAO">
-                      <Input type="number" min="1" max="99" value={newMarket.no_odds} style={{color:'#f44336'}} onChange={e=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/>
+                      <Input type="number" min="1" max="99" value={newMarket.no_odds} style={{color:'#f44336'}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/>
                     </Field>
                   </div>
                   <div style={{background:'#222',borderRadius:'8px',padding:'12px',display:'flex',gap:'24px',justifyContent:'center'}}>
@@ -297,7 +297,7 @@ export default function Admin() {
                       <p style={{fontSize:'20px',fontWeight:800,color:'#f44336'}}>{(100/Number(newMarket.no_odds||1)).toFixed(2)}x</p>
                     </div>
                   </div>
-                  <Field label="Data de encerramento"><Input type="datetime-local" value={newMarket.expires_at} onChange={e=>setNewMarket({...newMarket,expires_at:e.target.value})}/></Field>
+                  <Field label="Data de encerramento"><Input type="datetime-local" value={newMarket.expires_at} onChange={(e:any)=>setNewMarket({...newMarket,expires_at:e.target.value})}/></Field>
                   <button type="submit" style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'13px',fontWeight:800,fontSize:'14px',cursor:'pointer',marginTop:'4px'}}>CRIAR MERCADO</button>
                 </form>
               </Card>
@@ -423,7 +423,7 @@ export default function Admin() {
                   ].map(f=>(
                     <div key={f.key} style={{display:'flex',alignItems:'center',gap:'12px'}}>
                       <label style={{fontSize:'12px',color:'#888',flex:1,minWidth:0}}>{f.label}</label>
-                      <Input type="number" step="0.01" value={settings[f.key]||''} style={{width:'140px',color:'#00e676',fontWeight:700}} onChange={e=>setSettings({...settings,[f.key]:e.target.value})}/>
+                      <Input type="number" step="0.01" value={settings[f.key]||''} style={{width:'140px',color:'#00e676',fontWeight:700}} onChange={(e:any)=>setSettings({...settings,[f.key]:e.target.value})}/>
                     </div>
                   ))}
                   <button type="submit" style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'12px',fontWeight:800,fontSize:'14px',cursor:'pointer',marginTop:'8px'}}>SALVAR</button>
@@ -437,19 +437,19 @@ export default function Admin() {
       {/* MODAL EDITAR MERCADO */}
       {editMarket&&(
         <Modal title="Editar Mercado" onClose={()=>setEditMarket(null)}>
-          <Field label="Pergunta"><Input value={editMarket.question} onChange={e=>setEditMarket({...editMarket,question:e.target.value})}/></Field>
+          <Field label="Pergunta"><Input value={editMarket.question} onChange={(e:any)=>setEditMarket({...editMarket,question:e.target.value})}/></Field>
           <Field label="Categoria">
-            <Select value={editMarket.category||''} onChange={e=>setEditMarket({...editMarket,category:e.target.value})}>
+            <Select value={editMarket.category||''} onChange={(e:any)=>setEditMarket({...editMarket,category:e.target.value})}>
               {CATS.map(c=><option key={c} value={c}>{c}</option>)}
             </Select>
           </Field>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <Field label="% SIM"><Input type="number" min="1" max="99" style={{color:'#00e676'}} value={editMarket.yes_odds} onChange={e=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></Field>
-            <Field label="% NAO"><Input type="number" min="1" max="99" style={{color:'#f44336'}} value={editMarket.no_odds} onChange={e=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></Field>
+            <Field label="% SIM"><Input type="number" min="1" max="99" style={{color:'#00e676'}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></Field>
+            <Field label="% NAO"><Input type="number" min="1" max="99" style={{color:'#f44336'}} value={editMarket.no_odds} onChange={(e:any)=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></Field>
           </div>
-          <Field label="Data encerramento"><Input type="datetime-local" value={editMarket.expires_at?editMarket.expires_at.slice(0,16):''} onChange={e=>setEditMarket({...editMarket,expires_at:e.target.value})}/></Field>
+          <Field label="Data encerramento"><Input type="datetime-local" value={editMarket.expires_at?editMarket.expires_at.slice(0,16):''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></Field>
           <Field label="Status">
-            <Select value={editMarket.status} onChange={e=>setEditMarket({...editMarket,status:e.target.value})}>
+            <Select value={editMarket.status} onChange={(e:any)=>setEditMarket({...editMarket,status:e.target.value})}>
               {['open','suspended','resolved','cancelled'].map(s=><option key={s} value={s}>{s}</option>)}
             </Select>
           </Field>
@@ -463,10 +463,10 @@ export default function Admin() {
       {/* MODAL EDITAR USUARIO */}
       {editUser&&(
         <Modal title="Editar Usuario" onClose={()=>setEditUser(null)}>
-          <Field label="Nome"><Input value={editUser.name} onChange={e=>setEditUser({...editUser,name:e.target.value})}/></Field>
-          <Field label="Email"><Input value={editUser.email} onChange={e=>setEditUser({...editUser,email:e.target.value})}/></Field>
+          <Field label="Nome"><Input value={editUser.name} onChange={(e:any)=>setEditUser({...editUser,name:e.target.value})}/></Field>
+          <Field label="Email"><Input value={editUser.email} onChange={(e:any)=>setEditUser({...editUser,email:e.target.value})}/></Field>
           <Field label="Status">
-            <Select value={editUser.status||'active'} onChange={e=>setEditUser({...editUser,status:e.target.value})}>
+            <Select value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>
               {['active','blocked','suspended'].map(s=><option key={s} value={s}>{s}</option>)}
             </Select>
           </Field>
@@ -481,8 +481,8 @@ export default function Admin() {
       {balanceModal&&(
         <Modal title={`Ajustar Saldo — ${balanceModal.name}`} onClose={()=>setBalanceModal(null)}>
           <p style={{fontSize:'12px',color:'#555',marginBottom:'12px'}}>Use valor negativo para remover saldo.</p>
-          <Field label="Valor (R$)"><Input type="number" step="0.01" placeholder="Ex: 100 ou -50" value={balanceModal.amount} onChange={e=>setBalanceModal({...balanceModal,amount:e.target.value})}/></Field>
-          <Field label="Motivo"><Input placeholder="Ex: Bonus de cadastro" value={balanceModal.note} onChange={e=>setBalanceModal({...balanceModal,note:e.target.value})}/></Field>
+          <Field label="Valor (R$)"><Input type="number" step="0.01" placeholder="Ex: 100 ou -50" value={balanceModal.amount} onChange={(e:any)=>setBalanceModal({...balanceModal,amount:e.target.value})}/></Field>
+          <Field label="Motivo"><Input placeholder="Ex: Bonus de cadastro" value={balanceModal.note} onChange={(e:any)=>setBalanceModal({...balanceModal,note:e.target.value})}/></Field>
           <div style={{display:'flex',gap:'8px',marginTop:'16px'}}>
             <button onClick={()=>askConfirm(`Ajustar saldo de ${balanceModal.name} em R$ ${balanceModal.amount}?`,adjustBalance)} style={{flex:1,background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'11px',fontWeight:700,cursor:'pointer'}}>AJUSTAR</button>
             <button onClick={()=>setBalanceModal(null)} style={{flex:1,background:'#222',color:'#888',border:'1px solid #333',borderRadius:'8px',padding:'11px',cursor:'pointer'}}>Cancelar</button>
