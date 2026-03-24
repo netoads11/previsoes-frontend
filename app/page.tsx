@@ -215,8 +215,6 @@ export default function Previmarket() {
           )
         })}
       </nav>
-        })}
-      </nav>
     </div>
   )
 }
