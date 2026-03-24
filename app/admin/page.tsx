@@ -144,7 +144,7 @@ export default function Admin() {
             </div>
             <span style={{fontSize:'11px',fontWeight:800,color:'#00e676',letterSpacing:'0.16em'}}>SISTEMA_ONLINE</span>
           </div>
-          <div style={{fontSize:'10px',color:'#222',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}}>PREVIMARKET_ADMIN_v2</div>
+          <div style={{fontSize:'10px',color:'#555',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}}>PREVIMARKET_ADMIN_v2</div>
         </div>
 
         <nav style={{flex:1,overflowY:'auto',padding:'6px 0'}}>
@@ -153,7 +153,7 @@ export default function Admin() {
               <p className="label" style={{padding:'10px 14px 4px'}}>{s.section}</p>
               {s.items.map(item=>(
                 <button key={item.id} onClick={()=>{setTab(item.id);setFStatus('');setFQ('')}} className="nav-btn"
-                  style={{width:'100%',display:'flex',alignItems:'center',gap:'8px',padding:'7px 14px',border:'none',cursor:'pointer',background:tab===item.id?'rgba(0,230,118,0.06)':'transparent',borderLeft:tab===item.id?'1px solid #00e676':'1px solid transparent',color:tab===item.id?'#00e676':'#333',fontSize:'11px',fontWeight:tab===item.id?700:500,textAlign:'left',letterSpacing:'0.06em',transition:'all 0.1s'}}>
+                  style={{width:'100%',display:'flex',alignItems:'center',gap:'8px',padding:'7px 14px',border:'none',cursor:'pointer',background:tab===item.id?'rgba(0,230,118,0.06)':'transparent',borderLeft:tab===item.id?'1px solid #00e676':'1px solid transparent',color:tab===item.id?'#00e676':'#888',fontSize:'11px',fontWeight:tab===item.id?700:500,textAlign:'left',letterSpacing:'0.06em',transition:'all 0.1s'}}>
                   <span style={{opacity:tab===item.id?1:0.5,flexShrink:0}}>{I[item.icon]}</span>
                   {item.label}
                 </button>
@@ -163,7 +163,7 @@ export default function Admin() {
         </nav>
 
         <div style={{padding:'10px',display:'flex',gap:'5px'}}>
-          <a href="/" target="_blank" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:'4px',padding:'6px',borderRadius:'6px',background:'transparent',color:'#333',fontSize:'10px',textDecoration:'none',letterSpacing:'0.08em',fontWeight:600,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
+          <a href="/" target="_blank" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:'4px',padding:'6px',borderRadius:'6px',background:'transparent',color:'#555',fontSize:'10px',textDecoration:'none',letterSpacing:'0.08em',fontWeight:600,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
             {I.ext} SITE
           </a>
           <button onClick={()=>{localStorage.clear();router.push('/')}} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:'4px',padding:'6px',borderRadius:'6px',background:'rgba(255,23,68,0.06)',border:'1px solid rgba(255,23,68,0.12)',color:'#ff1744',fontSize:'10px',cursor:'pointer',letterSpacing:'0.08em',fontWeight:600,transition:'all 0.1s'}}>
@@ -176,20 +176,20 @@ export default function Admin() {
       <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0,position:'relative',zIndex:1}}>
 
         {/* HEADER */}
-        <header style={{background:'rgba(14,14,14,0.95)',backdropFilter:'blur(20px)',boxShadow:'0 1px 0 rgba(255,255,255,0.04)',height:'44px',display:'flex',alignItems:'center',padding:'0 16px',gap:'10px',position:'sticky',top:0,zIndex:20,flexShrink:0}}>
+        <header style={{background:'rgba(14,14,14,0.95)',backdropFilter:'blur(20px)',boxShadow:'0 1px 0 rgba(255,255,255,0.04)',height:'52px',display:'flex',alignItems:'center',padding:'0 20px',gap:'10px',position:'sticky',top:0,zIndex:20,flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:'16px',flex:1}}>
-            <span className="label" style={{color:'#222',letterSpacing:'0.08em',fontSize:'9px'}}>{NAV.flatMap(s=>s.items).find(i=>i.id===tab)?.label||'SYSTEM'}</span>
+            <span className="label" style={{color:'#555',letterSpacing:'0.08em',fontSize:'9px'}}>{NAV.flatMap(s=>s.items).find(i=>i.id===tab)?.label||'SYSTEM'}</span>
             <span style={{color:'#111',fontSize:'9px',fontFamily:"'JetBrains Mono',monospace"}}>──</span>
-            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',letterSpacing:'0.06em'}}>UPTIME: {uptimeFmt}</span>
-            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',letterSpacing:'0.06em'}}>LATENCY: 12ms</span>
-            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',letterSpacing:'0.06em'}}>LOAD: 0.42</span>
+            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#333',letterSpacing:'0.06em'}}>UPTIME: {uptimeFmt}</span>
+            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#333',letterSpacing:'0.06em'}}>LATENCY: 12ms</span>
+            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#333',letterSpacing:'0.06em'}}>LOAD: 0.42</span>
           </div>
-          <button onClick={()=>setSearchOpen(true)} style={{display:'flex',alignItems:'center',gap:'6px',background:'#1a1919',borderRadius:'6px',padding:'5px 10px',color:'#333',cursor:'pointer',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
+          <button onClick={()=>setSearchOpen(true)} style={{display:'flex',alignItems:'center',gap:'6px',background:'#1a1919',borderRadius:'6px',padding:'5px 10px',color:'#555',cursor:'pointer',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
             {I.search}
-            <span style={{fontSize:'10px',color:'#222',letterSpacing:'0.08em',fontWeight:600}}>SEARCH</span>
-            <kbd style={{background:'#0f0f0f',border:'1px solid #1a1a1a',borderRadius:'3px',padding:'1px 5px',fontSize:'9px',color:'#222',fontFamily:"'JetBrains Mono',monospace"}}>^K</kbd>
+            <span style={{fontSize:'10px',color:'#555',letterSpacing:'0.08em',fontWeight:600}}>SEARCH</span>
+            <kbd style={{background:'#0f0f0f',border:'1px solid #1a1a1a',borderRadius:'3px',padding:'1px 5px',fontSize:'9px',color:'#555',fontFamily:"'JetBrains Mono',monospace"}}>^K</kbd>
           </button>
-          <button onClick={()=>load(token)} style={{width:'28px',height:'28px',borderRadius:'6px',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#222',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
+          <button onClick={()=>load(token)} style={{width:'28px',height:'28px',borderRadius:'6px',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#555',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#111'}>
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           </button>
           <div style={{width:'28px',height:'28px',borderRadius:'50%',background:'#1a1919',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
@@ -197,11 +197,11 @@ export default function Admin() {
           </div>
         </header>
 
-        <main style={{flex:1,padding:'16px',overflowY:'auto'}}>
+        <main style={{flex:1,padding:'28px 24px',overflowY:'auto',display:'flex',flexDirection:'column',gap:'20px'}}>
 
           {/* ─── DASHBOARD ─── */}
           {tab==='dashboard'&&(
-            <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+            <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
               {loading?(
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'8px'}}>
                   {Array(8).fill(0).map((_,i)=><div key={i} className="skel" style={{height:'88px'}}/>)}
@@ -209,7 +209,7 @@ export default function Admin() {
               ):(
                 <>
                   {/* METRICAS PRIMARIAS */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'8px'}}>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'16px'}}>
                     {[
                       {id:'TOTAL_REVENUE',value:`R$ ${fmt(lucro)}`,sub:lucro>=0?'NET_POSITIVE':'NET_NEGATIVE',color:lucro>=0?'#00e676':'#ff1744',border:lucro>=0?'rgba(0,230,118,0.15)':'rgba(255,23,68,0.15)'},
                       {id:'DEPOSIT_FLOW',value:`R$ ${fmt(totalDep)}`,sub:`${deposits.filter((d:any)=>d.status==='completed').length}_CONFIRMED`,color:'#00b0ff',border:'rgba(0,176,255,0.15)'},
@@ -218,9 +218,9 @@ export default function Admin() {
                     ].map(c=>(
                       <div key={c.id} className="metric-card" style={{background:'#1a1919',border:`1px solid ${c.border}`,borderRadius:'8px',padding:'14px',transition:'border-color 0.15s',position:'relative',overflow:'hidden'}}>
                         <div style={{position:'absolute',top:0,left:0,right:0,height:'1px',background:`linear-gradient(90deg,${c.color},transparent)`}}/>
-                        <p className="label" style={{marginBottom:'10px',color:'#333'}}>{c.id}</p>
+                        <p className="label" style={{marginBottom:'10px',color:'#555'}}>{c.id}</p>
                         <p className="mono glow-green" style={{fontSize:'26px',fontWeight:700,color:c.color,letterSpacing:'-0.5px',lineHeight:1,marginBottom:'6px',textShadow:`0 0 12px ${c.color}40`}}>{c.value}</p>
-                        <p style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#222',letterSpacing:'0.08em'}}>{c.sub}</p>
+                        <p style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#555',letterSpacing:'0.08em'}}>{c.sub}</p>
                         <svg style={{position:'absolute',bottom:'10px',right:'10px',opacity:0.15}} width="40" height="20" viewBox="0 0 40 20">
                           <polyline points="0,18 8,12 16,14 24,6 32,10 40,2" fill="none" stroke={c.color} strokeWidth="1.5"/>
                         </svg>
@@ -229,44 +229,44 @@ export default function Admin() {
                   </div>
 
                   {/* METRICAS SECUNDARIAS */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:'8px'}}>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'12px'}}>
                     {[
                       {id:'MARKETS_ACTIVE',value:markets.filter((m:any)=>m.status==='open').length,color:'#00e676'},
                       {id:'PENDING_WITHDRAWALS',value:withdrawals.filter((w:any)=>w.status==='pending').length,color:'#ffb300'},
                       {id:'PENDING_DEPOSITS',value:deposits.filter((d:any)=>d.status==='pending').length,color:'#ffb300'},
-                      {id:'AUDIT_RECORDS',value:audit.length,color:'#333'},
+                      {id:'AUDIT_RECORDS',value:audit.length,color:'#555'},
                     ].map(c=>(
-                      <div key={c.id} className="metric-card" style={{background:'#1a1919',borderRadius:'8px',padding:'12px',transition:'border-color 0.15s'}}>
-                        <p className="label" style={{marginBottom:'8px',color:'#222'}}>{c.id}</p>
-                        <p className="mono" style={{fontSize:'36px',fontWeight:800,color:c.color,letterSpacing:'-1.5px',lineHeight:1,fontFamily:"'Manrope',sans-serif",textShadow:c.color!=='#333'?`0 0 10px ${c.color}30`:undefined}}>{c.value}</p>
+                      <div key={c.id} className="metric-card" style={{background:'#1a1919',borderRadius:'12px',padding:'20px',transition:'all 0.2s',display:'flex',flexDirection:'column',justifyContent:'space-between',minHeight:'100px'}}>
+                        <p className="label" style={{marginBottom:'8px',color:'#555'}}>{c.id}</p>
+                        <p className="mono" style={{fontSize:'36px',fontWeight:800,color:'#fff',letterSpacing:'-1.5px',lineHeight:1,fontFamily:"'Manrope',sans-serif",textShadow:c.color!=='#333'?`0 0 10px ${c.color}30`:undefined}}>{c.value}</p>
                       </div>
                     ))}
                   </div>
 
                   {/* TABELAS RECENTES */}
-                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
-                    <div style={{background:'#1a1919',borderRadius:'8px',padding:'14px'}}>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px'}}>
+                    <div style={{background:'#1a1919',borderRadius:'12px',padding:'20px'}}>
                       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px',paddingBottom:'8px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
-                        <p className="label" style={{color:'#222'}}>MARKET_LOG</p>
+                        <p className="label" style={{color:'#555'}}>MARKET_LOG</p>
                         <button onClick={()=>setTab('markets')} style={{fontSize:'9px',color:'#00e676',background:'none',border:'none',cursor:'pointer',fontWeight:700,letterSpacing:'0.1em'}}>VIEW_ALL →</button>
                       </div>
                       {markets.length===0?<p style={{fontSize:'11px',color:'#111',textAlign:'center',padding:'16px 0',fontFamily:"'JetBrains Mono',monospace"}}>NO_DATA</p>:markets.slice(0,6).map((m:any)=>(
                         <div key={m.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #0d0d0d'}}>
-                          <span style={{fontSize:'11px',color:'#555',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1,marginRight:'8px'}}>{m.question}</span>
+                          <span style={{fontSize:'11px',color:'#e0e0e0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1,marginRight:'8px'}}>{m.question}</span>
                           <Tag status={m.status}/>
                         </div>
                       ))}
                     </div>
-                    <div style={{background:'#1a1919',borderRadius:'8px',padding:'14px'}}>
+                    <div style={{background:'#1a1919',borderRadius:'12px',padding:'20px'}}>
                       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px',paddingBottom:'8px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
-                        <p className="label" style={{color:'#222'}}>TX_STREAM</p>
+                        <p className="label" style={{color:'#555'}}>TX_STREAM</p>
                         <button onClick={()=>setTab('deposits')} style={{fontSize:'9px',color:'#00e676',background:'none',border:'none',cursor:'pointer',fontWeight:700,letterSpacing:'0.1em'}}>VIEW_ALL →</button>
                       </div>
                       {[...deposits,...withdrawals].sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,6).map((t:any,i)=>(
                         <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #0d0d0d'}}>
                           <div style={{flex:1,overflow:'hidden',marginRight:'8px'}}>
                             <span style={{fontSize:'11px',color:'#555',display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.name||'NODE_UNKNOWN'}</span>
-                            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#222',letterSpacing:'0.08em'}}>{t.type?.toUpperCase()}</span>
+                            <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#555',letterSpacing:'0.08em'}}>{t.type?.toUpperCase()}</span>
                           </div>
                           <span className="mono" style={{fontSize:'12px',fontWeight:600,color:t.type==='deposit'?'#00e676':'#ff1744',textShadow:t.type==='deposit'?'0 0 8px rgba(0,230,118,0.3)':'0 0 8px rgba(255,23,68,0.3)'}}>R${Number(t.amount).toFixed(2)}</span>
                         </div>
@@ -284,12 +284,12 @@ export default function Admin() {
               <FB q={fQ} onQ={setFQ} s={fStatus} onS={setFStatus} opts={['open','suspended','resolved','cancelled']} action={<Btn color="green" onClick={()=>setTab('criar')}>{I.plus} NEW_MARKET</Btn>}/>
               <TBL loading={loading} cols={['QUESTION','CATEGORY','SIM%','NAO%','STATUS','EXPIRES','ACTIONS']}
                 rows={fMarkets.map((m:any)=>[
-                  <span style={{fontSize:'12px',color:'#666',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',display:'block',maxWidth:'200px'}}>{m.question}</span>,
-                  <span className="label" style={{color:'#333'}}>{m.category||'—'}</span>,
+                  <span style={{fontSize:'12px',color:'#e0e0e0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',display:'block',maxWidth:'200px'}}>{m.question}</span>,
+                  <span className="label" style={{color:'#555'}}>{m.category||'—'}</span>,
                   <span className="mono" style={{fontSize:'12px',fontWeight:600,color:'#00e676',textShadow:'0 0 8px rgba(0,230,118,0.3)'}}>{m.yes_odds}%</span>,
                   <span className="mono" style={{fontSize:'12px',fontWeight:600,color:'#ff1744',textShadow:'0 0 8px rgba(255,23,68,0.3)'}}>{m.no_odds}%</span>,
                   <Tag status={m.status}/>,
-                  <span className="mono" style={{fontSize:'10px',color:'#333'}}>{m.expires_at?new Date(m.expires_at).toLocaleDateString('pt-BR'):'—'}</span>,
+                  <span className="mono" style={{fontSize:'10px',color:'#555'}}>{m.expires_at?new Date(m.expires_at).toLocaleDateString('pt-BR'):'—'}</span>,
                   <Ac>
                     <SBtn onClick={()=>setEditMarket({...m})}>EDIT</SBtn>
                     {m.status==='open'&&<>
@@ -316,12 +316,12 @@ export default function Admin() {
                   </div>
                   <div style={{background:'#0e0e0e',borderRadius:'6px',padding:'12px',display:'flex',justifyContent:'space-around'}}>
                     <div style={{textAlign:'center'}}>
-                      <p className="label" style={{marginBottom:'5px',color:'#222'}}>MULT_SIM</p>
+                      <p className="label" style={{marginBottom:'5px',color:'#555'}}>MULT_SIM</p>
                       <p className="mono" style={{fontSize:'24px',fontWeight:700,color:'#00e676',textShadow:'0 0 12px rgba(0,230,118,0.4)'}}>{(100/Number(newMarket.yes_odds||1)).toFixed(2)}x</p>
                     </div>
                     <div style={{width:'1px',background:'#0f0f0f'}}/>
                     <div style={{textAlign:'center'}}>
-                      <p className="label" style={{marginBottom:'5px',color:'#222'}}>MULT_NAO</p>
+                      <p className="label" style={{marginBottom:'5px',color:'#555'}}>MULT_NAO</p>
                       <p className="mono" style={{fontSize:'24px',fontWeight:700,color:'#ff1744',textShadow:'0 0 12px rgba(255,23,68,0.4)'}}>{(100/Number(newMarket.no_odds||1)).toFixed(2)}x</p>
                     </div>
                   </div>
@@ -343,11 +343,11 @@ export default function Admin() {
               <FB q={fQ} onQ={setFQ} s={fStatus} onS={setFStatus} opts={['active','blocked','suspended']}/>
               <TBL loading={loading} cols={['NODE_ID','EMAIL','STATUS','TYPE','REG_DATE','ACTIONS']}
                 rows={fUsers.map((u:any)=>[
-                  <span style={{fontSize:'12px',color:'#666',fontWeight:500}}>{u.name}</span>,
-                  <span style={{fontSize:'11px',color:'#333',fontFamily:"'JetBrains Mono',monospace"}}>{u.email}</span>,
+                  <span style={{fontSize:'12px',color:'#e0e0e0',fontWeight:500}}>{u.name}</span>,
+                  <span style={{fontSize:'11px',color:'#555',fontFamily:"'JetBrains Mono',monospace"}}>{u.email}</span>,
                   <Tag status={u.status||'active'}/>,
                   <Tag status={u.is_admin?'admin':'user'}/>,
-                  <span className="mono" style={{fontSize:'10px',color:'#333'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
+                  <span className="mono" style={{fontSize:'10px',color:'#555'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
                   <Ac>
                     <SBtn onClick={()=>setEditUser({...u})}>EDIT</SBtn>
                     <SBtn color="green" onClick={()=>setBalanceModal({id:u.id,name:u.name,amount:'',note:''})}>BALANCE</SBtn>
@@ -360,25 +360,25 @@ export default function Admin() {
           {/* ─── SAQUES ─── */}
           {tab==='withdrawals'&&(
             <div>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'10px'}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px',marginBottom:'16px'}}>
                 {[
                   {id:'PENDING_QUEUE',v:withdrawals.filter((w:any)=>w.status==='pending').length,c:'#ffb300'},
                   {id:'PROCESSED_TX',v:withdrawals.filter((w:any)=>w.status==='paid'||w.status==='completed').length,c:'#00e676'},
                   {id:'TOTAL_OUTFLOW',v:`R$ ${fmt(totalWith)}`,c:'#ff1744'},
                 ].map(c=>(
                   <div key={c.id} style={{background:'#1a1919',borderRadius:'8px',padding:'12px'}}>
-                    <p className="label" style={{marginBottom:'7px',color:'#222'}}>{c.id}</p>
-                    <p className="mono" style={{fontSize:'28px',fontWeight:800,color:c.c,letterSpacing:'-1px',fontFamily:"'Manrope',sans-serif",textShadow:`0 0 16px ${c.c}20`}}>{c.v}</p>
+                    <p className="label" style={{marginBottom:'7px',color:'#555'}}>{c.id}</p>
+                    <p className="mono" style={{fontSize:'28px',fontWeight:800,color:'#fff',letterSpacing:'-1px',fontFamily:"'Manrope',sans-serif",textShadow:`0 0 16px ${c.c}20`}}>{c.v}</p>
                   </div>
                 ))}
               </div>
               <FB q={fQ} onQ={setFQ} s={fStatus} onS={setFStatus} opts={['pending','approved','paid','rejected']}/>
               <TBL loading={loading} cols={['NODE','AMOUNT','STATUS','DATE','ACTIONS']}
                 rows={withdrawals.filter((w:any)=>(!fStatus||w.status===fStatus)&&(!fQ||w.name?.toLowerCase().includes(fQ.toLowerCase()))).map((w:any)=>[
-                  <span style={{fontSize:'12px',color:'#666',fontWeight:500}}>{w.name||'—'}</span>,
+                  <span style={{fontSize:'12px',color:'#e0e0e0',fontWeight:500}}>{w.name||'—'}</span>,
                   <span className="mono" style={{fontSize:'13px',fontWeight:700,color:'#ff1744',textShadow:'0 0 8px rgba(255,23,68,0.3)'}}>R${Number(w.amount).toFixed(2)}</span>,
                   <Tag status={w.status}/>,
-                  <span className="mono" style={{fontSize:'10px',color:'#333'}}>{new Date(w.created_at).toLocaleDateString('pt-BR')}</span>,
+                  <span className="mono" style={{fontSize:'10px',color:'#555'}}>{new Date(w.created_at).toLocaleDateString('pt-BR')}</span>,
                   <Ac>
                     {w.status==='pending'&&<>
                       <SBtn color="green" onClick={()=>C('APROVAR_SAQUE?',async()=>{const r=await api(`/api/admin/withdrawals/${w.id}/approve`,'PUT',{});if(r.success){T('APPROVED');load(token)}else T(r.error||'ERR','err')})}>APPROVE</SBtn>
@@ -394,25 +394,25 @@ export default function Admin() {
           {/* ─── DEPOSITOS ─── */}
           {tab==='deposits'&&(
             <div>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'10px'}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px',marginBottom:'16px'}}>
                 {[
                   {id:'PENDING_QUEUE',v:deposits.filter((d:any)=>d.status==='pending').length,c:'#ffb300'},
                   {id:'CONFIRMED_TX',v:deposits.filter((d:any)=>d.status==='completed').length,c:'#00e676'},
                   {id:'TOTAL_INFLOW',v:`R$ ${fmt(totalDep)}`,c:'#00b0ff'},
                 ].map(c=>(
                   <div key={c.id} style={{background:'#1a1919',borderRadius:'8px',padding:'12px'}}>
-                    <p className="label" style={{marginBottom:'7px',color:'#222'}}>{c.id}</p>
-                    <p className="mono" style={{fontSize:'28px',fontWeight:800,color:c.c,letterSpacing:'-1px',fontFamily:"'Manrope',sans-serif",textShadow:`0 0 16px ${c.c}20`}}>{c.v}</p>
+                    <p className="label" style={{marginBottom:'7px',color:'#555'}}>{c.id}</p>
+                    <p className="mono" style={{fontSize:'28px',fontWeight:800,color:'#fff',letterSpacing:'-1px',fontFamily:"'Manrope',sans-serif",textShadow:`0 0 16px ${c.c}20`}}>{c.v}</p>
                   </div>
                 ))}
               </div>
               <FB q={fQ} onQ={setFQ} s={fStatus} onS={setFStatus} opts={['pending','completed','refunded']}/>
               <TBL loading={loading} cols={['NODE','AMOUNT','STATUS','DATE','ACTIONS']}
                 rows={deposits.filter((d:any)=>(!fStatus||d.status===fStatus)&&(!fQ||d.name?.toLowerCase().includes(fQ.toLowerCase()))).map((d:any)=>[
-                  <span style={{fontSize:'12px',color:'#666',fontWeight:500}}>{d.name||'—'}</span>,
+                  <span style={{fontSize:'12px',color:'#e0e0e0',fontWeight:500}}>{d.name||'—'}</span>,
                   <span className="mono" style={{fontSize:'13px',fontWeight:700,color:'#00e676',textShadow:'0 0 8px rgba(0,230,118,0.3)'}}>R${Number(d.amount).toFixed(2)}</span>,
                   <Tag status={d.status}/>,
-                  <span className="mono" style={{fontSize:'10px',color:'#333'}}>{new Date(d.created_at).toLocaleDateString('pt-BR')}</span>,
+                  <span className="mono" style={{fontSize:'10px',color:'#555'}}>{new Date(d.created_at).toLocaleDateString('pt-BR')}</span>,
                   <Ac>
                     {d.status==='pending'&&<SBtn color="green" onClick={()=>C('APROVAR_DEPOSITO?',async()=>{const r=await api(`/api/admin/deposits/${d.id}/approve`,'PUT',{});if(r.success){T('APPROVED');load(token)}else T(r.error||'ERR','err')})}>APPROVE</SBtn>}
                     {d.status==='completed'&&<SBtn color="red" onClick={()=>C('ESTORNAR_DEPOSITO?',async()=>{const r=await api(`/api/admin/deposits/${d.id}/refund`,'PUT',{});if(r.success){T('REFUNDED');load(token)}else T(r.error||'ERR','err')})}>REFUND</SBtn>}
@@ -426,15 +426,15 @@ export default function Admin() {
           {tab==='audit'&&(
             <div>
               <div style={{marginBottom:'10px',display:'flex',alignItems:'center',gap:'10px'}}>
-                <span className="label" style={{color:'#222'}}>{audit.length} AUDIT_RECORDS</span>
+                <span className="label" style={{color:'#555'}}>{audit.length} AUDIT_RECORDS</span>
                 <span style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#111',letterSpacing:'0.06em'}}>// READ_ONLY_MODE</span>
               </div>
               <TBL loading={loading} cols={['OPERATOR','ACTION_ID','SOURCE_IP','TIMESTAMP']}
                 rows={audit.map((a:any)=>[
-                  <span style={{fontSize:'11px',color:'#555',fontWeight:500}}>{a.name||'—'}</span>,
+                  <span style={{fontSize:'11px',color:'#e0e0e0',fontWeight:500}}>{a.name||'—'}</span>,
                   <span style={{background:'rgba(129,140,248,0.06)',border:'1px solid rgba(129,140,248,0.12)',color:'#818cf8',fontSize:'9.5px',fontWeight:700,padding:'2px 7px',borderRadius:'3px',letterSpacing:'0.08em',fontFamily:"'JetBrains Mono',monospace"}}>{a.action}</span>,
-                  <span className="mono" style={{fontSize:'10px',color:'#222'}}>{a.ip||'—'}</span>,
-                  <span className="mono" style={{fontSize:'10px',color:'#222'}}>{new Date(a.created_at).toLocaleString('pt-BR')}</span>,
+                  <span className="mono" style={{fontSize:'10px',color:'#555'}}>{a.ip||'—'}</span>,
+                  <span className="mono" style={{fontSize:'10px',color:'#555'}}>{new Date(a.created_at).toLocaleString('pt-BR')}</span>,
                 ])}
               />
             </div>
@@ -444,7 +444,7 @@ export default function Admin() {
           {tab==='configs'&&(
             <div style={{maxWidth:'460px'}}>
               <Box>
-                <p className="label" style={{marginBottom:'16px',color:'#333'}}>FINANCIAL_PARAMS_v1</p>
+                <p className="label" style={{marginBottom:'16px',color:'#555'}}>FINANCIAL_PARAMS_v1</p>
                 <form onSubmit={saveSettings} style={{display:'flex',flexDirection:'column',gap:'2px'}}>
                   {[
                     {k:'taxa_vitoria',l:'TAXA_VITORIA_%'},
@@ -456,7 +456,7 @@ export default function Admin() {
                     {k:'rollover',l:'ROLLOVER_MULT'},
                   ].map(f=>(
                     <div key={f.k} style={{display:'flex',alignItems:'center',gap:'12px',padding:'10px 0',borderBottom:'1px solid #0a0a0a'}}>
-                      <label className="label" style={{flex:1,color:'#222'}}>{f.l}</label>
+                      <label className="label" style={{flex:1,color:'#555'}}>{f.l}</label>
                       <In type="number" step="0.01" value={settings[f.k]||''} style={{width:'100px',color:'#00e676',fontFamily:"'JetBrains Mono',monospace",fontWeight:700,textAlign:'right',textShadow:'0 0 8px rgba(0,230,118,0.3)'}} onChange={(e:any)=>setSettings({...settings,[f.k]:e.target.value})}/>
                     </div>
                   ))}
@@ -509,7 +509,7 @@ export default function Admin() {
       {balanceModal&&(
         <Ov onClose={()=>setBalanceModal(null)}>
           <MB title={`BALANCE_ADJUST :: ${balanceModal.name}`} onClose={()=>setBalanceModal(null)}>
-            <p style={{fontSize:'9px',color:'#222',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.06em'}}>// USE_NEGATIVE_VALUE_TO_DEDUCT_FUNDS</p>
+            <p style={{fontSize:'9px',color:'#555',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.06em'}}>// USE_NEGATIVE_VALUE_TO_DEDUCT_FUNDS</p>
             <Fd l="DELTA_VALUE_BRL"><In type="number" step="0.01" placeholder="100.00 or -50.00" value={balanceModal.amount} onChange={(e:any)=>setBalanceModal({...balanceModal,amount:e.target.value})}/></Fd>
             <Fd l="REASON_NOTE"><In placeholder="Ex: BONUS_CADASTRO" value={balanceModal.note} onChange={(e:any)=>setBalanceModal({...balanceModal,note:e.target.value})}/></Fd>
             <p style={{fontSize:'9px',color:'#1a1a1a',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.06em',marginTop:'4px'}}>// OPERATION_LOGGED_AUDIT_IP_TIMESTAMP</p>
@@ -525,11 +525,11 @@ export default function Admin() {
         <Ov onClose={()=>setConfirm(null)}>
           <div style={{background:'#1a1919',border:'1px solid rgba(255,179,0,0.15)',borderRadius:'8px',padding:'24px',maxWidth:'360px',width:'100%',textAlign:'center'}}>
             <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'rgba(255,179,0,0.06)',border:'1px solid rgba(255,179,0,0.12)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}>{I.warn}</div>
-            <p className="mono" style={{fontSize:'12px',color:'#888',lineHeight:1.7,marginBottom:'6px',letterSpacing:'0.04em'}}>{confirm.msg}</p>
+            <p className="mono" style={{fontSize:'12px',color:'#888888',lineHeight:1.7,marginBottom:'6px',letterSpacing:'0.04em'}}>{confirm.msg}</p>
             <p style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#1a1a1a',marginBottom:'18px',letterSpacing:'0.08em'}}>// ACTION_WILL_BE_LOGGED_TO_AUDIT</p>
             <div style={{display:'flex',gap:'6px'}}>
               <button onClick={async()=>{await confirm.action();setConfirm(null)}} style={{flex:1,background:'rgba(0,230,118,0.06)',color:'#00e676',border:'1px solid rgba(0,230,118,0.15)',borderRadius:'6px',padding:'10px',fontWeight:700,fontSize:'10px',cursor:'pointer',letterSpacing:'0.12em',textTransform:'uppercase',boxShadow:'0 0 12px rgba(0,230,118,0.06)',transition:'all 0.15s'}}>CONFIRM_EXEC</button>
-              <button onClick={()=>setConfirm(null)} style={{flex:1,background:'transparent',color:'#333',borderRadius:'6px',padding:'10px',fontSize:'10px',cursor:'pointer',letterSpacing:'0.12em',textTransform:'uppercase',transition:'all 0.1s'}}>ABORT</button>
+              <button onClick={()=>setConfirm(null)} style={{flex:1,background:'transparent',color:'#555',borderRadius:'6px',padding:'10px',fontSize:'10px',cursor:'pointer',letterSpacing:'0.12em',textTransform:'uppercase',transition:'all 0.1s'}}>ABORT</button>
             </div>
           </div>
         </Ov>
@@ -539,13 +539,13 @@ export default function Admin() {
         <Ov onClose={()=>setSearchOpen(false)}>
           <div style={{background:'#1a1919',borderRadius:'8px',width:'100%',maxWidth:'460px',overflow:'hidden',boxShadow:'0 24px 60px rgba(0,0,0,0.8)'}}>
             <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'12px 14px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
-              <span style={{color:'#222',flexShrink:0}}>{I.search}</span>
-              <input autoFocus value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)} placeholder="SEARCH_COMMAND..." style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#888',fontSize:'13px',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}} onKeyDown={(e:any)=>{if(e.key==='Escape')setSearchOpen(false)}}/>
-              <kbd style={{background:'#0e0e0e',borderRadius:'3px',padding:'2px 6px',fontSize:'9px',color:'#222',fontFamily:"'JetBrains Mono',monospace"}}>ESC</kbd>
+              <span style={{color:'#555',flexShrink:0}}>{I.search}</span>
+              <input autoFocus value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)} placeholder="SEARCH_COMMAND..." style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#888888',fontSize:'13px',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em'}} onKeyDown={(e:any)=>{if(e.key==='Escape')setSearchOpen(false)}}/>
+              <kbd style={{background:'#0e0e0e',borderRadius:'3px',padding:'2px 6px',fontSize:'9px',color:'#555',fontFamily:"'JetBrains Mono',monospace"}}>ESC</kbd>
             </div>
             <div style={{padding:'4px'}}>
               {NAV.flatMap(s=>s.items).filter(i=>!searchQ||i.label.includes(searchQ.toUpperCase())).map(item=>(
-                <button key={item.id} onClick={()=>{setTab(item.id);setSearchOpen(false);setSearchQ('')}} style={{width:'100%',display:'flex',alignItems:'center',gap:'10px',padding:'9px 12px',border:'none',background:'transparent',cursor:'pointer',borderRadius:'5px',color:'#333',fontSize:'11px',textAlign:'left',letterSpacing:'0.1em',fontWeight:700,fontFamily:"'JetBrains Mono',monospace",transition:'all 0.08s'}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#0f0f0f';e.currentTarget.style.color='#00e676'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#333'}}>
+                <button key={item.id} onClick={()=>{setTab(item.id);setSearchOpen(false);setSearchQ('')}} style={{width:'100%',display:'flex',alignItems:'center',gap:'10px',padding:'9px 12px',border:'none',background:'transparent',cursor:'pointer',borderRadius:'5px',color:'#555',fontSize:'11px',textAlign:'left',letterSpacing:'0.1em',fontWeight:700,fontFamily:"'JetBrains Mono',monospace",transition:'all 0.08s'}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#0f0f0f';e.currentTarget.style.color='#00e676'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#333'}}>
                   <span style={{opacity:0.4,flexShrink:0}}>{I[item.icon]}</span>
                   {item.label}
                 </button>
@@ -594,13 +594,13 @@ function TBL({cols,rows,loading}:{cols:string[],rows:any[][],loading:boolean}){
       <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1919'}}>
         <thead>
           <tr style={{background:'#1a1919',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
-            {cols.map(c=><th key={c} className="label" style={{textAlign:'left',padding:'9px 12px',borderBottom:'none',color:'#222'}}>{c}</th>)}
+            {cols.map(c=><th key={c} className="label" style={{textAlign:'left',padding:'9px 12px',borderBottom:'none',color:'#555'}}>{c}</th>)}
           </tr>
         </thead>
         <tbody>
           {rows.map((row,i)=>(
             <tr key={i} className="trow" style={{borderBottom:'1px solid #0d0d0d'}}>
-              {row.map((cell,j)=><td key={j} style={{padding:'9px 12px',verticalAlign:'middle'}}>{cell}</td>)}
+              {row.map((cell,j)=><td key={j} style={{padding:'12px 16px',verticalAlign:'middle',color:'#e0e0e0'}}>{cell}</td>)}
             </tr>
           ))}
         </tbody>
@@ -611,7 +611,7 @@ function TBL({cols,rows,loading}:{cols:string[],rows:any[][],loading:boolean}){
 
 function FB({q,onQ,s,onS,opts,action}:any){
   return(
-    <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'8px',flexWrap:'wrap'}}>
+    <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px',flexWrap:'wrap'}}>
       <div style={{position:'relative',flex:1,minWidth:'160px',maxWidth:'280px'}}>
         <span style={{position:'absolute',left:'8px',top:'50%',transform:'translateY(-50%)',color:'#111',pointerEvents:'none'}}><svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         <input value={q} onChange={(e:any)=>onQ(e.target.value)} placeholder="FILTER_QUERY..." style={{width:'100%',background:'#1a1919',borderRadius:'5px',padding:'6px 8px 6px 26px',color:'#555',fontSize:'10px',outline:'none',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',transition:'border-color 0.12s'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.2)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
@@ -620,7 +620,7 @@ function FB({q,onQ,s,onS,opts,action}:any){
         <option value="">ALL_STATUS</option>
         {opts.map((o:string)=><option key={o} value={o}>{o.toUpperCase()}</option>)}
       </select>}
-      {(q||s)&&<button onClick={()=>{onQ('');onS('')}} style={{background:'transparent',borderRadius:'5px',padding:'6px 10px',color:'#222',fontSize:'9px',cursor:'pointer',letterSpacing:'0.1em',fontFamily:"'JetBrains Mono',monospace",fontWeight:700,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>CLEAR</button>}
+      {(q||s)&&<button onClick={()=>{onQ('');onS('')}} style={{background:'transparent',borderRadius:'5px',padding:'6px 10px',color:'#555',fontSize:'9px',cursor:'pointer',letterSpacing:'0.1em',fontFamily:"'JetBrains Mono',monospace",fontWeight:700,transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>CLEAR</button>}
       {action&&<div style={{marginLeft:'auto'}}>{action}</div>}
     </div>
   )
@@ -635,7 +635,7 @@ function MB({title,onClose,children}:{title:string,onClose:()=>void,children:any
     <div style={{background:'#1a1919',borderRadius:'8px',padding:'20px',width:'100%',maxWidth:'460px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 60px rgba(0,0,0,0.9)'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'18px',paddingBottom:'12px',boxShadow:'0 1px 0 rgba(255,255,255,0.04)'}}>
         <h3 className="mono" style={{fontSize:'12px',fontWeight:700,color:'#555',letterSpacing:'0.08em'}}>{title}</h3>
-        <button onClick={onClose} style={{background:'transparent',cursor:'pointer',color:'#222',width:'24px',height:'24px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'14px',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>×</button>
+        <button onClick={onClose} style={{background:'transparent',cursor:'pointer',color:'#555',width:'24px',height:'24px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'14px',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#555'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#222'}>×</button>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>{children}</div>
     </div>
@@ -645,15 +645,15 @@ function MB({title,onClose,children}:{title:string,onClose:()=>void,children:any
 function Box({children}:{children:any}){return<div style={{background:'#1a1919',borderRadius:'8px',padding:'18px'}}>{children}</div>}
 
 function Fd({l,children}:{l:string,children:any}){
-  return<div><label className="label" style={{display:'block',marginBottom:'5px',color:'#222'}}>{l}</label>{children}</div>
+  return<div><label className="label" style={{display:'block',marginBottom:'5px',color:'#555'}}>{l}</label>{children}</div>
 }
 
 function In({style,...p}:any){
-  return<input {...p} style={{width:'100%',background:'#0e0e0e',borderRadius:'5px',padding:'8px 10px',color:'#888',fontSize:'12px',outline:'none',transition:'border-color 0.12s',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.02em',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.25)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
+  return<input {...p} style={{width:'100%',background:'#0e0e0e',borderRadius:'5px',padding:'8px 10px',color:'#888888',fontSize:'12px',outline:'none',transition:'border-color 0.12s',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.02em',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.25)'} onBlur={(e:any)=>e.target.style.borderColor='#0f0f0f'}/>
 }
 
 function Sl({style,...p}:any){
-  return<select {...p} style={{width:'100%',background:'#0e0e0e',borderRadius:'5px',padding:'8px 10px',color:'#888',fontSize:'12px',outline:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',...style}}/>
+  return<select {...p} style={{width:'100%',background:'#0e0e0e',borderRadius:'5px',padding:'8px 10px',color:'#888888',fontSize:'12px',outline:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.04em',...style}}/>
 }
 
 function Btn({children,onClick,color='gray'}:{children:any,onClick:()=>void,color?:string}){
