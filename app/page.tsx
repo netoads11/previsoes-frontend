@@ -124,10 +124,10 @@ export default function Home() {
             </div>
             <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>Previmarket</span>
           </Link>
-          <div style={{flex:1,position:'relative',maxWidth:'380px'}}>
+          <div style={{flex:1,position:'relative',maxWidth:'400px',margin:'0 auto'}}>
             <svg style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',width:'14px',height:'14px',color:'#666'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" placeholder="Buscar mercado..." value={busca} onChange={e=>setBusca(e.target.value)}
-              style={{width:'100%',background:'#1e1e1e',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'7px 10px 7px 30px',color:'#fff',fontSize:'13px',outline:'none'}}
+              style={{width:'100%',background:'#2a2a2a',border:'1px solid #333',borderRadius:'20px',padding:'7px 12px 7px 30px',color:'#fff',fontSize:'13px',outline:'none'}}
               onFocus={e=>e.target.style.borderColor='#00c853'}
               onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.08)'}/>
           </div>
@@ -409,10 +409,15 @@ function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|
 
       <div style={{display:'flex',alignItems:'center',gap:'4px'}}>
         <svg width="10" height="10" fill="none" stroke="#555" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span style={{fontSize:'10px',color:'#555'}}>{m.expires_at?`Encerra em ${getTime(m.expires_at)}`:'Aberto'}</span>
+        <span style={{fontSize:'10px',color:m.expires_at&&isUrgent(m.expires_at)?"#ff6b35":"#555"}}}>{m.expires_at?`Encerra em ${getTime(m.expires_at)}`:"Aberto"}</span>
       </div>
     </div>
   )
+}
+
+function isUrgent(d:string):boolean {
+  const diff=new Date(d).getTime()-Date.now()
+  return diff>0&&diff<86400000
 }
 
 function getTime(d:string):string {
