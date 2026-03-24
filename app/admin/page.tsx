@@ -221,7 +221,7 @@ export default function Admin() {
                         <p className="label" style={{marginBottom:'10px',color:'#333'}}>{c.id}</p>
                         <p className="mono glow-green" style={{fontSize:'26px',fontWeight:700,color:c.color,letterSpacing:'-0.5px',lineHeight:1,marginBottom:'6px',textShadow:`0 0 12px ${c.color}40`}}>{c.value}</p>
                         <p style={{fontSize:'9px',fontFamily:"'JetBrains Mono',monospace",color:'#222',letterSpacing:'0.08em'}}>{c.sub}</p>
-                        <svg style={{position:'absolute',bottom:'10px',right:'10px',opacity:0.15}} width="40" height:"20" viewBox="0 0 40 20">
+                        <svg style={{position:'absolute',bottom:'10px',right:'10px',opacity:0.15}} width="40" height="20" viewBox="0 0 40 20">
                           <polyline points="0,18 8,12 16,14 24,6 32,10 40,2" fill="none" stroke={c.color} strokeWidth="1.5"/>
                         </svg>
                       </div>
