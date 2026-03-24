@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { BarChart2, Users, TrendingUp, DollarSign, Plus, LogOut, Settings, ShieldCheck, List } from 'lucide-react'
 
 const API = 'http://187.77.248.115:3001'
 
@@ -10,186 +9,253 @@ export default function Admin() {
   const [tab, setTab] = useState('dashboard')
   const [markets, setMarkets] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
-  const [question, setQuestion] = useState('')
-  const [category, setCategory] = useState('Financeiro')
-  const [yesOdds, setYesOdds] = useState('50')
-  const [noOdds, setNoOdds] = useState('50')
-  const [expiresAt, setExpiresAt] = useState('')
-  const [msg, setMsg] = useState('')
-  const [msgType, setMsgType] = useState<'success'|'error'>('success')
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [settings, setSettings] = useState<any>({})
+  const [auditLogs, setAuditLogs] = useState<any[]>([])
   const [token, setToken] = useState('')
+  const [msg, setMsg] = useState({text:'',type:''})
+  const [editMarket, setEditMarket] = useState<any>(null)
+  const [editUser, setEditUser] = useState<any>(null)
+  const [balanceModal, setBalanceModal] = useState<any>(null)
+  const [confirm, setConfirm] = useState<any>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // CRIAR MERCADO
+  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:''})
 
   useEffect(() => {
     const u = localStorage.getItem('user')
     const t = localStorage.getItem('token')
     if (!u || !t) { router.push('/login'); return }
-    const user = JSON.parse(u)
-    if (!user.is_admin) { router.push('/'); return }
+    if (!JSON.parse(u).is_admin) { router.push('/'); return }
     setToken(t)
-    loadMarkets()
-    loadUsers(t)
+    loadAll(t)
   }, [])
 
-  function loadMarkets() {
-    fetch(API + '/api/markets')
-      .then(r => r.json())
-      .then(data => setMarkets(Array.isArray(data) ? data : []))
+  async function loadAll(t: string) {
+    const h = { 'Authorization': 'Bearer ' + t }
+    const [m, u, tx, s, a] = await Promise.all([
+      fetch(API+'/api/markets').then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/transactions',{headers:h}).then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/settings',{headers:h}).then(r=>r.json()).catch(()=>({})),
+      fetch(API+'/api/admin/audit',{headers:h}).then(r=>r.json()).catch(()=>[]),
+    ])
+    setMarkets(Array.isArray(m)?m:[])
+    setUsers(Array.isArray(u)?u:[])
+    setTransactions(Array.isArray(tx)?tx:[])
+    setSettings(s||{})
+    setAuditLogs(Array.isArray(a)?a:[])
   }
 
-  function loadUsers(t: string) {
-    fetch(API + '/api/admin/users', { headers: { 'Authorization': 'Bearer ' + t } })
-      .then(r => r.json())
-      .then(data => setUsers(Array.isArray(data) ? data : []))
-      .catch(() => {})
+  function showMsg(text: string, type='success') {
+    setMsg({text,type})
+    setTimeout(()=>setMsg({text:'',type:''}),3000)
+  }
+
+  async function apiCall(url: string, method='GET', body?: any) {
+    const res = await fetch(API+url, {
+      method,
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: body ? JSON.stringify(body) : undefined
+    })
+    return res.json()
   }
 
   async function createMarket(e: any) {
     e.preventDefault()
-    try {
-      const res = await fetch(API + '/api/admin/markets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ question, category, yes_odds: Number(yesOdds), no_odds: Number(noOdds), expires_at: expiresAt || null })
-      })
-      if (res.ok) {
-        setMsg('Mercado criado com sucesso!')
-        setMsgType('success')
-        setQuestion('')
-        setYesOdds('50')
-        setNoOdds('50')
-        loadMarkets()
-      } else {
-        setMsg('Erro ao criar mercado.')
-        setMsgType('error')
+    const r = await apiCall('/api/admin/markets','POST',{
+      ...newMarket, yes_odds: Number(newMarket.yes_odds), no_odds: Number(newMarket.no_odds),
+      expires_at: newMarket.expires_at || null
+    })
+    if (r.id) { showMsg('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:''}); loadAll(token) }
+    else showMsg(r.error||'Erro','error')
+  }
+
+  async function saveMarket() {
+    if (!editMarket) return
+    const r = await apiCall(`/api/admin/markets/${editMarket.id}`,'PUT',editMarket)
+    if (r.id) { showMsg('Mercado atualizado!'); setEditMarket(null); loadAll(token) }
+    else showMsg(r.error||'Erro','error')
+  }
+
+  async function resolveMarket(id: string, result: string) {
+    setConfirm({
+      msg: `Resolver mercado com resultado "${result.toUpperCase()}"? Esta ação é irreversível.`,
+      action: async () => {
+        const r = await apiCall(`/api/admin/markets/${id}/resolve`,'PUT',{result})
+        if (r.success) { showMsg('Mercado resolvido!'); loadAll(token) }
+        else showMsg(r.error||'Erro','error')
       }
-    } catch {
-      setMsg('Erro ao criar mercado.')
-      setMsgType('error')
-    }
-    setTimeout(() => setMsg(''), 3000)
+    })
+  }
+
+  async function cancelMarket(id: string) {
+    setConfirm({
+      msg: 'Cancelar mercado? Todas as apostas serão devolvidas.',
+      action: async () => {
+        const r = await apiCall(`/api/admin/markets/${id}/cancel`,'PUT',{})
+        if (r.success) { showMsg('Mercado cancelado!'); loadAll(token) }
+        else showMsg(r.error||'Erro','error')
+      }
+    })
+  }
+
+  async function saveUser() {
+    if (!editUser) return
+    const r = await apiCall(`/api/admin/users/${editUser.id}`,'PUT',editUser)
+    if (r.id) { showMsg('Usuario atualizado!'); setEditUser(null); loadAll(token) }
+    else showMsg(r.error||'Erro','error')
+  }
+
+  async function adjustBalance() {
+    if (!balanceModal) return
+    setConfirm({
+      msg: `${balanceModal.amount > 0 ? 'Adicionar' : 'Remover'} R$ ${Math.abs(balanceModal.amount)} do saldo de ${balanceModal.name}?`,
+      action: async () => {
+        const r = await apiCall(`/api/admin/users/${balanceModal.id}/balance`,'POST',{amount: Number(balanceModal.amount), note: balanceModal.note})
+        if (r.success) { showMsg('Saldo ajustado!'); setBalanceModal(null); loadAll(token) }
+        else showMsg(r.error||'Erro','error')
+      }
+    })
+  }
+
+  async function saveSettings(e: any) {
+    e.preventDefault()
+    const r = await apiCall('/api/admin/settings','PUT',settings)
+    if (r.success) showMsg('Configuracoes salvas!')
+    else showMsg(r.error||'Erro','error')
   }
 
   const TABS = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart2 },
-    { id: 'markets', label: 'Mercados', icon: List },
-    { id: 'criar', label: 'Criar Mercado', icon: Plus },
-    { id: 'users', label: 'Usuarios', icon: Users },
-    { id: 'configs', label: 'Configuracoes', icon: Settings },
+    {id:'dashboard',label:'Dashboard'},
+    {id:'markets',label:'Mercados'},
+    {id:'criar',label:'Criar Mercado'},
+    {id:'users',label:'Usuarios'},
+    {id:'financeiro',label:'Financeiro'},
+    {id:'configs',label:'Configuracoes'},
+    {id:'audit',label:'Auditoria'},
   ]
 
   const CATS = ['Entretenimento','Criptomoedas','Financeiro','Esportes','Politica','Clima','Celebridades']
 
+  const s = {
+    container: {display:'flex',minHeight:'100vh',background:'#111',color:'#fff',fontFamily:'Kanit,sans-serif'} as any,
+    sidebar: {width:'200px',flexShrink:0,background:'#1a1a1a',borderRight:'1px solid #222',padding:'16px 0',display:'flex',flexDirection:'column' as any,height:'100vh',position:'sticky' as any,top:0},
+    main: {flex:1,padding:'24px',overflowY:'auto' as any},
+    card: {background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'20px',marginBottom:'16px'},
+    input: {width:'100%',background:'#2a2a2a',border:'1px solid #333',borderRadius:'8px',padding:'10px 12px',color:'#fff',fontSize:'13px',outline:'none',fontFamily:'Kanit,sans-serif'},
+    btn: {background:'#00c853',color:'#000',border:'none',borderRadius:'7px',padding:'9px 18px',fontWeight:700,fontSize:'13px',cursor:'pointer',fontFamily:'Kanit,sans-serif'},
+    btnRed: {background:'rgba(239,68,68,0.15)',color:'#ef4444',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'7px',padding:'7px 14px',fontWeight:600,fontSize:'12px',cursor:'pointer',fontFamily:'Kanit,sans-serif'},
+    btnGray: {background:'#2a2a2a',color:'#aaa',border:'1px solid #333',borderRadius:'7px',padding:'7px 14px',fontWeight:600,fontSize:'12px',cursor:'pointer',fontFamily:'Kanit,sans-serif'},
+    label: {fontSize:'11px',color:'#888',display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.08em'},
+    badge: (c: string) => ({display:'inline-block',padding:'2px 8px',borderRadius:'4px',fontSize:'11px',fontWeight:700,background: c==='open'?'rgba(0,200,83,0.12)':c==='resolved'?'rgba(99,102,241,0.12)':c==='cancelled'?'rgba(239,68,68,0.12)':'rgba(255,255,255,0.08)',color: c==='open'?'#00c853':c==='resolved'?'#818cf8':c==='cancelled'?'#ef4444':'#888'}),
+    th: {textAlign:'left' as any,padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#666',textTransform:'uppercase' as any,letterSpacing:'0.05em',borderBottom:'1px solid #222'},
+    td: {padding:'10px 14px',fontSize:'13px',borderBottom:'1px solid #1a1a1a'},
+  }
+
   return (
-    <div style={{display:'flex',minHeight:'100vh',background:'var(--background)',fontFamily:'Kanit,sans-serif'}}>
-      <aside style={{width:'240px',flexShrink:0,background:'var(--surface)',borderRight:'1px solid var(--border)',padding:'24px 0',display:'flex',flexDirection:'column',position:'sticky',top:0,height:'100vh'}}>
-        <div style={{padding:'0 20px 24px',borderBottom:'1px solid var(--border)'}}>
-          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-            <div style={{width:'32px',height:'32px',borderRadius:'8px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 12px rgba(106,221,0,0.4)'}}>
-              <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'14px'}}>P</span>
+    <div style={s.container}>
+      <style>{`.tab-nav::-webkit-scrollbar{display:none}`}</style>
+
+      {/* SIDEBAR DESKTOP */}
+      <aside style={{...s.sidebar,display:'flex'}}>
+        <div style={{padding:'0 16px 16px',borderBottom:'1px solid #222',marginBottom:'8px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+            <div style={{width:'28px',height:'28px',borderRadius:'6px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <span style={{color:'#000',fontWeight:900,fontSize:'12px'}}>P</span>
             </div>
             <div>
-              <div style={{color:'var(--foreground)',fontWeight:700,fontSize:'15px'}}>Previmarket</div>
-              <div style={{color:'var(--primary)',fontSize:'11px',fontWeight:600}}>Admin Panel</div>
+              <div style={{fontWeight:700,fontSize:'13px'}}>Previmarket</div>
+              <div style={{color:'#00c853',fontSize:'10px'}}>Admin</div>
             </div>
           </div>
         </div>
-        <div style={{padding:'16px 12px 0',flex:1}}>
-          <p style={{color:'var(--muted-foreground)',fontSize:'10px',fontWeight:600,letterSpacing:'0.1em',textTransform:'uppercase',padding:'0 8px 8px'}}>NAVEGACAO</p>
-          <nav style={{display:'flex',flexDirection:'column',gap:'2px'}}>
-            {TABS.map(t => {
-              const Icon = t.icon
-              const isActive = tab === t.id
-              return (
-                <button key={t.id} onClick={() => setTab(t.id)} style={{display:'flex',alignItems:'center',gap:'10px',padding:'10px 12px',borderRadius:'8px',border:'none',cursor:'pointer',background:isActive?'rgba(106,221,0,0.12)':'transparent',color:isActive?'var(--primary)':'var(--muted-foreground)',fontSize:'14px',fontWeight:isActive?600:400,fontFamily:'Kanit,sans-serif',transition:'all 0.15s',textAlign:'left'}}>
-                  <Icon style={{width:'16px',height:'16px',flexShrink:0}}/>
-                  {t.label}
-                </button>
-              )
-            })}
-          </nav>
-        </div>
-        <div style={{padding:'16px 12px',borderTop:'1px solid var(--border)'}}>
-          <button onClick={() => { localStorage.clear(); router.push('/') }} style={{display:'flex',alignItems:'center',gap:'8px',padding:'10px 12px',borderRadius:'8px',border:'none',cursor:'pointer',background:'transparent',color:'var(--muted-foreground)',fontSize:'14px',fontFamily:'Kanit,sans-serif',width:'100%'}}>
-            <LogOut style={{width:'16px',height:'16px'}}/>
-            Sair
-          </button>
+        <nav style={{flex:1,overflowY:'auto'}}>
+          {TABS.map(t=>(
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{width:'100%',padding:'9px 16px',border:'none',cursor:'pointer',background:tab===t.id?'rgba(0,200,83,0.08)':'transparent',borderLeft:tab===t.id?'2px solid #00c853':'2px solid transparent',color:tab===t.id?'#00c853':'#888',fontSize:'13px',fontWeight:tab===t.id?600:400,fontFamily:'Kanit,sans-serif',textAlign:'left'}}>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <div style={{padding:'12px 16px',borderTop:'1px solid #222'}}>
+          <button onClick={()=>{localStorage.clear();router.push('/')}} style={{...s.btnGray,width:'100%'}}>Sair</button>
         </div>
       </aside>
 
-      <main style={{flex:1,padding:'32px',overflowY:'auto'}}>
-        {tab === 'dashboard' && (
+      {/* MAIN */}
+      <main style={s.main}>
+        {/* MSG */}
+        {msg.text && (
+          <div style={{background:msg.type==='error'?'rgba(239,68,68,0.12)':'rgba(0,200,83,0.12)',border:`1px solid ${msg.type==='error'?'rgba(239,68,68,0.3)':'rgba(0,200,83,0.3)'}`,borderRadius:'8px',padding:'10px 16px',marginBottom:'16px',color:msg.type==='error'?'#ef4444':'#00c853',fontSize:'13px'}}>
+            {msg.text}
+          </div>
+        )}
+
+        {/* DASHBOARD */}
+        {tab==='dashboard' && (
           <div>
-            <div style={{marginBottom:'32px'}}>
-              <h1 style={{fontSize:'24px',fontWeight:800,color:'var(--foreground)',marginBottom:'4px'}}>Dashboard</h1>
-              <p style={{color:'var(--muted-foreground)',fontSize:'14px'}}>Visao geral da plataforma</p>
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'16px',marginBottom:'32px'}}>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Dashboard</h1>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'12px',marginBottom:'24px'}}>
               {[
-                { label: 'Mercados ativos', value: markets.length, icon: TrendingUp, color: 'var(--primary)', bg: 'rgba(106,221,0,0.1)' },
-                { label: 'Usuarios', value: users.length, icon: Users, color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
-                { label: 'Volume total', value: 'R$ 0', icon: DollarSign, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-              ].map(card => {
-                const Icon = card.icon
-                return (
-                  <div key={card.label} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',padding:'24px'}}>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'16px'}}>
-                      <p style={{color:'var(--muted-foreground)',fontSize:'13px',fontWeight:500}}>{card.label}</p>
-                      <div style={{width:'36px',height:'36px',borderRadius:'8px',background:card.bg,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                        <Icon style={{width:'18px',height:'18px',color:card.color}}/>
-                      </div>
-                    </div>
-                    <p style={{fontSize:'32px',fontWeight:800,color:'var(--foreground)'}}>{card.value}</p>
-                  </div>
-                )
-              })}
-            </div>
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',padding:'24px'}}>
-              <h3 style={{fontSize:'16px',fontWeight:700,marginBottom:'16px'}}>Ultimos mercados criados</h3>
-              {markets.slice(0,5).map(m => (
-                <div key={m.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid var(--border)'}}>
-                  <div>
-                    <p style={{fontSize:'14px',fontWeight:500,color:'var(--foreground)'}}>{m.question}</p>
-                    <p style={{fontSize:'12px',color:'var(--muted-foreground)',marginTop:'2px'}}>{m.category}</p>
-                  </div>
-                  <span style={{background:'rgba(106,221,0,0.1)',color:'var(--primary)',fontSize:'12px',fontWeight:600,padding:'4px 10px',borderRadius:'4px'}}>Aberto</span>
+                {label:'Mercados',value:markets.length,color:'#00c853'},
+                {label:'Usuarios',value:users.length,color:'#818cf8'},
+                {label:'Transacoes',value:transactions.length,color:'#f59e0b'},
+                {label:'Auditoria',value:auditLogs.length,color:'#ef4444'},
+              ].map(c=>(
+                <div key={c.label} style={s.card}>
+                  <p style={{fontSize:'11px',color:'#666',marginBottom:'6px'}}>{c.label}</p>
+                  <p style={{fontSize:'28px',fontWeight:800,color:c.color}}>{c.value}</p>
                 </div>
               ))}
-              {markets.length === 0 && <p style={{color:'var(--muted-foreground)',fontSize:'14px'}}>Nenhum mercado criado ainda.</p>}
+            </div>
+            <div style={s.card}>
+              <h3 style={{fontSize:'14px',fontWeight:700,marginBottom:'12px'}}>Ultimos mercados</h3>
+              {markets.slice(0,5).map(m=>(
+                <div key={m.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #222'}}>
+                  <div>
+                    <p style={{fontSize:'13px',fontWeight:500}}>{m.question}</p>
+                    <p style={{fontSize:'11px',color:'#666'}}>{m.category}</p>
+                  </div>
+                  <span style={s.badge(m.status)}>{m.status}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {tab === 'markets' && (
+        {/* MERCADOS */}
+        {tab==='markets' && (
           <div>
-            <div style={{marginBottom:'32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div>
-                <h1 style={{fontSize:'24px',fontWeight:800,color:'var(--foreground)',marginBottom:'4px'}}>Mercados</h1>
-                <p style={{color:'var(--muted-foreground)',fontSize:'14px'}}>{markets.length} mercados no total</p>
-              </div>
-              <button onClick={() => setTab('criar')} style={{display:'flex',alignItems:'center',gap:'8px',background:'var(--primary)',color:'#0a0a0a',border:'none',borderRadius:'8px',padding:'10px 20px',fontWeight:700,fontSize:'14px',cursor:'pointer',fontFamily:'Kanit,sans-serif'}}>
-                <Plus style={{width:'16px',height:'16px'}}/>
-                Novo mercado
-              </button>
-            </div>
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',overflow:'hidden'}}>
-              <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Mercados ({markets.length})</h1>
+            <div style={{overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a',borderRadius:'10px',overflow:'hidden'}}>
                 <thead>
-                  <tr style={{borderBottom:'1px solid var(--border)'}}>
-                    {['Pergunta','Categoria','SIM','NAO','Status'].map(h => (
-                      <th key={h} style={{textAlign:'left',padding:'14px 20px',fontSize:'12px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
+                  <tr>
+                    {['Pergunta','Categoria','SIM','NAO','Status','Encerra','Acoes'].map(h=>(
+                      <th key={h} style={s.th}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {markets.length === 0 ? (
-                    <tr><td colSpan={5} style={{textAlign:'center',padding:'48px',color:'var(--muted-foreground)'}}>Nenhum mercado criado ainda.</td></tr>
-                  ) : markets.map(m => (
-                    <tr key={m.id} style={{borderBottom:'1px solid var(--border)'}}>
-                      <td style={{padding:'14px 20px',fontSize:'14px',color:'var(--foreground)',maxWidth:'300px'}}>{m.question}</td>
-                      <td style={{padding:'14px 20px',fontSize:'13px',color:'var(--muted-foreground)'}}>{m.category || '-'}</td>
-                      <td style={{padding:'14px 20px',fontSize:'13px',fontWeight:600,color:'var(--primary)'}}>{m.yes_odds}%</td>
-                      <td style={{padding:'14px 20px',fontSize:'13px',fontWeight:600,color:'#ef4444'}}>{m.no_odds}%</td>
-                      <td style={{padding:'14px 20px'}}><span style={{background:'rgba(106,221,0,0.1)',color:'var(--primary)',fontSize:'12px',fontWeight:600,padding:'4px 10px',borderRadius:'4px'}}>Aberto</span></td>
+                  {markets.map(m=>(
+                    <tr key={m.id}>
+                      <td style={{...s.td,maxWidth:'220px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.question}</td>
+                      <td style={{...s.td,color:'#888'}}>{m.category||'-'}</td>
+                      <td style={{...s.td,color:'#00c853',fontWeight:600}}>{m.yes_odds}%</td>
+                      <td style={{...s.td,color:'#ef4444',fontWeight:600}}>{m.no_odds}%</td>
+                      <td style={s.td}><span style={s.badge(m.status)}>{m.status}</span></td>
+                      <td style={{...s.td,color:'#888',fontSize:'11px'}}>{m.expires_at?new Date(m.expires_at).toLocaleDateString('pt-BR'):'-'}</td>
+                      <td style={s.td}>
+                        <div style={{display:'flex',gap:'4px',flexWrap:'wrap'}}>
+                          <button onClick={()=>setEditMarket({...m})} style={s.btnGray}>Editar</button>
+                          {m.status==='open' && <>
+                            <button onClick={()=>resolveMarket(m.id,'yes')} style={{...s.btn,padding:'5px 10px',fontSize:'11px'}}>SIM</button>
+                            <button onClick={()=>resolveMarket(m.id,'no')} style={{...s.btnRed,padding:'5px 10px'}}>NAO</button>
+                            <button onClick={()=>cancelMarket(m.id)} style={{...s.btnGray,fontSize:'11px'}}>Cancelar</button>
+                          </>}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -198,81 +264,79 @@ export default function Admin() {
           </div>
         )}
 
-        {tab === 'criar' && (
+        {/* CRIAR MERCADO */}
+        {tab==='criar' && (
           <div>
-            <div style={{marginBottom:'32px'}}>
-              <h1 style={{fontSize:'24px',fontWeight:800,color:'var(--foreground)',marginBottom:'4px'}}>Criar Mercado</h1>
-              <p style={{color:'var(--muted-foreground)',fontSize:'14px'}}>Adicione um novo mercado de previsao</p>
-            </div>
-            {msg && (
-              <div style={{background:msgType==='success'?'rgba(106,221,0,0.1)':'rgba(239,68,68,0.1)',border:`1px solid ${msgType==='success'?'rgba(106,221,0,0.3)':'rgba(239,68,68,0.3)'}`,borderRadius:'8px',padding:'12px 16px',marginBottom:'24px',color:msgType==='success'?'var(--primary)':'#f87171',fontSize:'14px'}}>
-                {msg}
-              </div>
-            )}
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',padding:'32px',maxWidth:'600px'}}>
-              <form onSubmit={createMarket} style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Criar Mercado</h1>
+            <div style={{...s.card,maxWidth:'580px'}}>
+              <form onSubmit={createMarket} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
                 <div>
-                  <label style={{fontSize:'13px',color:'var(--muted-foreground)',display:'block',marginBottom:'8px',fontWeight:500}}>Pergunta do mercado</label>
-                  <input type="text" value={question} onChange={e=>setQuestion(e.target.value)} required placeholder="Ex: Bitcoin vai superar $100k em 2026?" style={{width:'100%',background:'var(--muted)',border:'1px solid var(--border)',borderRadius:'8px',padding:'12px 16px',color:'var(--foreground)',fontSize:'15px',outline:'none',fontFamily:'Kanit,sans-serif'}} onFocus={e=>e.target.style.borderColor='rgba(106,221,0,0.5)'} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
+                  <label style={s.label}>Pergunta</label>
+                  <input style={s.input} type="text" value={newMarket.question} onChange={e=>setNewMarket({...newMarket,question:e.target.value})} required placeholder="Ex: Bitcoin vai subir?"/>
                 </div>
                 <div>
-                  <label style={{fontSize:'13px',color:'var(--muted-foreground)',display:'block',marginBottom:'8px',fontWeight:500}}>Categoria</label>
-                  <select value={category} onChange={e=>setCategory(e.target.value)} style={{width:'100%',background:'var(--muted)',border:'1px solid var(--border)',borderRadius:'8px',padding:'12px 16px',color:'var(--foreground)',fontSize:'15px',outline:'none',fontFamily:'Kanit,sans-serif'}}>
+                  <label style={s.label}>Categoria</label>
+                  <select style={s.input} value={newMarket.category} onChange={e=>setNewMarket({...newMarket,category:e.target.value})}>
                     {CATS.map(c=><option key={c} value={c} style={{background:'#1a1a1a'}}>{c}</option>)}
                   </select>
                 </div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px'}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                   <div>
-                    <label style={{fontSize:'13px',color:'var(--muted-foreground)',display:'block',marginBottom:'8px',fontWeight:500}}>% Chance SIM</label>
-                    <input type="number" min="1" max="99" value={yesOdds} onChange={e=>{setYesOdds(e.target.value);setNoOdds(String(100-Number(e.target.value)))}} style={{width:'100%',background:'var(--muted)',border:'1px solid rgba(106,221,0,0.3)',borderRadius:'8px',padding:'12px 16px',color:'var(--primary)',fontSize:'18px',fontWeight:700,outline:'none',fontFamily:'Kanit,sans-serif'}}/>
+                    <label style={s.label}>% SIM</label>
+                    <input style={{...s.input,color:'#00c853'}} type="number" min="1" max="99" value={newMarket.yes_odds} onChange={e=>{setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}}/>
                   </div>
                   <div>
-                    <label style={{fontSize:'13px',color:'var(--muted-foreground)',display:'block',marginBottom:'8px',fontWeight:500}}>% Chance NAO</label>
-                    <input type="number" min="1" max="99" value={noOdds} onChange={e=>{setNoOdds(e.target.value);setYesOdds(String(100-Number(e.target.value)))}} style={{width:'100%',background:'var(--muted)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'8px',padding:'12px 16px',color:'#ef4444',fontSize:'18px',fontWeight:700,outline:'none',fontFamily:'Kanit,sans-serif'}}/>
+                    <label style={s.label}>% NAO</label>
+                    <input style={{...s.input,color:'#ef4444'}} type="number" min="1" max="99" value={newMarket.no_odds} onChange={e=>{setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}}/>
                   </div>
                 </div>
-                <div style={{background:'var(--muted)',borderRadius:'8px',padding:'16px',display:'flex',justifyContent:'space-between'}}>
+                <div>
+                  <label style={s.label}>Data de encerramento</label>
+                  <input style={s.input} type="datetime-local" value={newMarket.expires_at} onChange={e=>setNewMarket({...newMarket,expires_at:e.target.value})}/>
+                </div>
+                <div style={{background:'#2a2a2a',borderRadius:'8px',padding:'12px',display:'flex',justifyContent:'space-around'}}>
                   <div style={{textAlign:'center'}}>
-                    <p style={{fontSize:'12px',color:'var(--muted-foreground)',marginBottom:'4px'}}>Multiplicador SIM</p>
-                    <p style={{fontSize:'20px',fontWeight:800,color:'var(--primary)'}}>{(100/Number(yesOdds)).toFixed(2)}x</p>
+                    <p style={{fontSize:'10px',color:'#666',marginBottom:'3px'}}>Mult. SIM</p>
+                    <p style={{fontSize:'18px',fontWeight:800,color:'#00c853'}}>{(100/Number(newMarket.yes_odds||1)).toFixed(2)}x</p>
                   </div>
                   <div style={{textAlign:'center'}}>
-                    <p style={{fontSize:'12px',color:'var(--muted-foreground)',marginBottom:'4px'}}>Multiplicador NAO</p>
-                    <p style={{fontSize:'20px',fontWeight:800,color:'#ef4444'}}>{(100/Number(noOdds)).toFixed(2)}x</p>
+                    <p style={{fontSize:'10px',color:'#666',marginBottom:'3px'}}>Mult. NAO</p>
+                    <p style={{fontSize:'18px',fontWeight:800,color:'#ef4444'}}>{(100/Number(newMarket.no_odds||1)).toFixed(2)}x</p>
                   </div>
                 </div>
-                <button type="submit" style={{padding:'16px',borderRadius:'10px',border:'none',cursor:'pointer',background:'var(--primary)',color:'#0a0a0a',fontWeight:800,fontSize:'16px',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 20px rgba(106,221,0,0.3)'}}>
-                  CRIAR MERCADO
-                </button>
+                <button type="submit" style={{...s.btn,padding:'13px',fontSize:'14px',width:'100%'}}>CRIAR MERCADO</button>
               </form>
             </div>
           </div>
         )}
 
-        {tab === 'users' && (
+        {/* USUARIOS */}
+        {tab==='users' && (
           <div>
-            <div style={{marginBottom:'32px'}}>
-              <h1 style={{fontSize:'24px',fontWeight:800,color:'var(--foreground)',marginBottom:'4px'}}>Usuarios</h1>
-              <p style={{color:'var(--muted-foreground)',fontSize:'14px'}}>{users.length} usuarios cadastrados</p>
-            </div>
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',overflow:'hidden'}}>
-              <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Usuarios ({users.length})</h1>
+            <div style={{overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a',borderRadius:'10px',overflow:'hidden'}}>
                 <thead>
-                  <tr style={{borderBottom:'1px solid var(--border)'}}>
-                    {['Nome','Email','Admin','Cadastro'].map(h=>(
-                      <th key={h} style={{textAlign:'left',padding:'14px 20px',fontSize:'12px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
+                  <tr>
+                    {['Nome','Email','Tipo','Status','Cadastro','Acoes'].map(h=>(
+                      <th key={h} style={s.th}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {users.length===0?(
-                    <tr><td colSpan={4} style={{textAlign:'center',padding:'48px',color:'var(--muted-foreground)'}}>Nenhum usuario ainda.</td></tr>
-                  ):users.map(u=>(
-                    <tr key={u.id} style={{borderBottom:'1px solid var(--border)'}}>
-                      <td style={{padding:'14px 20px',fontSize:'14px',color:'var(--foreground)',fontWeight:500}}>{u.name}</td>
-                      <td style={{padding:'14px 20px',fontSize:'13px',color:'var(--muted-foreground)'}}>{u.email}</td>
-                      <td style={{padding:'14px 20px'}}>{u.is_admin?<span style={{background:'rgba(106,221,0,0.1)',color:'var(--primary)',fontSize:'12px',fontWeight:600,padding:'4px 10px',borderRadius:'4px'}}>Admin</span>:<span style={{background:'var(--muted)',color:'var(--muted-foreground)',fontSize:'12px',padding:'4px 10px',borderRadius:'4px'}}>Usuario</span>}</td>
-                      <td style={{padding:'14px 20px',fontSize:'13px',color:'var(--muted-foreground)'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                  {users.map(u=>(
+                    <tr key={u.id}>
+                      <td style={{...s.td,fontWeight:500}}>{u.name}</td>
+                      <td style={{...s.td,color:'#888'}}>{u.email}</td>
+                      <td style={s.td}><span style={s.badge(u.is_admin?'resolved':'open')}>{u.is_admin?'Admin':'Usuario'}</span></td>
+                      <td style={s.td}><span style={s.badge(u.status||'open')}>{u.status||'active'}</span></td>
+                      <td style={{...s.td,color:'#888',fontSize:'11px'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                      <td style={s.td}>
+                        <div style={{display:'flex',gap:'4px'}}>
+                          <button onClick={()=>setEditUser({...u})} style={s.btnGray}>Editar</button>
+                          <button onClick={()=>setBalanceModal({id:u.id,name:u.name,amount:'',note:''})} style={{...s.btn,padding:'5px 10px',fontSize:'11px'}}>Saldo</button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -281,26 +345,193 @@ export default function Admin() {
           </div>
         )}
 
-        {tab === 'configs' && (
+        {/* FINANCEIRO */}
+        {tab==='financeiro' && (
           <div>
-            <div style={{marginBottom:'32px'}}>
-              <h1 style={{fontSize:'24px',fontWeight:800,color:'var(--foreground)',marginBottom:'4px'}}>Configuracoes</h1>
-              <p style={{color:'var(--muted-foreground)',fontSize:'14px'}}>Configuracoes gerais da plataforma</p>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Financeiro</h1>
+            <div style={{overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a',borderRadius:'10px',overflow:'hidden'}}>
+                <thead>
+                  <tr>
+                    {['Usuario','Tipo','Valor','Status','Data','Descricao'].map(h=>(
+                      <th key={h} style={s.th}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((t:any)=>(
+                    <tr key={t.id}>
+                      <td style={{...s.td,fontWeight:500}}>{t.name||'-'}</td>
+                      <td style={s.td}><span style={s.badge(t.type==='deposit'?'open':t.type==='withdrawal'?'cancelled':'resolved')}>{t.type}</span></td>
+                      <td style={{...s.td,fontWeight:600,color: t.type==='deposit'?'#00c853':'#ef4444'}}>R$ {Number(t.amount).toFixed(2)}</td>
+                      <td style={s.td}><span style={s.badge(t.status==='completed'?'resolved':t.status==='pending'?'open':'cancelled')}>{t.status}</span></td>
+                      <td style={{...s.td,color:'#888',fontSize:'11px'}}>{new Date(t.created_at).toLocaleDateString('pt-BR')}</td>
+                      <td style={{...s.td,color:'#888',fontSize:'11px',maxWidth:'150px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.description||'-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'12px',padding:'32px',maxWidth:'600px'}}>
-              <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
-                {[{label:'Taxa de Deposito',value:'2%'},{label:'Taxa de Vitoria',value:'0.36%'},{label:'Taxa de Saque',value:'2%'}].map(item=>(
-                  <div key={item.label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px',background:'var(--muted)',borderRadius:'8px'}}>
-                    <span style={{fontSize:'14px',color:'var(--foreground)',fontWeight:500}}>{item.label}</span>
-                    <span style={{fontSize:'16px',fontWeight:700,color:'var(--primary)'}}>{item.value}</span>
+          </div>
+        )}
+
+        {/* CONFIGURACOES */}
+        {tab==='configs' && (
+          <div>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Configuracoes Globais</h1>
+            <div style={{...s.card,maxWidth:'520px'}}>
+              <form onSubmit={saveSettings} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
+                {[
+                  {key:'taxa_vitoria',label:'Taxa de vitoria (%)'},
+                  {key:'taxa_deposito',label:'Taxa de deposito (%)'},
+                  {key:'taxa_saque',label:'Taxa de saque (%)'},
+                  {key:'saque_minimo',label:'Saque minimo (R$)'},
+                  {key:'saque_maximo',label:'Saque maximo (R$)'},
+                  {key:'saque_diario',label:'Limite saque diario (R$)'},
+                  {key:'rollover',label:'Rollover base (x)'},
+                ].map(f=>(
+                  <div key={f.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px'}}>
+                    <label style={{...s.label,marginBottom:0,flex:1}}>{f.label}</label>
+                    <input style={{...s.input,width:'140px',color:'#00c853',fontWeight:700}} type="number" step="0.01" value={settings[f.key]||''} onChange={e=>setSettings({...settings,[f.key]:e.target.value})}/>
                   </div>
                 ))}
-                <p style={{fontSize:'13px',color:'var(--muted-foreground)',textAlign:'center',marginTop:'8px'}}>Configuracao de taxas em breve disponivel.</p>
-              </div>
+                <button type="submit" style={{...s.btn,padding:'12px',fontSize:'14px',width:'100%',marginTop:'8px'}}>SALVAR CONFIGURACOES</button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* AUDITORIA */}
+        {tab==='audit' && (
+          <div>
+            <h1 style={{fontSize:'20px',fontWeight:800,marginBottom:'20px'}}>Log de Auditoria</h1>
+            <div style={{overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a',borderRadius:'10px',overflow:'hidden'}}>
+                <thead>
+                  <tr>
+                    {['Admin','Acao','Data','IP'].map(h=>(
+                      <th key={h} style={s.th}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditLogs.length===0?(
+                    <tr><td colSpan={4} style={{textAlign:'center',padding:'32px',color:'#666'}}>Nenhum log ainda.</td></tr>
+                  ):auditLogs.map((a:any)=>(
+                    <tr key={a.id}>
+                      <td style={{...s.td,fontWeight:500}}>{a.name||'-'}</td>
+                      <td style={s.td}><span style={{background:'rgba(99,102,241,0.1)',color:'#818cf8',fontSize:'11px',fontWeight:600,padding:'2px 8px',borderRadius:'4px'}}>{a.action}</span></td>
+                      <td style={{...s.td,color:'#888',fontSize:'11px'}}>{new Date(a.created_at).toLocaleString('pt-BR')}</td>
+                      <td style={{...s.td,color:'#888',fontSize:'11px'}}>{a.ip||'-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
       </main>
+
+      {/* MODAL EDITAR MERCADO */}
+      {editMarket && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1a1a1a',borderRadius:'12px',padding:'24px',width:'100%',maxWidth:'500px',border:'1px solid #333'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'20px'}}>
+              <h3 style={{fontSize:'16px',fontWeight:700}}>Editar Mercado</h3>
+              <button onClick={()=>setEditMarket(null)} style={{background:'none',border:'none',cursor:'pointer',color:'#888',fontSize:'20px'}}>×</button>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+              <div><label style={s.label}>Pergunta</label><input style={s.input} value={editMarket.question} onChange={e=>setEditMarket({...editMarket,question:e.target.value})}/></div>
+              <div><label style={s.label}>Categoria</label>
+                <select style={s.input} value={editMarket.category||''} onChange={e=>setEditMarket({...editMarket,category:e.target.value})}>
+                  {CATS.map(c=><option key={c} value={c} style={{background:'#1a1a1a'}}>{c}</option>)}
+                </select>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                <div><label style={s.label}>% SIM</label><input style={{...s.input,color:'#00c853'}} type="number" min="1" max="99" value={editMarket.yes_odds} onChange={e=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></div>
+                <div><label style={s.label}>% NAO</label><input style={{...s.input,color:'#ef4444'}} type="number" min="1" max="99" value={editMarket.no_odds} onChange={e=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></div>
+              </div>
+              <div><label style={s.label}>Data encerramento</label><input style={s.input} type="datetime-local" value={editMarket.expires_at?editMarket.expires_at.slice(0,16):''} onChange={e=>setEditMarket({...editMarket,expires_at:e.target.value})}/></div>
+              <div><label style={s.label}>Status</label>
+                <select style={s.input} value={editMarket.status} onChange={e=>setEditMarket({...editMarket,status:e.target.value})}>
+                  {['open','suspended','resolved','cancelled'].map(s=><option key={s} value={s} style={{background:'#1a1a1a'}}>{s}</option>)}
+                </select>
+              </div>
+              <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+                <button onClick={saveMarket} style={{...s.btn,flex:1,padding:'12px'}}>SALVAR</button>
+                <button onClick={()=>setEditMarket(null)} style={{...s.btnGray,flex:1,padding:'12px'}}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EDITAR USUARIO */}
+      {editUser && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1a1a1a',borderRadius:'12px',padding:'24px',width:'100%',maxWidth:'480px',border:'1px solid #333'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'20px'}}>
+              <h3 style={{fontSize:'16px',fontWeight:700}}>Editar Usuario</h3>
+              <button onClick={()=>setEditUser(null)} style={{background:'none',border:'none',cursor:'pointer',color:'#888',fontSize:'20px'}}>×</button>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+              <div><label style={s.label}>Nome</label><input style={s.input} value={editUser.name} onChange={e=>setEditUser({...editUser,name:e.target.value})}/></div>
+              <div><label style={s.label}>Email</label><input style={s.input} value={editUser.email} onChange={e=>setEditUser({...editUser,email:e.target.value})}/></div>
+              <div><label style={s.label}>Status</label>
+                <select style={s.input} value={editUser.status||'active'} onChange={e=>setEditUser({...editUser,status:e.target.value})}>
+                  {['active','blocked','suspended'].map(s=><option key={s} value={s} style={{background:'#1a1a1a'}}>{s}</option>)}
+                </select>
+              </div>
+              <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+                <button onClick={saveUser} style={{...s.btn,flex:1,padding:'12px'}}>SALVAR</button>
+                <button onClick={()=>setEditUser(null)} style={{...s.btnGray,flex:1,padding:'12px'}}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL AJUSTE DE SALDO */}
+      {balanceModal && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1a1a1a',borderRadius:'12px',padding:'24px',width:'100%',maxWidth:'400px',border:'1px solid #333'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'20px'}}>
+              <h3 style={{fontSize:'16px',fontWeight:700}}>Ajustar Saldo</h3>
+              <button onClick={()=>setBalanceModal(null)} style={{background:'none',border:'none',cursor:'pointer',color:'#888',fontSize:'20px'}}>×</button>
+            </div>
+            <p style={{fontSize:'13px',color:'#888',marginBottom:'16px'}}>Usuario: <strong style={{color:'#fff'}}>{balanceModal.name}</strong></p>
+            <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+              <div>
+                <label style={s.label}>Valor (negativo para remover)</label>
+                <input style={s.input} type="number" step="0.01" placeholder="Ex: 100 ou -50" value={balanceModal.amount} onChange={e=>setBalanceModal({...balanceModal,amount:e.target.value})}/>
+              </div>
+              <div>
+                <label style={s.label}>Motivo</label>
+                <input style={s.input} placeholder="Ex: Bonus de boas-vindas" value={balanceModal.note} onChange={e=>setBalanceModal({...balanceModal,note:e.target.value})}/>
+              </div>
+              <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+                <button onClick={adjustBalance} style={{...s.btn,flex:1,padding:'12px'}}>AJUSTAR</button>
+                <button onClick={()=>setBalanceModal(null)} style={{...s.btnGray,flex:1,padding:'12px'}}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMACAO */}
+      {confirm && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:300,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1a1a1a',borderRadius:'12px',padding:'24px',width:'100%',maxWidth:'400px',border:'1px solid #333',textAlign:'center'}}>
+            <div style={{fontSize:'32px',marginBottom:'12px'}}>⚠️</div>
+            <p style={{fontSize:'14px',marginBottom:'8px',lineHeight:1.5}}>{confirm.msg}</p>
+            <p style={{fontSize:'12px',color:'#666',marginBottom:'20px'}}>Esta acao sera registrada na auditoria.</p>
+            <div style={{display:'flex',gap:'8px'}}>
+              <button onClick={async()=>{await confirm.action();setConfirm(null)}} style={{...s.btn,flex:1,padding:'12px'}}>CONFIRMAR</button>
+              <button onClick={()=>setConfirm(null)} style={{...s.btnGray,flex:1,padding:'12px'}}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
