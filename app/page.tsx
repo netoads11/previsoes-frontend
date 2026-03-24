@@ -199,23 +199,34 @@ export default function Previmarket() {
       )}
 
       {/* BOTTOM NAV MOBILE */}
-      <nav className="mobile-nav">
-        {[
-          {icon:Home,label:'Inicio',action:()=>setCategoria('Inicio'),active:categoria==='Inicio'},
-          {icon:Search,label:'Buscar',action:()=>document.querySelector('input')?.focus(),active:false},
-          {icon:Star,label:'Favoritos',action:()=>setBusca(''),active:false},
-          {icon:User,label:'Perfil',action:()=>router.push(user?'/perfil':'/login'),active:false},
-        ].map(item => {
-          const Icon = item.icon
-          return (
-            <button key={item.label} onClick={item.action} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:item.active?'var(--primary)':'var(--muted-foreground)',padding:'4px 0'}}>
-              <Icon style={{width:'20px',height:'20px'}}/>
-              <span style={{fontSize:'10px',fontWeight:500,fontFamily:'Kanit,sans-serif'}}>{item.label}</span>
-            </button>
-          )
-        })}
-      </nav>
-    </div>
+      <BottomNav categoria={categoria} setCategoria={setCategoria} user={user} router={router}/>
+  )
+}
+
+
+function BottomNav({categoria,setCategoria,user,router}:any) {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  if (!isMobile) return null
+  return (
+    <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'var(--surface)',borderTop:'1px solid var(--border)',zIndex:100,padding:'8px 0',display:'flex'}}>
+      {[
+        {icon:'🏠',label:'Inicio',action:()=>setCategoria('Inicio'),active:categoria==='Inicio'},
+        {icon:'🔍',label:'Buscar',action:()=>document.querySelector('input')?.focus(),active:false},
+        {icon:'⭐',label:'Favoritos',action:()=>{},active:false},
+        {icon:'👤',label:'Perfil',action:()=>router.push(user?'/perfil':'/login'),active:false},
+      ].map(item=>(
+        <button key={item.label} onClick={item.action} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'3px',border:'none',background:'transparent',cursor:'pointer',color:item.active?'#6ADD00':'rgba(255,255,255,0.4)',padding:'4px 0',fontFamily:'Kanit,sans-serif'}}>
+          <span style={{fontSize:'20px'}}>{item.icon}</span>
+          <span style={{fontSize:'10px',fontWeight:500}}>{item.label}</span>
+        </button>
+      ))}
+    </nav>
   )
 }
 
