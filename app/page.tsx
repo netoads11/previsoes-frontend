@@ -193,13 +193,13 @@ export default function Previmarket() {
 
       {/* PAINEL DE APOSTA MOBILE — bottom sheet */}
       {betPanel && (
-        <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:200,background:'var(--surface)',borderTop:'1px solid var(--border)',borderRadius:'16px 16px 0 0',padding:'20px',maxHeight:'85vh',overflowY:'auto',display:'none'}} className="mobile-bet-panel">
+        <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:200,background:'var(--surface)',borderTop:'1px solid var(--border)',borderRadius:'16px 16px 0 0',padding:'20px',maxHeight:'85vh',overflowY:'auto',display:'none'}} className="mobile-bet-panel" id="mobile-bet">
           <BetPanel panel={betPanel} value={betValue} onChange={setBetValue} onClose={()=>setBetPanel(null)} user={user}/>
         </div>
       )}
 
       {/* BOTTOM NAV MOBILE */}
-      <nav className="mobile-nav" style={{display:'none'}}>
+      <nav className="mobile-nav">
         {[
           {icon:Home,label:'Inicio',action:()=>setCategoria('Inicio'),active:categoria==='Inicio'},
           {icon:Search,label:'Buscar',action:()=>document.querySelector('input')?.focus(),active:false},
