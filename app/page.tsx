@@ -409,7 +409,7 @@ function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|
 
       <div style={{display:'flex',alignItems:'center',gap:'4px'}}>
         <svg width="10" height="10" fill="none" stroke="#555" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span style={{fontSize:'10px',color:m.expires_at&&isUrgent(m.expires_at)?"#ff6b35":"#555"}}}>{m.expires_at?`Encerra em ${getTime(m.expires_at)}`:"Aberto"}</span>
+        <span style={{fontSize:'10px',color:m.expires_at&&isUrgent(m.expires_at)?"#ff6b35":"#555"}}>{m.expires_at?`Encerra em ${getTime(m.expires_at)}`:"Aberto"}</span>
       </div>
     </div>
   )
