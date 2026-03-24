@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Search, Star, Clock, TrendingUp, Home, DollarSign, Globe, Trophy, Tv, User, BarChart2, Menu, X } from 'lucide-react'
 
@@ -39,6 +40,7 @@ export default function Previmarket() {
   const [user, setUser] = useState<any>(null)
   const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('favorites') || '[]') } catch { return [] } })
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -199,18 +201,20 @@ export default function Previmarket() {
       {/* BOTTOM NAV MOBILE */}
       <nav className="mobile-nav" style={{display:'none'}}>
         {[
-          {icon:Home,label:'Inicio',href:'/'},
-          {icon:Search,label:'Buscar',href:'/'},
-          {icon:Star,label:'Favoritos',href:'/'},
-          {icon:User,label:'Perfil',href:user?'/perfil':'/login'},
+          {icon:Home,label:'Inicio',action:()=>setCategoria('Inicio'),active:categoria==='Inicio'},
+          {icon:Search,label:'Buscar',action:()=>document.querySelector('input')?.focus(),active:false},
+          {icon:Star,label:'Favoritos',action:()=>setBusca(''),active:false},
+          {icon:User,label:'Perfil',action:()=>router.push(user?'/perfil':'/login'),active:false},
         ].map(item => {
           const Icon = item.icon
           return (
-            <Link key={item.label} href={item.href} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',textDecoration:'none',color:'var(--muted-foreground)',padding:'4px 0'}}>
+            <button key={item.label} onClick={item.action} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:item.active?'var(--primary)':'var(--muted-foreground)',padding:'4px 0'}}>
               <Icon style={{width:'20px',height:'20px'}}/>
-              <span style={{fontSize:'10px',fontWeight:500}}>{item.label}</span>
-            </Link>
+              <span style={{fontSize:'10px',fontWeight:500,fontFamily:'Kanit,sans-serif'}}>{item.label}</span>
+            </button>
           )
+        })}
+      </nav>
         })}
       </nav>
     </div>
