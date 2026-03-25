@@ -353,6 +353,131 @@ export default function Home() {
           })}
         </nav>
       )}
+      {/* BOTTOM SHEET APOSTA - MOBILE ONLY */}
+      {isMobile && betPanel && (
+        <>
+          {/* Overlay escuro - clique para fechar */}
+          <div
+            onClick={() => { setBetPanel(null); setBetValue('') }}
+            style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:1001}}
+          />
+          {/* Painel */}
+          <div style={{
+            position:'fixed',bottom:0,left:0,right:0,zIndex:1002,
+            background:'#161616',
+            borderRadius:'20px 20px 0 0',
+            border:'1px solid rgba(255,255,255,0.08)',
+            borderBottom:'none',
+            padding:'0 16px 32px',
+            boxShadow:'0 -8px 40px rgba(0,0,0,0.6)'
+          }}>
+            {/* Handle bar */}
+            <div style={{display:'flex',justifyContent:'center',padding:'12px 0 4px'}}>
+              <div style={{width:'36px',height:'4px',borderRadius:'2px',background:'rgba(255,255,255,0.15)'}}/>
+            </div>
+
+            {/* Cabeçalho: mercado + fechar */}
+            <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'12px',paddingTop:'4px'}}>
+              <div style={{flex:1,paddingRight:'12px'}}>
+                <p style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',marginBottom:'4px',lineHeight:1.4,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
+                  {betMarket?.question}
+                </p>
+                <span style={{
+                  display:'inline-flex',alignItems:'center',gap:'5px',
+                  padding:'3px 10px',borderRadius:'5px',fontSize:'12px',fontWeight:700,
+                  background:betChoice==='yes'?'rgba(0,200,83,0.12)':'rgba(198,40,40,0.12)',
+                  color:betChoice==='yes'?'#00c853':'#ef5350',
+                  border:`1px solid ${betChoice==='yes'?'rgba(0,200,83,0.25)':'rgba(198,40,40,0.25)'}`
+                }}>
+                  {betChoice==='yes'?'✓ SIM':'✗ NÃO'} · {mult}x
+                </span>
+              </div>
+              <button
+                onClick={() => { setBetPanel(null); setBetValue('') }}
+                style={{background:'#2a2a2a',border:'none',cursor:'pointer',color:'#888',width:'28px',height:'28px',borderRadius:'7px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',flexShrink:0}}
+              >×</button>
+            </div>
+
+            {/* Valor grande */}
+            <div style={{textAlign:'center',marginBottom:'12px'}}>
+              <div style={{fontSize:'42px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1}}>
+                R$ {betNum.toFixed(2)}
+              </div>
+              <div style={{fontSize:'11px',color:'#666',marginTop:'4px'}}>Saldo: R$ {balance.toFixed(2)}</div>
+            </div>
+
+            {/* Botões de valor */}
+            <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
+              {VALS.map(v => (
+                <button
+                  key={v}
+                  onClick={() => setBetValue(v)}
+                  style={{
+                    flex:1,padding:'9px 0',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer',
+                    border:`1px solid ${betValue===v?'#00e676':'rgba(255,255,255,0.15)'}`,
+                    background:betValue===v?'#00e676':'transparent',
+                    color:betValue===v?'#000':'#fff',
+                    transition:'all 0.15s'
+                  }}
+                >R${v}</button>
+              ))}
+              <button
+                onClick={() => setBetValue(String(balance))}
+                style={{
+                  flex:1,padding:'9px 0',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer',
+                  border:`1px solid ${betValue===String(balance)&&balance>0?'#00e676':'rgba(255,255,255,0.15)'}`,
+                  background:betValue===String(balance)&&balance>0?'#00e676':'transparent',
+                  color:betValue===String(balance)&&balance>0?'#000':'#fff',
+                  transition:'all 0.15s'
+                }}
+              >MAX</button>
+            </div>
+
+            {/* Se acertar ganha */}
+            <div style={{background:'#1e1e1e',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <p style={{fontSize:'12px',fontWeight:600,marginBottom:'2px'}}>Se acertar ganha</p>
+                  <p style={{fontSize:'11px',color:'#666'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {mult}x</p>
+                </div>
+                <span style={{fontSize:'22px',fontWeight:900,color:'#00c853'}}>R$ {gain}</span>
+              </div>
+            </div>
+
+            {/* Aviso saldo insuficiente */}
+            {noBalance && betNum > 0 && (
+              <div style={{textAlign:'center',marginBottom:'10px'}}>
+                <p style={{color:'#ef5350',fontSize:'12px',marginBottom:'2px'}}>Saldo insuficiente para esta previsão.</p>
+                <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(betNum - balance).toFixed(2)} para continuar.</p>
+              </div>
+            )}
+
+            {/* Botão confirmar */}
+            {noBalance && betNum > 0 ? (
+              <button style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'15px',boxShadow:'0 0 20px rgba(0,230,118,0.35)'}}>
+                Depositar R$ {(betNum - balance).toFixed(2)}
+              </button>
+            ) : (
+              <button
+                onClick={handleBet}
+                disabled={betNum <= 0}
+                style={{
+                  width:'100%',padding:'15px',borderRadius:'10px',border:'none',
+                  cursor:betNum>0?'pointer':'not-allowed',
+                  background:betNum>0?'#00e676':'#2a2a2a',
+                  color:betNum>0?'#000':'#555',
+                  fontWeight:900,fontSize:'15px',
+                  boxShadow:betNum>0?'0 0 20px rgba(0,230,118,0.35)':'none',
+                  transition:'all 0.2s'
+                }}
+              >
+                {betChoice==='yes'?'SIM':'NÃO'} · R$ {betNum.toFixed(2)}
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
     </div>
   )
 }
