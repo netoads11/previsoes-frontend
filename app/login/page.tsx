@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, X } from 'lucide-react'
 
 const API = 'http://187.77.248.115:3001'
 
@@ -78,6 +78,12 @@ export default function Login() {
         }
       `}</style>
       <div className="auth-container">
+        <button
+          onClick={() => window.history.length > 1 ? router.back() : router.push('/')}
+          style={{position:'fixed',top:'16px',right:'16px',width:'36px',height:'36px',borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'1px solid rgba(255,255,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:50}}
+        >
+          <X style={{width:'18px',height:'18px',color:'#fff'}}/>
+        </button>
         <div className="auth-left">
           <div style={{position:'absolute',top:'-80px',right:'-80px',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.15) 0%,transparent 70%)'}}/>
           <div style={{position:'absolute',bottom:'-60px',left:'-60px',width:'250px',height:'250px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.08) 0%,transparent 70%)'}}/>
