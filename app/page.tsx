@@ -132,6 +132,11 @@ export default function Home() {
     setMarketModal(m); setModalBetChoice(null); setModalOption(null); setBetValue('')
   }
 
+  function handleOptionClick(m: Market, opt: any, choice: 'yes'|'no') {
+    if (!user) { setAuthModal(true); return }
+    setMarketModal(m); setModalOption(opt); setModalBetChoice(choice); setBetValue('')
+  }
+
   function handleLogout() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
@@ -410,11 +415,11 @@ export default function Home() {
               {loading?<Skel/>:markets.length===0?<Empty/>:(
                 <>
                   <SHead title="EM ALTA" count={markets.length} onMore={()=>{}}/>
-                  {markets.slice(0,4).map((m,i)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick}/>)}
+                  {markets.slice(0,4).map((m,i)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick} onOptionClick={handleOptionClick}/>)}
                   {byCategory.map(({cat:c,markets:mkts}:any)=>(
                     <div key={c.name} style={{marginTop:'16px'}}>
                       <SHead title={c.name.toUpperCase()} count={mkts.length} onMore={()=>setCat(c.name)}/>
-                      {mkts.slice(0,3).map((m:Market,i:number)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick}/>)}
+                      {mkts.slice(0,3).map((m:Market,i:number)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick} onOptionClick={handleOptionClick}/>)}
                     </div>
                   ))}
                 </>
@@ -423,7 +428,7 @@ export default function Home() {
           ):(
             <div>
               <SHead title={cat==='Favoritos'?'FAVORITOS':cat==='Live'?'AO VIVO':cat.toUpperCase()} count={filtered.length} onMore={()=>{}}/>
-              {loading?<Skel/>:filtered.length===0?<Empty/>:filtered.map((m,i)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick}/>)}
+              {loading?<Skel/>:filtered.length===0?<Empty/>:filtered.map((m,i)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick} onOptionClick={handleOptionClick}/>)}
             </div>
           )}
         </main>
@@ -630,7 +635,9 @@ export default function Home() {
         const mNo  = Number(marketModal.no_odds)  || 50
         const mYM  = (100 / mYes).toFixed(2)
         const mNM  = (100 / mNo).toFixed(2)
-        const mOdd  = modalBetChoice === 'yes' ? (100 / mYes) : (100 / mNo)
+        const mOdd  = (modalOption && marketModal.type === 'multiple')
+          ? (modalBetChoice === 'yes' ? (100 / Number(modalOption.yes_odds || 50)) : (100 / Number(modalOption.no_odds || 50)))
+          : (modalBetChoice === 'yes' ? (100 / mYes) : (100 / mNo))
         const mGain = (betNum * mOdd).toFixed(2)
         const mNoBalance = Number(betNum) > Number(balance)
 
@@ -694,22 +701,39 @@ export default function Home() {
                 {marketModal.options.map((opt: any) => {
                   const isSelected = modalOption?.id === opt.id
                   const yp = Number(opt.yes_percent) || 50
-                  const np = Number(opt.no_odds) || 50
+                  const yOdd = (100/Number(opt.yes_odds||50)).toFixed(2)
+                  const nOdd = (100/Number(opt.no_odds||50)).toFixed(2)
                   return (
-                    <div key={opt.id} onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
-                      style={{marginBottom:'10px',padding:'12px',borderRadius:'10px',cursor:'pointer',
-                        background: isSelected ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.03)',
-                        border: `2px solid ${isSelected ? '#22c55e' : 'rgba(255,255,255,0.08)'}`,
-                        transition:'all 0.15s'}}>
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
-                        <span style={{fontSize:'14px',fontWeight:600,color:'#fff'}}>{opt.title}</span>
-                        <span style={{fontSize:'14px',fontWeight:800,color:'#22c55e'}}>{(100/Number(opt.yes_odds||50)).toFixed(2)}x</span>
+                    <div key={opt.id} style={{marginBottom:'10px',padding:'12px',borderRadius:'10px',
+                      background: isSelected ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isSelected ? '#22c55e' : 'rgba(255,255,255,0.08)'}`,
+                      transition:'all 0.15s'}}>
+                      <div style={{marginBottom:'8px'}}>
+                        <span style={{fontSize:'13px',fontWeight:600,color:'#fff'}}>{opt.title}</span>
+                        <div style={{height:'3px',borderRadius:'2px',overflow:'hidden',display:'flex',marginTop:'6px'}}>
+                          <div style={{width:`${yp}%`,background:'#22c55e'}}/>
+                          <div style={{flex:1,background:'#444'}}/>
+                        </div>
+                        <div style={{fontSize:'10px',color:'#555',marginTop:'3px'}}>{yp}% SIM</div>
                       </div>
-                      <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
-                        <div style={{width:`${yp}%`,background:'#22c55e'}}/>
-                        <div style={{flex:1,background:'#555'}}/>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}}>
+                        <button onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
+                          style={{padding:'8px 0',borderRadius:'8px',cursor:'pointer',border:'none',
+                            background: isSelected && modalBetChoice==='yes' ? 'rgba(34,197,94,0.18)' : 'rgba(34,197,94,0.06)',
+                            outline: isSelected && modalBetChoice==='yes' ? '1.5px solid #22c55e' : '1px solid rgba(34,197,94,0.25)',
+                            transition:'all 0.15s'}}>
+                          <div style={{fontSize:'10px',fontWeight:700,color:'#22c55e',letterSpacing:'0.04em'}}>SIM</div>
+                          <div style={{fontSize:'15px',fontWeight:800,color:'#22c55e',lineHeight:1.2}}>{yOdd}x</div>
+                        </button>
+                        <button onClick={() => { setModalOption(opt); setModalBetChoice('no') }}
+                          style={{padding:'8px 0',borderRadius:'8px',cursor:'pointer',border:'none',
+                            background: isSelected && modalBetChoice==='no' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.06)',
+                            outline: isSelected && modalBetChoice==='no' ? '1.5px solid #ef4444' : '1px solid rgba(239,68,68,0.25)',
+                            transition:'all 0.15s'}}>
+                          <div style={{fontSize:'10px',fontWeight:700,color:'#ef4444',letterSpacing:'0.04em'}}>NÃO</div>
+                          <div style={{fontSize:'15px',fontWeight:800,color:'#ef4444',lineHeight:1.2}}>{nOdd}x</div>
+                        </button>
                       </div>
-                      <div style={{fontSize:'10px',color:'#555',marginTop:'4px'}}>{yp}% de chance</div>
                     </div>
                   )
                 })}
@@ -762,6 +786,17 @@ export default function Home() {
             {/* ── BET CARD ── */}
             <div style={{margin:'16px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
               {/* Row: label + value | APOSTAR button */}
+              {modalOption && marketModal.type === 'multiple' && (
+                <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
+                  <span style={{flex:1,padding:'8px 12px',borderRadius:'8px',background:'rgba(34,197,94,0.08)',border:'1px solid rgba(34,197,94,0.2)',fontSize:'12px',fontWeight:600,color:'#22c55e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                    📌 {modalOption.title} · {modalBetChoice === 'yes' ? 'SIM' : 'NÃO'}
+                  </span>
+                  <button onClick={() => { setModalOption(null); setModalBetChoice(null) }}
+                    style={{padding:'7px 12px',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.05)',color:'#888',fontSize:'11px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
+                    Trocar
+                  </button>
+                </div>
+              )}
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
                 <div>
                   <div style={{fontSize:'10px',fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'2px'}}>VALOR DA APOSTA</div>
@@ -943,7 +978,7 @@ function Empty() {
 // ═══════════════════════════════════════════════════════════
 // COMPONENTE: MODAL DE DEPÓSITO
 // ═══════════════════════════════════════════════════════════
-function MCard({m,i,onBet,fav,onFav,onCardClick}:{m:Market,i:number,onBet:(m:Market,c:'yes'|'no')=>void,fav:boolean,onFav:(id:string)=>void,onCardClick?:(m:Market)=>void}) {
+function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:number,onBet:(m:Market,c:'yes'|'no')=>void,fav:boolean,onFav:(id:string)=>void,onCardClick?:(m:Market)=>void,onOptionClick?:(m:Market,opt:any,choice:'yes'|'no')=>void}) {
   const yes=Number(m.yes_odds)||50
   const no=Number(m.no_odds)||50
   const yM=(100/yes).toFixed(2)
@@ -974,24 +1009,52 @@ function MCard({m,i,onBet,fav,onFav,onCardClick}:{m:Market,i:number,onBet:(m:Mar
         </button>
       </div>
 
-      {/* BARRA */}
-      <div style={{marginBottom:'10px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',marginBottom:'3px'}}>
-          <span style={{fontSize:'10px',color:'#00c853',fontWeight:700}}>{yes}% SIM</span>
-          <span style={{fontSize:'10px',color:'#666'}}>chance</span>
-          <span style={{fontSize:'10px',color:'#ef5350',fontWeight:700}}>{no}% NÃO</span>
+      {m.type==='multiple' && m.options && m.options.length > 0 ? (
+        <div style={{marginBottom:'8px'}}>
+          {m.options.slice(0,3).map((opt:any)=>{
+            const initials = opt.title.split(' ').filter(Boolean).map((w:string)=>w[0]).slice(0,2).join('').toUpperCase()
+            const yOdd = (100/Number(opt.yes_odds||50)).toFixed(2)
+            const nOdd = (100/Number(opt.no_odds||50)).toFixed(2)
+            return (
+              <div key={opt.id} style={{display:'flex',alignItems:'center',gap:'7px',marginBottom:'6px'}}>
+                <div style={{width:'26px',height:'26px',borderRadius:'6px',background:'#2a2a2a',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'9px',fontWeight:700,color:'#888'}}>
+                  {initials}
+                </div>
+                <span style={{flex:1,fontSize:'12px',color:'#ccc',overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{opt.title}</span>
+                <button onClick={(e)=>{e.stopPropagation();onOptionClick&&onOptionClick(m,opt,'yes')}}
+                  style={{padding:'4px 7px',borderRadius:'6px',border:'1px solid rgba(34,197,94,0.3)',background:'rgba(34,197,94,0.08)',color:'#22c55e',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
+                  SIM {yOdd}x
+                </button>
+                <button onClick={(e)=>{e.stopPropagation();onOptionClick&&onOptionClick(m,opt,'no')}}
+                  style={{padding:'4px 7px',borderRadius:'6px',border:'1px solid rgba(239,68,68,0.3)',background:'rgba(239,68,68,0.08)',color:'#ef4444',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
+                  NÃO {nOdd}x
+                </button>
+              </div>
+            )
+          })}
         </div>
-        <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
-          <div style={{width:`${yes}%`,background:'#00c853',transition:'width 0.5s ease'}}/>
-          <div style={{flex:1,background:'#c62828'}}/>
-        </div>
-      </div>
+      ) : (
+        <>
+          {/* BARRA */}
+          <div style={{marginBottom:'10px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:'3px'}}>
+              <span style={{fontSize:'10px',color:'#00c853',fontWeight:700}}>{yes}% SIM</span>
+              <span style={{fontSize:'10px',color:'#666'}}>chance</span>
+              <span style={{fontSize:'10px',color:'#ef5350',fontWeight:700}}>{no}% NÃO</span>
+            </div>
+            <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
+              <div style={{width:`${yes}%`,background:'#00c853',transition:'width 0.5s ease'}}/>
+              <div style={{flex:1,background:'#c62828'}}/>
+            </div>
+          </div>
 
-      {/* BOTÕES */}
-      <div style={{display:'flex',gap:'6px',marginBottom:'8px'}}>
-        <button className="btn-sim" onClick={(e)=>{e.stopPropagation();onBet(m,'yes')}}>✓ SIM {yM}x</button>
-        <button className="btn-nao" onClick={(e)=>{e.stopPropagation();onBet(m,'no')}}>✗ NÃO {nM}x</button>
-      </div>
+          {/* BOTÕES */}
+          <div style={{display:'flex',gap:'6px',marginBottom:'8px'}}>
+            <button className="btn-sim" onClick={(e)=>{e.stopPropagation();onBet(m,'yes')}}>✓ SIM {yM}x</button>
+            <button className="btn-nao" onClick={(e)=>{e.stopPropagation();onBet(m,'no')}}>✗ NÃO {nM}x</button>
+          </div>
+        </>
+      )}
 
       <div style={{display:'flex',alignItems:'center',gap:'4px'}}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill={getTimeColor(m.expires_at)}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>

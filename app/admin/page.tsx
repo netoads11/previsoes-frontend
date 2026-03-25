@@ -117,7 +117,7 @@ export default function Admin() {
     const r = await api('/api/admin/markets','POST',{...newMarket,yes_odds:Number(newMarket.yes_odds),no_odds:Number(newMarket.no_odds),expires_at:newMarket.expires_at||null,type:newMarket.type,options:newMarket.type==='multiple'?newMarket.options.filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[]})
     if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]}); load(token) } else showToast(r.error||'Erro','error')
   }
-  async function saveMarket() { const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',editMarket); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
+  async function saveMarket() { const opts=editMarket.type==='multiple'?(editMarket.options||[]).filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[] ; const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',{...editMarket,yes_odds:Number(editMarket.yes_odds),no_odds:Number(editMarket.no_odds),type:editMarket.type||'single',options:opts}); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
   async function adjBalance() { const r = await api(`/api/admin/users/${balanceModal.id}/balance`,'POST',{amount:Number(balanceModal.amount),note:balanceModal.note}); if(r.success){showToast('Saldo ajustado!');setBalanceModal(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveSettings(e: any) { e.preventDefault(); const r = await api('/api/admin/settings','PUT',settings); if(r.success){showToast('Configurações salvas!')}else{showToast(r.error||'Erro','error')} }
@@ -332,12 +332,13 @@ export default function Admin() {
               </div>
               <FilterRow search={filterSearch} onSearch={setFilterSearch} status={filterStatus} onStatus={setFilterStatus} statusOpts={['open','suspended','resolved','cancelled']}/>
               <DataTbl loading={loading}
-                cols={['Pergunta','Categoria','SIM%','NAO%','Status','Encerra','Ações']}
+                cols={['Pergunta','Categoria','SIM%','NAO%','Tipo','Status','Encerra','Ações']}
                 rows={filteredMarkets.map((m:any)=>[
                   <span style={{color:'#ccc',fontSize:'13px',maxWidth:'200px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',display:'block'}}>{m.question}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{m.category||'—'}</span>,
                   <span style={{color:V.green,fontWeight:600,fontSize:'12px'}}>{m.yes_odds}%</span>,
                   <span style={{color:V.red,fontWeight:600,fontSize:'12px'}}>{m.no_odds}%</span>,
+                  <span style={{padding:'2px 8px',borderRadius:'4px',fontSize:'10px',fontWeight:700,background:m.type==='multiple'?'rgba(106,221,0,0.1)':'rgba(255,255,255,0.06)',color:m.type==='multiple'?'#6ADD00':'#555'}}>{m.type==='multiple'?'MÚLTIPLO':'SIMPLES'}</span>,
                   <SBadge status={m.status}/>,
                   <span style={{color:V.muted,fontSize:'11px'}}>{m.expires_at?new Date(m.expires_at).toLocaleDateString('pt-BR'):'—'}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
@@ -523,6 +524,19 @@ export default function Admin() {
           <Modal title="Editar Mercado" onClose={()=>setEditMarket(null)}>
             <FField label="Pergunta"><FInput value={editMarket.question} onChange={(e:any)=>setEditMarket({...editMarket,question:e.target.value})}/></FField>
             <FField label="Categoria"><FSelect value={editMarket.category||''} onChange={(e:any)=>setEditMarket({...editMarket,category:e.target.value})}>{CATS.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
+            <FField label="Tipo"><FSelect value={editMarket.type||'single'} onChange={(e:any)=>setEditMarket({...editMarket,type:e.target.value,options:e.target.value==='multiple'?(editMarket.options?.length?editMarket.options:[{title:'',yes_odds:'50',no_odds:'50'}]):[]})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Múltiplo (várias opções)</option></FSelect></FField>
+            {editMarket.type==='multiple'&&(
+              <FField label="Opções">
+                {(editMarket.options||[]).map((opt:any,i:number)=>(
+                  <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
+                    <FInput placeholder={`Opção ${i+1}`} value={opt.title||''} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})} style={{flex:2}}/>
+                    <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds||'50'} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{flex:1,color:'#00e676'}}/>
+                    <button type="button" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'12px'}}>X</button>
+                  </div>
+                ))}
+                <button type="button" onClick={()=>setEditMarket({...editMarket,options:[...(editMarket.options||[]),{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
+              </FField>
+            )}
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
               <FField label="SIM (%)"><FInput type="number" min="1" max="99" style={{color:V.green}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></FField>
               <FField label="NAO (%)"><FInput type="number" min="1" max="99" style={{color:V.red}} value={editMarket.no_odds} onChange={(e:any)=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></FField>
