@@ -44,6 +44,8 @@ export default function Home() {
   const [depositModal, setDepositModal] = useState(false)
   const [minDeposit, setMinDeposit] = useState('10.00')
   const [activeNav, setActiveNav] = useState('mercados')
+  const [authModal, setAuthModal] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -100,6 +102,27 @@ export default function Home() {
     const id = setInterval(calc, 1000)
     return () => clearInterval(id)
   }, [marketModal])
+
+  function getInitials(name: string) {
+    return name.split(' ').filter(Boolean).map((n:string)=>n[0]).slice(0,2).join('').toUpperCase()
+  }
+
+  function handleBetClick(m: Market, c: 'yes'|'no') {
+    if (!user) { setAuthModal(true); return }
+    setBetPanel({market:m, choice:c}); setBetValue('')
+  }
+
+  function handleCardClick(m: Market) {
+    if (!user) { setAuthModal(true); return }
+    setMarketModal(m); setModalBetChoice(null); setBetValue('')
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUserMenuOpen(false)
+    window.location.reload()
+  }
 
   function toggleFav(id: string) {
     setFavs(f => { const n = f.includes(id)?f.filter(x=>x!==id):[...f,id]; localStorage.setItem('favorites',JSON.stringify(n)); return n })
@@ -204,15 +227,68 @@ export default function Home() {
               onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.08)'}/>
           </div>
           <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:'10px'}}>
-            <div style={{textAlign:'right'}}>
-              <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.08em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
-              <div style={{fontSize:'14px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
-            </div>
-            <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',boxShadow:'0 0 12px rgba(0,230,118,0.3)',transition:'opacity 0.15s'}}
-              onMouseEnter={e=>e.currentTarget.style.opacity='0.85'}
-              onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-              + Depositar
-            </button>
+            {user ? (
+              <>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.08em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
+                  <div style={{fontSize:'14px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
+                </div>
+                <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',boxShadow:'0 0 12px rgba(0,230,118,0.3)',transition:'opacity 0.15s'}}
+                  onMouseEnter={e=>e.currentTarget.style.opacity='0.85'}
+                  onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                  + Depositar
+                </button>
+                {/* Avatar com dropdown */}
+                <div style={{position:'relative'}}>
+                  <button onClick={()=>setUserMenuOpen(v=>!v)} style={{
+                    width:'34px',height:'34px',borderRadius:'50%',background:'#00c853',border:'none',
+                    color:'#000',fontWeight:900,fontSize:'12px',cursor:'pointer',flexShrink:0,
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                  }}>{getInitials(user.name||user.email||'U')}</button>
+                  {userMenuOpen && (
+                    <div onClick={()=>setUserMenuOpen(false)} style={{
+                      position:'fixed',inset:0,zIndex:998,
+                    }}/>
+                  )}
+                  {userMenuOpen && (
+                    <div style={{
+                      position:'absolute',top:'42px',right:0,zIndex:999,
+                      background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',
+                      borderRadius:'12px',padding:'12px',minWidth:'200px',
+                      boxShadow:'0 8px 32px rgba(0,0,0,0.6)',
+                    }}>
+                      <div style={{marginBottom:'10px',paddingBottom:'10px',borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
+                        <div style={{fontSize:'13px',fontWeight:700,color:'#fff'}}>{user.name||'Usuário'}</div>
+                        <div style={{fontSize:'11px',color:'#666',marginTop:'2px'}}>{user.email}</div>
+                        <div style={{fontSize:'12px',color:'#00c853',fontWeight:700,marginTop:'4px'}}>R$ {balance.toFixed(2)}</div>
+                      </div>
+                      <button onClick={()=>{setUserMenuOpen(false);router.push('/perfil')}} style={{
+                        width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
+                        background:'rgba(255,255,255,0.05)',color:'#fff',fontSize:'12px',
+                        cursor:'pointer',textAlign:'left',marginBottom:'6px',
+                      }}>👤 Meu Perfil</button>
+                      <button onClick={handleLogout} style={{
+                        width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
+                        background:'rgba(239,68,68,0.08)',color:'#ef4444',fontSize:'12px',
+                        cursor:'pointer',textAlign:'left',
+                      }}>Sair</button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <button onClick={()=>router.push('/login')} style={{
+                  background:'transparent',color:'#fff',border:'1px solid rgba(255,255,255,0.2)',
+                  borderRadius:'8px',padding:'7px 16px',fontWeight:600,fontSize:'12px',cursor:'pointer',
+                }}>Entrar</button>
+                <button onClick={()=>router.push('/cadastrar')} style={{
+                  background:'#00e676',color:'#000',border:'none',borderRadius:'8px',
+                  padding:'7px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',
+                  boxShadow:'0 0 12px rgba(0,230,118,0.3)',
+                }}>Cadastrar</button>
+              </>
+            )}
           </div>
         </div>
         {/* MOBILE header */}
@@ -223,14 +299,29 @@ export default function Home() {
             </div>
             <span style={{color:'#fff',fontWeight:700,fontSize:'14px'}}>Previmarket</span>
           </Link>
-          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-            <div style={{textAlign:'right'}}>
-              <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.06em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
-              <div style={{fontSize:'13px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
-            </div>
-            <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'7px',padding:'7px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',boxShadow:'0 0 10px rgba(0,230,118,0.3)',whiteSpace:'nowrap'}}>
-              + Depositar
-            </button>
+          <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+            {user ? (
+              <>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.06em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
+                  <div style={{fontSize:'13px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
+                </div>
+                <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'7px',padding:'7px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',boxShadow:'0 0 10px rgba(0,230,118,0.3)',whiteSpace:'nowrap'}}>
+                  + Depositar
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={()=>router.push('/login')} style={{
+                  background:'transparent',color:'#fff',border:'1px solid rgba(255,255,255,0.2)',
+                  borderRadius:'7px',padding:'6px 12px',fontWeight:600,fontSize:'11px',cursor:'pointer',
+                }}>Entrar</button>
+                <button onClick={()=>router.push('/cadastrar')} style={{
+                  background:'#00e676',color:'#000',border:'none',borderRadius:'7px',
+                  padding:'6px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',
+                }}>Cadastrar</button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -304,11 +395,11 @@ export default function Home() {
               {loading?<Skel/>:markets.length===0?<Empty/>:(
                 <>
                   <SHead title="EM ALTA" count={markets.length} onMore={()=>{}}/>
-                  {markets.slice(0,4).map((m,i)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={(m:Market)=>{setMarketModal(m);setModalBetChoice(null);setBetValue('')}}/>)}
+                  {markets.slice(0,4).map((m,i)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick}/>)}
                   {byCategory.map(({cat:c,markets:mkts}:any)=>(
                     <div key={c.name} style={{marginTop:'16px'}}>
                       <SHead title={c.name.toUpperCase()} count={mkts.length} onMore={()=>setCat(c.name)}/>
-                      {mkts.slice(0,3).map((m:Market,i:number)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={(m:Market)=>{setMarketModal(m);setModalBetChoice(null);setBetValue('')}}/>)}
+                      {mkts.slice(0,3).map((m:Market,i:number)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick}/>)}
                     </div>
                   ))}
                 </>
@@ -317,7 +408,7 @@ export default function Home() {
           ):(
             <div>
               <SHead title={cat==='Favoritos'?'FAVORITOS':cat==='Live'?'AO VIVO':cat.toUpperCase()} count={filtered.length} onMore={()=>{}}/>
-              {loading?<Skel/>:filtered.length===0?<Empty/>:filtered.map((m,i)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={(m:Market)=>{setMarketModal(m);setModalBetChoice(null);setBetValue('')}}/>)}
+              {loading?<Skel/>:filtered.length===0?<Empty/>:filtered.map((m,i)=><MCard key={m.id} m={m} i={i} onBet={handleBetClick} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={handleCardClick}/>)}
             </div>
           )}
         </main>
@@ -406,7 +497,18 @@ export default function Home() {
               <button key={item.id} onClick={()=>{setActiveNav(item.id);if(item.id==='depositar'){setDepositModal(true)}else if(item.path){router.push(item.path)}}}
                 style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:active?'#00e676':'#666666',fontSize:'11px',transition:'color 0.15s',flex:1,height:'100%',justifyContent:'center'}}>
                 {item.label==='Mercados'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>}
-                {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
+                {item.label==='Portfolio' && (
+                  user ? (
+                    <div style={{width:'22px',height:'22px',borderRadius:'50%',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontWeight:900,color:'#000'}}>
+                      {getInitials(user.name||user.email||'U')}
+                    </div>
+                  ) : (
+                    <div style={{position:'relative'}}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                      <div style={{position:'absolute',top:'-3px',right:'-4px',width:'10px',height:'10px',borderRadius:'50%',background:'#ef4444',border:'1.5px solid #111',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'7px',fontWeight:900,color:'#fff'}}>!</div>
+                    </div>
+                  )
+                )}
                 {item.label==='Depositar'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.59V8h2v8.59l2.3-2.3 1.41 1.41L12 20l-4.71-4.71 1.41-1.41L11 16.59z"/></svg>}
                 {item.label==='Duvidas'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>}
                 <span>{item.label}</span>
@@ -659,7 +761,7 @@ export default function Home() {
                   disabled={betNum <= 0 || !modalBetChoice}
                   onClick={async () => {
                     const token = localStorage.getItem('token')
-                    if (!token) { router.push('/login'); return }
+                    if (!token) { setAuthModal(true); return }
                     if (betNum <= 0 || !modalBetChoice) return
                     try {
                       const res = await fetch(API + '/api/bets', {
@@ -769,6 +871,32 @@ export default function Home() {
           </div>
         )
       })()}
+
+      {/* MODAL AUTH - precisa de conta para apostar */}
+      {authModal && (
+        <div style={{position:'fixed',inset:0,zIndex:10000,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}
+          onClick={()=>setAuthModal(false)}>
+          <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.7)',backdropFilter:'blur(4px)'}}/>
+          <div onClick={e=>e.stopPropagation()} style={{
+            position:'relative',zIndex:1,background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',
+            borderRadius:'16px',padding:'28px 24px',maxWidth:'340px',width:'100%',textAlign:'center',
+          }}>
+            <div style={{fontSize:'40px',marginBottom:'12px'}}>🔐</div>
+            <h3 style={{fontSize:'17px',fontWeight:800,color:'#fff',marginBottom:'8px'}}>Crie sua conta para apostar</h3>
+            <p style={{fontSize:'13px',color:'#666',marginBottom:'24px',lineHeight:1.5}}>Para apostar você precisa ter uma conta. É grátis e leva menos de 1 minuto.</p>
+            <button onClick={()=>{setAuthModal(false);router.push('/cadastrar')}} style={{
+              width:'100%',padding:'14px',borderRadius:'10px',border:'none',
+              background:'#00e676',color:'#000',fontWeight:900,fontSize:'14px',cursor:'pointer',
+              boxShadow:'0 0 20px rgba(0,230,118,0.3)',marginBottom:'10px',
+            }}>Cadastrar grátis</button>
+            <button onClick={()=>{setAuthModal(false);router.push('/login')}} style={{
+              width:'100%',padding:'13px',borderRadius:'10px',
+              border:'1px solid rgba(255,255,255,0.15)',
+              background:'transparent',color:'#fff',fontWeight:600,fontSize:'13px',cursor:'pointer',
+            }}>Já tenho conta, entrar</button>
+          </div>
+        </div>
+      )}
 
       {/* MODAL DEPÓSITO */}
       {depositModal && <DepositModal onClose={()=>setDepositModal(false)} balance={balance} setBalance={setBalance} minDeposit={minDeposit} API={API}/>}
