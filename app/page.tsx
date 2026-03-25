@@ -24,6 +24,7 @@ interface Market {
   category?: string
   status?: string
   expires_at?: string
+  image_url?: string
 }
 
 export default function Home() {
@@ -36,6 +37,8 @@ export default function Home() {
   const [favs, setFavs] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('favorites')||'[]') } catch { return [] } })
   const [betPanel, setBetPanel] = useState<any>(null)
   const [betValue, setBetValue] = useState('')
+  const [marketModal, setMarketModal] = useState<Market|null>(null)
+  const [modalBetChoice, setModalBetChoice] = useState<'yes'|'no'|null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [activeNav, setActiveNav] = useState('mercados')
 
@@ -242,11 +245,11 @@ export default function Home() {
               {loading?<Skel/>:markets.length===0?<Empty/>:(
                 <>
                   <SHead title="EM ALTA" count={markets.length} onMore={()=>{}}/>
-                  {markets.slice(0,4).map((m,i)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav}/>)}
+                  {markets.slice(0,4).map((m,i)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={(m:Market)=>{setMarketModal(m);setModalBetChoice(null);setBetValue('')}}/>)}
                   {byCategory.map(({cat:c,markets:mkts}:any)=>(
                     <div key={c.name} style={{marginTop:'16px'}}>
                       <SHead title={c.name.toUpperCase()} count={mkts.length} onMore={()=>setCat(c.name)}/>
-                      {mkts.slice(0,3).map((m:Market,i:number)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav}/>)}
+                      {mkts.slice(0,3).map((m:Market,i:number)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={(m:Market)=>{setMarketModal(m);setModalBetChoice(null);setBetValue('')}}/>)}
                     </div>
                   ))}
                 </>
@@ -255,7 +258,7 @@ export default function Home() {
           ):(
             <div>
               <SHead title={cat==='Favoritos'?'FAVORITOS':cat==='Live'?'AO VIVO':cat.toUpperCase()} count={filtered.length} onMore={()=>{}}/>
-              {loading?<Skel/>:filtered.length===0?<Empty/>:filtered.map((m,i)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav}/>)}
+              {loading?<Skel/>:filtered.length===0?<Empty/>:filtered.map((m,i)=><MCard key={m.id} m={m} i={i} onBet={(m,c)=>{setBetPanel({market:m,choice:c});setBetValue('')}} fav={favs.includes(m.id)} onFav={toggleFav} onCardClick={(m:Market)=>{setMarketModal(m);setModalBetChoice(null);setBetValue('')}}/>)}
             </div>
           )}
         </main>
@@ -478,6 +481,192 @@ export default function Home() {
         </>
       )}
 
+      {/* MODAL MERCADO - MOBILE FULLSCREEN */}
+      {isMobile && marketModal && (
+        <>
+          <div
+            onClick={() => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }}
+            style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:1010}}
+          />
+          <div style={{
+            position:'fixed',inset:0,zIndex:1011,
+            background:'#111',
+            overflowY:'auto',
+            display:'flex',flexDirection:'column'
+          }}>
+            {/* Banner */}
+            {marketModal.image_url ? (
+              <div style={{position:'relative',height:'200px',flexShrink:0}}>
+                <img src={marketModal.image_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(0,0,0,0.3),rgba(17,17,17,0.95))'}}/>
+                <button
+                  onClick={() => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }}
+                  style={{position:'absolute',top:'16px',right:'16px',background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',color:'#fff',width:'32px',height:'32px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px'}}
+                >×</button>
+              </div>
+            ) : (
+              <div style={{height:'56px',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'flex-end',padding:'0 16px'}}>
+                <button
+                  onClick={() => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }}
+                  style={{background:'#1e1e1e',border:'none',cursor:'pointer',color:'#888',width:'32px',height:'32px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px'}}
+                >×</button>
+              </div>
+            )}
+
+            {/* Content */}
+            <div style={{padding:'16px 16px 48px',flex:1}}>
+              {/* Category + title */}
+              {marketModal.category && (
+                <span style={{background:'rgba(0,200,83,0.1)',color:'#00c853',fontSize:'10px',fontWeight:700,padding:'2px 8px',borderRadius:'4px',textTransform:'uppercase',letterSpacing:'0.06em',display:'inline-block',marginBottom:'8px'}}>
+                  {marketModal.category}
+                </span>
+              )}
+              <p style={{fontSize:'17px',fontWeight:700,lineHeight:1.35,marginBottom:'16px',color:'#fff'}}>
+                {marketModal.question}
+              </p>
+
+              {/* Probabilities */}
+              <div style={{marginBottom:'16px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:'6px'}}>
+                  <span style={{fontSize:'12px',color:'#00c853',fontWeight:700}}>{Number(marketModal.yes_odds)||50}% SIM</span>
+                  <span style={{fontSize:'12px',color:'#ef5350',fontWeight:700}}>{Number(marketModal.no_odds)||50}% NÃO</span>
+                </div>
+                <div style={{height:'6px',borderRadius:'3px',overflow:'hidden',display:'flex'}}>
+                  <div style={{width:`${Number(marketModal.yes_odds)||50}%`,background:'#00c853',transition:'width 0.5s ease'}}/>
+                  <div style={{flex:1,background:'#c62828'}}/>
+                </div>
+              </div>
+
+              {/* Timer */}
+              <div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'20px'}}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={getTimeColor(marketModal.expires_at)}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                <span style={{fontSize:'12px',color:getTimeColor(marketModal.expires_at)}}>{getTimeLabel(marketModal.expires_at)}</span>
+              </div>
+
+              {/* SIM / NÃO selection */}
+              <div style={{display:'flex',gap:'10px',marginBottom:'16px'}}>
+                <button
+                  onClick={() => setModalBetChoice('yes')}
+                  style={{
+                    flex:1,padding:'14px 0',borderRadius:'10px',fontSize:'15px',fontWeight:700,cursor:'pointer',
+                    border:`2px solid ${modalBetChoice==='yes'?'#00c853':'rgba(0,200,83,0.3)'}`,
+                    background:modalBetChoice==='yes'?'rgba(0,200,83,0.15)':'transparent',
+                    color:'#00c853',transition:'all 0.15s'
+                  }}
+                >✓ SIM · {(100/(Number(marketModal.yes_odds)||50)).toFixed(2)}x</button>
+                <button
+                  onClick={() => setModalBetChoice('no')}
+                  style={{
+                    flex:1,padding:'14px 0',borderRadius:'10px',fontSize:'15px',fontWeight:700,cursor:'pointer',
+                    border:`2px solid ${modalBetChoice==='no'?'#ef5350':'rgba(198,40,40,0.3)'}`,
+                    background:modalBetChoice==='no'?'rgba(198,40,40,0.15)':'transparent',
+                    color:'#ef5350',transition:'all 0.15s'
+                  }}
+                >✗ NÃO · {(100/(Number(marketModal.no_odds)||50)).toFixed(2)}x</button>
+              </div>
+
+              {modalBetChoice && (<>
+                {/* Value display */}
+                <div style={{textAlign:'center',marginBottom:'12px'}}>
+                  <div style={{fontSize:'40px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1}}>
+                    R$ {betNum.toFixed(2)}
+                  </div>
+                  <div style={{fontSize:'11px',color:'#666',marginTop:'4px'}}>Saldo: R$ {balance.toFixed(2)}</div>
+                </div>
+
+                {/* Quick value buttons */}
+                <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
+                  {VALS.map(v => (
+                    <button
+                      key={v}
+                      onClick={() => setBetValue(v)}
+                      style={{
+                        flex:1,padding:'10px 0',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer',
+                        border:`1px solid ${betValue===v?'#00e676':'rgba(255,255,255,0.15)'}`,
+                        background:betValue===v?'#00e676':'transparent',
+                        color:betValue===v?'#000':'#fff',transition:'all 0.15s'
+                      }}
+                    >R${v}</button>
+                  ))}
+                  <button
+                    onClick={() => setBetValue(String(balance))}
+                    style={{
+                      flex:1,padding:'10px 0',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer',
+                      border:`1px solid ${betValue===String(balance)&&balance>0?'#00e676':'rgba(255,255,255,0.15)'}`,
+                      background:betValue===String(balance)&&balance>0?'#00e676':'transparent',
+                      color:betValue===String(balance)&&balance>0?'#000':'#fff',transition:'all 0.15s'
+                    }}
+                  >MAX</button>
+                </div>
+
+                {/* Potential return */}
+                {betNum > 0 && (
+                  <div style={{background:'#1e1e1e',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <div>
+                        <p style={{fontSize:'12px',fontWeight:600,marginBottom:'2px'}}>Se acertar ganha</p>
+                        <p style={{fontSize:'11px',color:'#666'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {modalBetChoice==='yes'?(100/(Number(marketModal.yes_odds)||50)).toFixed(2):(100/(Number(marketModal.no_odds)||50)).toFixed(2)}x</p>
+                      </div>
+                      <span style={{fontSize:'22px',fontWeight:900,color:'#00c853'}}>
+                        R$ {(betNum*(modalBetChoice==='yes'?(100/(Number(marketModal.yes_odds)||50)):(100/(Number(marketModal.no_odds)||50)))).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Insufficient balance warning */}
+                {noBalance && betNum > 0 && (
+                  <div style={{textAlign:'center',marginBottom:'10px'}}>
+                    <p style={{color:'#ef5350',fontSize:'12px',marginBottom:'2px'}}>Saldo insuficiente para esta previsão.</p>
+                    <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(betNum - balance).toFixed(2)} para continuar.</p>
+                  </div>
+                )}
+
+                {/* APOSTAR button */}
+                {noBalance && betNum > 0 ? (
+                  <button style={{width:'100%',padding:'16px',borderRadius:'10px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'16px',boxShadow:'0 0 24px rgba(0,230,118,0.35)'}}>
+                    Depositar R$ {(betNum - balance).toFixed(2)}
+                  </button>
+                ) : (
+                  <button
+                    disabled={betNum <= 0}
+                    onClick={async () => {
+                      const token = localStorage.getItem('token')
+                      if (!token) { router.push('/login'); return }
+                      if (!betNum || betNum <= 0) return
+                      try {
+                        const res = await fetch(API + '/api/bets', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                          body: JSON.stringify({ market_id: marketModal.id, choice: modalBetChoice, amount: betNum })
+                        })
+                        const data = await res.json()
+                        if (!res.ok) throw new Error(data.error || 'Erro ao apostar')
+                        setBalance(b => b - betNum)
+                        setMarketModal(null)
+                        setModalBetChoice(null)
+                        setBetValue('')
+                      } catch (err: any) { alert(err.message) }
+                    }}
+                    style={{
+                      width:'100%',padding:'16px',borderRadius:'10px',border:'none',
+                      cursor:betNum>0?'pointer':'not-allowed',
+                      background:betNum>0?'#00e676':'#2a2a2a',
+                      color:betNum>0?'#000':'#555',
+                      fontWeight:900,fontSize:'16px',
+                      boxShadow:betNum>0?'0 0 24px rgba(0,230,118,0.35)':'none',
+                      transition:'all 0.2s'
+                    }}
+                  >
+                    APOSTAR {modalBetChoice==='yes'?'SIM':'NÃO'} · R$ {betNum.toFixed(2)}
+                  </button>
+                )}
+              </>)}
+            </div>
+          </div>
+        </>
+      )}
+
     </div>
   )
 }
@@ -507,14 +696,14 @@ function Empty() {
   )
 }
 
-function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|'no')=>void,fav:boolean,onFav:(id:string)=>void}) {
+function MCard({m,i,onBet,fav,onFav,onCardClick}:{m:Market,i:number,onBet:(m:Market,c:'yes'|'no')=>void,fav:boolean,onFav:(id:string)=>void,onCardClick?:(m:Market)=>void}) {
   const yes=Number(m.yes_odds)||50
   const no=Number(m.no_odds)||50
   const yM=(100/yes).toFixed(2)
   const nM=(100/no).toFixed(2)
 
   return (
-    <div className="mcard fadein" style={{animationDelay:`${i*0.03}s`}}>
+    <div className="mcard fadein" style={{animationDelay:`${i*0.03}s`,cursor:'pointer'}} onClick={()=>onCardClick&&onCardClick(m)}>
       <div style={{display:'flex',alignItems:'flex-start',gap:'10px',marginBottom:'10px'}}>
         <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#222',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <svg width="16" height="16" fill="none" stroke="#00c853" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -530,7 +719,7 @@ function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|
           {m.category&&<span style={{background:'rgba(0,200,83,0.1)',color:'#00c853',fontSize:'9px',fontWeight:700,padding:'1px 6px',borderRadius:'3px',textTransform:'uppercase',letterSpacing:'0.05em',display:'inline-block',marginBottom:'4px'}}>{m.category}</span>}
           <p style={{color:'#fff',fontSize:'13px',fontWeight:600,lineHeight:1.35,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{m.question}</p>
         </div>
-        <button onClick={()=>onFav(m.id)} style={{background:'none',border:'none',cursor:'pointer',padding:'2px',flexShrink:0,transition:'transform 0.15s'}}
+        <button onClick={(e)=>{e.stopPropagation();onFav(m.id)}} style={{background:'none',border:'none',cursor:'pointer',padding:'2px',flexShrink:0,transition:'transform 0.15s'}}
           onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.2)')}
           onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
           <svg width="14" height="14" fill={fav?'#facc15':'none'} stroke={fav?'#facc15':'#555'} strokeWidth="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -552,8 +741,8 @@ function MCard({m,i,onBet,fav,onFav}:{m:Market,i:number,onBet:(m:Market,c:'yes'|
 
       {/* BOTÕES */}
       <div style={{display:'flex',gap:'6px',marginBottom:'8px'}}>
-        <button className="btn-sim" onClick={()=>onBet(m,'yes')}>✓ SIM {yM}x</button>
-        <button className="btn-nao" onClick={()=>onBet(m,'no')}>✗ NÃO {nM}x</button>
+        <button className="btn-sim" onClick={(e)=>{e.stopPropagation();onBet(m,'yes')}}>✓ SIM {yM}x</button>
+        <button className="btn-nao" onClick={(e)=>{e.stopPropagation();onBet(m,'no')}}>✗ NÃO {nM}x</button>
       </div>
 
       <div style={{display:'flex',alignItems:'center',gap:'4px'}}>

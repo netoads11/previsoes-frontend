@@ -68,7 +68,7 @@ export default function Admin() {
   const [balanceModal, setBalanceModal] = useState<any>(null)
   const [openSections, setOpenSections] = useState<any>({Principal:true,Gerenciamento:true,Financeiro:true,'Área de Afiliados':true,Operacional:true,Customização:true})
   const [chartPeriod, setChartPeriod] = useState('7d')
-  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:''})
+  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:''})
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
   const [filterStatus, setFilterStatus] = useState('')
@@ -113,7 +113,7 @@ export default function Admin() {
   async function createMarket(e: any) {
     e.preventDefault()
     const r = await api('/api/admin/markets','POST',{...newMarket,yes_odds:Number(newMarket.yes_odds),no_odds:Number(newMarket.no_odds),expires_at:newMarket.expires_at||null})
-    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:''}); load(token) } else showToast(r.error||'Erro','error')
+    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:''}); load(token) } else showToast(r.error||'Erro','error')
   }
   async function saveMarket() { const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',editMarket); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
@@ -379,6 +379,10 @@ export default function Admin() {
                     <div style={{height:'100%',background:`linear-gradient(90deg,${V.green},${V.green}60)`,width:`${newMarket.yes_odds}%`,transition:'width 0.3s',borderRadius:'2px'}}/>
                   </div>
                   <FField label="Data de encerramento"><FInput type="datetime-local" value={newMarket.expires_at} onChange={(e:any)=>setNewMarket({...newMarket,expires_at:e.target.value})}/></FField>
+                  <FField label="Imagem (URL)">
+                    <FInput placeholder="https://... ou deixe vazio" value={newMarket.image_url} onChange={(e:any)=>setNewMarket({...newMarket,image_url:e.target.value})}/>
+                    {newMarket.image_url && <img src={newMarket.image_url} alt="preview" style={{marginTop:'8px',width:'100%',height:'120px',objectFit:'cover',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.1)'}} onError={(e:any)=>e.target.style.display='none'}/>}
+                  </FField>
                   <PrimaryBtn type="submit">CRIAR MERCADO</PrimaryBtn>
                 </form>
               </div>
@@ -510,6 +514,10 @@ export default function Admin() {
             </div>
             <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?String(editMarket.expires_at).slice(0,16):''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
             <FField label="Status"><FSelect value={editMarket.status} onChange={(e:any)=>setEditMarket({...editMarket,status:e.target.value})}>{['open','suspended','resolved','cancelled'].map(s=><option key={s} value={s}>{s}</option>)}</FSelect></FField>
+            <FField label="Imagem (URL)">
+              <FInput placeholder="https://... ou deixe vazio" value={editMarket.image_url||''} onChange={(e:any)=>setEditMarket({...editMarket,image_url:e.target.value})}/>
+              {editMarket.image_url && <img src={editMarket.image_url} alt="preview" style={{marginTop:'8px',width:'100%',height:'120px',objectFit:'cover',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.1)'}} onError={(e:any)=>e.target.style.display='none'}/>}
+            </FField>
             <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
               <PrimaryBtn onClick={saveMarket}>SALVAR</PrimaryBtn>
