@@ -39,6 +39,7 @@ export default function Home() {
   const [betValue, setBetValue] = useState('')
   const [marketModal, setMarketModal] = useState<Market|null>(null)
   const [modalBetChoice, setModalBetChoice] = useState<'yes'|'no'|null>(null)
+  const [tick, setTick] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [activeNav, setActiveNav] = useState('mercados')
 
@@ -61,6 +62,12 @@ export default function Home() {
       .catch(() => setLoading(false))
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  useEffect(() => {
+    if (!marketModal) return
+    const id = setInterval(() => setTick(t => t + 1), 1000)
+    return () => clearInterval(id)
+  }, [marketModal])
 
   function toggleFav(id: string) {
     setFavs(f => { const n = f.includes(id)?f.filter(x=>x!==id):[...f,id]; localStorage.setItem('favorites',JSON.stringify(n)); return n })
@@ -481,191 +488,286 @@ export default function Home() {
         </>
       )}
 
-      {/* MODAL MERCADO - MOBILE FULLSCREEN */}
-      {isMobile && marketModal && (
-        <>
-          <div
-            onClick={() => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }}
-            style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:1010}}
-          />
-          <div style={{
-            position:'fixed',inset:0,zIndex:1011,
-            background:'#111',
-            overflowY:'auto',
-            display:'flex',flexDirection:'column'
-          }}>
-            {/* Banner */}
-            {marketModal.image_url ? (
-              <div style={{position:'relative',height:'200px',flexShrink:0}}>
-                <img src={marketModal.image_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-                <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(0,0,0,0.3),rgba(17,17,17,0.95))'}}/>
-                <button
-                  onClick={() => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }}
-                  style={{position:'absolute',top:'16px',right:'16px',background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',color:'#fff',width:'32px',height:'32px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px'}}
-                >×</button>
-              </div>
-            ) : (
-              <div style={{height:'56px',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'flex-end',padding:'0 16px'}}>
-                <button
-                  onClick={() => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }}
-                  style={{background:'#1e1e1e',border:'none',cursor:'pointer',color:'#888',width:'32px',height:'32px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px'}}
-                >×</button>
-              </div>
-            )}
+      {/* MODAL MERCADO - MOBILE FULLSCREEN v2 */}
+      {isMobile && marketModal && (() => {
+        const mYes = Number(marketModal.yes_odds)||50
+        const mNo  = Number(marketModal.no_odds)||50
+        const mYM  = (100/mYes).toFixed(2)
+        const mNM  = (100/mNo).toFixed(2)
+        const mOdd = modalBetChoice==='yes' ? (100/mYes) : (100/mNo)
+        const mGain = (betNum * mOdd).toFixed(2)
+        const mNoBalance = betNum > balance
 
-            {/* Content */}
-            <div style={{padding:'16px 16px 48px',flex:1}}>
-              {/* Category + title */}
-              {marketModal.category && (
-                <span style={{background:'rgba(0,200,83,0.1)',color:'#00c853',fontSize:'10px',fontWeight:700,padding:'2px 8px',borderRadius:'4px',textTransform:'uppercase',letterSpacing:'0.06em',display:'inline-block',marginBottom:'8px'}}>
-                  {marketModal.category}
-                </span>
+        // Countdown blocks
+        const getCd = (d?: string) => {
+          if (!d) return null
+          const diff = new Date(d).getTime() - Date.now()
+          if (diff <= 0) return { dy:0, h:0, m:0, s:0, ended:true }
+          return {
+            dy: Math.floor(diff/86400000),
+            h:  Math.floor((diff%86400000)/3600000),
+            m:  Math.floor((diff%3600000)/60000),
+            s:  Math.floor((diff%60000)/1000),
+            ended: false
+          }
+        }
+        const cd = getCd(marketModal.expires_at)
+
+        // Category gradient fallback
+        const catGrad: Record<string,string> = {
+          'Economia':       'linear-gradient(135deg,#0a1628,#1a3a5c)',
+          'Esportes':       'linear-gradient(135deg,#0a1a0a,#1a3a1a)',
+          'Politica':       'linear-gradient(135deg,#1a0a0a,#3a1a1a)',
+          'Criptomoedas':   'linear-gradient(135deg,#0a0a1a,#1a1a3a)',
+          'Entretenimento': 'linear-gradient(135deg,#1a0a1a,#3a1a3a)',
+          'Geopolitica':    'linear-gradient(135deg,#1a1a0a,#2a2a1a)',
+        }
+        const bg = catGrad[marketModal.category||''] || 'linear-gradient(135deg,#0a0a0a,#1a1a1a)'
+
+        const closeModal = () => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }
+
+        return (
+          <div style={{
+            position:'fixed',inset:0,zIndex:1020,
+            background:'#161616',
+            display:'flex',flexDirection:'column',
+            overflowY:'auto',
+            WebkitOverflowScrolling:'touch' as any
+          }}>
+            {/* ── BANNER ── */}
+            <div style={{position:'relative',height:'220px',flexShrink:0}}>
+              {marketModal.image_url ? (
+                <img src={marketModal.image_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
+              ) : (
+                <div style={{width:'100%',height:'100%',background:bg,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <svg width="64" height="64" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                  </svg>
+                </div>
               )}
-              <p style={{fontSize:'17px',fontWeight:700,lineHeight:1.35,marginBottom:'16px',color:'#fff'}}>
+              {/* Gradient overlay */}
+              <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(0,0,0,0.25) 0%,rgba(22,22,22,0.98) 100%)'}}/>
+              {/* X button */}
+              <button
+                onClick={closeModal}
+                style={{
+                  position:'absolute',top:'14px',right:'14px',zIndex:2,
+                  background:'rgba(0,0,0,0.55)',backdropFilter:'blur(6px)',
+                  border:'1px solid rgba(255,255,255,0.15)',
+                  cursor:'pointer',color:'#fff',
+                  width:'34px',height:'34px',borderRadius:'50%',
+                  display:'flex',alignItems:'center',justifyContent:'center',
+                  fontSize:'18px',lineHeight:1
+                }}
+              >×</button>
+            </div>
+
+            {/* ── CONTENT ── */}
+            <div style={{padding:'12px 16px 100px',flex:1}}>
+
+              {/* Category badge */}
+              {marketModal.category && (
+                <span style={{
+                  display:'inline-flex',alignItems:'center',gap:'4px',
+                  background:'rgba(0,200,83,0.1)',color:'#00c853',
+                  fontSize:'10px',fontWeight:700,
+                  padding:'3px 10px',borderRadius:'20px',
+                  border:'1px solid rgba(0,200,83,0.2)',
+                  textTransform:'uppercase',letterSpacing:'0.07em',
+                  marginBottom:'10px'
+                }}>{marketModal.category}</span>
+              )}
+
+              {/* Question */}
+              <p style={{fontSize:'18px',fontWeight:800,lineHeight:1.3,color:'#fff',marginBottom:'16px',letterSpacing:'-0.01em'}}>
                 {marketModal.question}
               </p>
 
-              {/* Probabilities */}
-              <div style={{marginBottom:'16px'}}>
-                <div style={{display:'flex',justifyContent:'space-between',marginBottom:'6px'}}>
-                  <span style={{fontSize:'12px',color:'#00c853',fontWeight:700}}>{Number(marketModal.yes_odds)||50}% SIM</span>
-                  <span style={{fontSize:'12px',color:'#ef5350',fontWeight:700}}>{Number(marketModal.no_odds)||50}% NÃO</span>
+              {/* Probability bar */}
+              <div style={{marginBottom:'20px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
+                  <span style={{fontSize:'13px',color:'#00c853',fontWeight:700}}>{mYes}% SIM</span>
+                  <span style={{fontSize:'11px',color:'#555'}}>probabilidade</span>
+                  <span style={{fontSize:'13px',color:'#ef5350',fontWeight:700}}>{mNo}% NÃO</span>
                 </div>
-                <div style={{height:'6px',borderRadius:'3px',overflow:'hidden',display:'flex'}}>
-                  <div style={{width:`${Number(marketModal.yes_odds)||50}%`,background:'#00c853',transition:'width 0.5s ease'}}/>
-                  <div style={{flex:1,background:'#c62828'}}/>
+                <div style={{height:'6px',borderRadius:'3px',overflow:'hidden',display:'flex',gap:'1px'}}>
+                  <div style={{width:`${mYes}%`,background:'linear-gradient(90deg,#00c853,#00e676)',borderRadius:'3px 0 0 3px',transition:'width 0.5s ease'}}/>
+                  <div style={{flex:1,background:'linear-gradient(90deg,#c62828,#ef5350)',borderRadius:'0 3px 3px 0'}}/>
                 </div>
               </div>
 
-              {/* Timer */}
-              <div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'20px'}}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill={getTimeColor(marketModal.expires_at)}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
-                <span style={{fontSize:'12px',color:getTimeColor(marketModal.expires_at)}}>{getTimeLabel(marketModal.expires_at)}</span>
-              </div>
-
-              {/* SIM / NÃO selection */}
-              <div style={{display:'flex',gap:'10px',marginBottom:'16px'}}>
-                <button
-                  onClick={() => setModalBetChoice('yes')}
-                  style={{
-                    flex:1,padding:'14px 0',borderRadius:'10px',fontSize:'15px',fontWeight:700,cursor:'pointer',
-                    border:`2px solid ${modalBetChoice==='yes'?'#00c853':'rgba(0,200,83,0.3)'}`,
-                    background:modalBetChoice==='yes'?'rgba(0,200,83,0.15)':'transparent',
-                    color:'#00c853',transition:'all 0.15s'
-                  }}
-                >✓ SIM · {(100/(Number(marketModal.yes_odds)||50)).toFixed(2)}x</button>
-                <button
-                  onClick={() => setModalBetChoice('no')}
-                  style={{
-                    flex:1,padding:'14px 0',borderRadius:'10px',fontSize:'15px',fontWeight:700,cursor:'pointer',
-                    border:`2px solid ${modalBetChoice==='no'?'#ef5350':'rgba(198,40,40,0.3)'}`,
-                    background:modalBetChoice==='no'?'rgba(198,40,40,0.15)':'transparent',
-                    color:'#ef5350',transition:'all 0.15s'
-                  }}
-                >✗ NÃO · {(100/(Number(marketModal.no_odds)||50)).toFixed(2)}x</button>
-              </div>
-
-              {modalBetChoice && (<>
-                {/* Value display */}
-                <div style={{textAlign:'center',marginBottom:'12px'}}>
-                  <div style={{fontSize:'40px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1}}>
-                    R$ {betNum.toFixed(2)}
+              {/* Countdown timer */}
+              <div style={{marginBottom:'20px'}}>
+                {!cd ? (
+                  <div style={{
+                    display:'inline-flex',alignItems:'center',gap:'6px',
+                    background:'rgba(0,200,83,0.08)',border:'1px solid rgba(0,200,83,0.2)',
+                    borderRadius:'8px',padding:'8px 14px'
+                  }}>
+                    <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#00c853'}}/>
+                    <span style={{fontSize:'12px',fontWeight:600,color:'#00c853'}}>Mercado Aberto</span>
                   </div>
-                  <div style={{fontSize:'11px',color:'#666',marginTop:'4px'}}>Saldo: R$ {balance.toFixed(2)}</div>
-                </div>
+                ) : cd.ended ? (
+                  <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(244,67,54,0.08)',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'8px 14px'}}>
+                    <span style={{fontSize:'12px',fontWeight:600,color:'#f44336'}}>Encerrado</span>
+                  </div>
+                ) : (
+                  <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
+                    {[{v:cd.dy,l:'DIAS'},{v:cd.h,l:'HORAS'},{v:cd.m,l:'MIN'},{v:cd.s,l:'SEG'}].map(({v,l})=>(
+                      <div key={l} style={{flex:1,textAlign:'center',background:'#1e1e1e',borderRadius:'8px',padding:'8px 4px',border:'1px solid rgba(255,255,255,0.07)'}}>
+                        <div style={{fontSize:'22px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>
+                          {String(v).padStart(2,'0')}
+                        </div>
+                        <div style={{fontSize:'9px',color:'#555',fontWeight:600,letterSpacing:'0.08em',marginTop:'3px'}}>{l}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-                {/* Quick value buttons */}
-                <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
-                  {VALS.map(v => (
-                    <button
-                      key={v}
-                      onClick={() => setBetValue(v)}
-                      style={{
-                        flex:1,padding:'10px 0',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer',
-                        border:`1px solid ${betValue===v?'#00e676':'rgba(255,255,255,0.15)'}`,
-                        background:betValue===v?'#00e676':'transparent',
-                        color:betValue===v?'#000':'#fff',transition:'all 0.15s'
-                      }}
-                    >R${v}</button>
-                  ))}
+              {/* SIM / NÃO buttons */}
+              {!modalBetChoice && (
+                <div style={{display:'flex',gap:'10px',marginBottom:'16px'}}>
                   <button
-                    onClick={() => setBetValue(String(balance))}
+                    onClick={() => { setModalBetChoice('yes'); setBetValue('') }}
                     style={{
-                      flex:1,padding:'10px 0',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer',
-                      border:`1px solid ${betValue===String(balance)&&balance>0?'#00e676':'rgba(255,255,255,0.15)'}`,
-                      background:betValue===String(balance)&&balance>0?'#00e676':'transparent',
-                      color:betValue===String(balance)&&balance>0?'#000':'#fff',transition:'all 0.15s'
+                      flex:1,padding:'16px 0',borderRadius:'12px',fontSize:'16px',fontWeight:800,cursor:'pointer',
+                      background:'rgba(0,200,83,0.1)',
+                      border:'2px solid rgba(0,200,83,0.35)',
+                      color:'#00c853',transition:'all 0.15s',letterSpacing:'0.02em'
                     }}
-                  >MAX</button>
+                    onTouchStart={e=>(e.currentTarget.style.background='rgba(0,200,83,0.2)')}
+                    onTouchEnd={e=>(e.currentTarget.style.background='rgba(0,200,83,0.1)')}
+                  >✓ SIM<br/><span style={{fontSize:'13px',fontWeight:600,opacity:0.8}}>{mYM}x</span></button>
+                  <button
+                    onClick={() => { setModalBetChoice('no'); setBetValue('') }}
+                    style={{
+                      flex:1,padding:'16px 0',borderRadius:'12px',fontSize:'16px',fontWeight:800,cursor:'pointer',
+                      background:'rgba(198,40,40,0.1)',
+                      border:'2px solid rgba(198,40,40,0.35)',
+                      color:'#ef5350',transition:'all 0.15s',letterSpacing:'0.02em'
+                    }}
+                    onTouchStart={e=>(e.currentTarget.style.background='rgba(198,40,40,0.2)')}
+                    onTouchEnd={e=>(e.currentTarget.style.background='rgba(198,40,40,0.1)')}
+                  >✗ NÃO<br/><span style={{fontSize:'13px',fontWeight:600,opacity:0.8}}>{mNM}x</span></button>
                 </div>
+              )}
 
-                {/* Potential return */}
-                {betNum > 0 && (
-                  <div style={{background:'#1e1e1e',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
+              {/* BET PANEL (shown after choice) */}
+              {modalBetChoice && (
+                <div>
+                  {/* Choice header with change button */}
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'16px'}}>
+                    <span style={{
+                      display:'inline-flex',alignItems:'center',gap:'6px',
+                      padding:'6px 14px',borderRadius:'8px',fontSize:'13px',fontWeight:700,
+                      background:modalBetChoice==='yes'?'rgba(0,200,83,0.12)':'rgba(198,40,40,0.12)',
+                      color:modalBetChoice==='yes'?'#00c853':'#ef5350',
+                      border:`1px solid ${modalBetChoice==='yes'?'rgba(0,200,83,0.25)':'rgba(198,40,40,0.25)'}`
+                    }}>
+                      {modalBetChoice==='yes'?'✓ SIM':'✗ NÃO'} · {modalBetChoice==='yes'?mYM:mNM}x
+                    </span>
+                    <button
+                      onClick={() => { setModalBetChoice(null); setBetValue('') }}
+                      style={{background:'#222',border:'1px solid #333',cursor:'pointer',color:'#888',borderRadius:'7px',padding:'5px 10px',fontSize:'11px',fontWeight:600}}
+                    >Trocar</button>
+                  </div>
+
+                  {/* Value big display */}
+                  <div style={{textAlign:'center',marginBottom:'16px'}}>
+                    <div style={{fontSize:'42px',fontWeight:900,color:'#fff',letterSpacing:'-0.03em',lineHeight:1}}>
+                      R$ {betNum.toFixed(2)}
+                    </div>
+                    <div style={{fontSize:'11px',color:'#555',marginTop:'5px'}}>Saldo disponível: R$ {balance.toFixed(2)}</div>
+                  </div>
+
+                  {/* Quick value buttons */}
+                  <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
+                    {VALS.map(v => (
+                      <button
+                        key={v}
+                        onClick={() => setBetValue(v)}
+                        style={{
+                          flex:1,padding:'11px 0',borderRadius:'9px',fontSize:'13px',fontWeight:700,cursor:'pointer',
+                          border:`1px solid ${betValue===v?'#00e676':'rgba(255,255,255,0.12)'}`,
+                          background:betValue===v?'#00e676':'#1e1e1e',
+                          color:betValue===v?'#000':'#ccc',transition:'all 0.12s'
+                        }}
+                      >R${v}</button>
+                    ))}
+                    <button
+                      onClick={() => setBetValue(String(balance))}
+                      style={{
+                        flex:1,padding:'11px 0',borderRadius:'9px',fontSize:'13px',fontWeight:700,cursor:'pointer',
+                        border:`1px solid ${betValue===String(balance)&&balance>0?'#00e676':'rgba(255,255,255,0.12)'}`,
+                        background:betValue===String(balance)&&balance>0?'#00e676':'#1e1e1e',
+                        color:betValue===String(balance)&&balance>0?'#000':'#ccc',transition:'all 0.12s'
+                      }}
+                    >MAX</button>
+                  </div>
+
+                  {/* Se acertar ganha */}
+                  <div style={{background:'#1a1a1a',borderRadius:'12px',padding:'14px 16px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.07)'}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                       <div>
-                        <p style={{fontSize:'12px',fontWeight:600,marginBottom:'2px'}}>Se acertar ganha</p>
-                        <p style={{fontSize:'11px',color:'#666'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {modalBetChoice==='yes'?(100/(Number(marketModal.yes_odds)||50)).toFixed(2):(100/(Number(marketModal.no_odds)||50)).toFixed(2)}x</p>
+                        <p style={{fontSize:'12px',fontWeight:600,marginBottom:'3px',color:'#ccc'}}>Se acertar ganha</p>
+                        <p style={{fontSize:'11px',color:'#555'}}>Odd {mOdd.toFixed(2)}x · Custo R$ {betNum.toFixed(2)}</p>
                       </div>
-                      <span style={{fontSize:'22px',fontWeight:900,color:'#00c853'}}>
-                        R$ {(betNum*(modalBetChoice==='yes'?(100/(Number(marketModal.yes_odds)||50)):(100/(Number(marketModal.no_odds)||50)))).toFixed(2)}
-                      </span>
+                      <span style={{fontSize:'24px',fontWeight:900,color:'#00c853'}}>R$ {mGain}</span>
                     </div>
                   </div>
-                )}
 
-                {/* Insufficient balance warning */}
-                {noBalance && betNum > 0 && (
-                  <div style={{textAlign:'center',marginBottom:'10px'}}>
-                    <p style={{color:'#ef5350',fontSize:'12px',marginBottom:'2px'}}>Saldo insuficiente para esta previsão.</p>
-                    <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(betNum - balance).toFixed(2)} para continuar.</p>
-                  </div>
-                )}
+                  {/* Insufficient balance warning */}
+                  {mNoBalance && betNum > 0 && (
+                    <div style={{background:'rgba(244,67,54,0.08)',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px 14px',marginBottom:'12px',textAlign:'center'}}>
+                      <p style={{color:'#ef5350',fontSize:'12px',marginBottom:'2px',fontWeight:600}}>Saldo insuficiente</p>
+                      <p style={{color:'#ef5350',fontSize:'11px',opacity:0.8}}>Faltam R$ {(betNum - balance).toFixed(2)} para esta aposta</p>
+                    </div>
+                  )}
 
-                {/* APOSTAR button */}
-                {noBalance && betNum > 0 ? (
-                  <button style={{width:'100%',padding:'16px',borderRadius:'10px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'16px',boxShadow:'0 0 24px rgba(0,230,118,0.35)'}}>
-                    Depositar R$ {(betNum - balance).toFixed(2)}
-                  </button>
-                ) : (
-                  <button
-                    disabled={betNum <= 0}
-                    onClick={async () => {
-                      const token = localStorage.getItem('token')
-                      if (!token) { router.push('/login'); return }
-                      if (!betNum || betNum <= 0) return
-                      try {
-                        const res = await fetch(API + '/api/bets', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                          body: JSON.stringify({ market_id: marketModal.id, choice: modalBetChoice, amount: betNum })
-                        })
-                        const data = await res.json()
-                        if (!res.ok) throw new Error(data.error || 'Erro ao apostar')
-                        setBalance(b => b - betNum)
-                        setMarketModal(null)
-                        setModalBetChoice(null)
-                        setBetValue('')
-                      } catch (err: any) { alert(err.message) }
-                    }}
-                    style={{
-                      width:'100%',padding:'16px',borderRadius:'10px',border:'none',
-                      cursor:betNum>0?'pointer':'not-allowed',
-                      background:betNum>0?'#00e676':'#2a2a2a',
-                      color:betNum>0?'#000':'#555',
-                      fontWeight:900,fontSize:'16px',
-                      boxShadow:betNum>0?'0 0 24px rgba(0,230,118,0.35)':'none',
-                      transition:'all 0.2s'
-                    }}
-                  >
-                    APOSTAR {modalBetChoice==='yes'?'SIM':'NÃO'} · R$ {betNum.toFixed(2)}
-                  </button>
-                )}
-              </>)}
+                  {/* APOSTAR */}
+                  {mNoBalance && betNum > 0 ? (
+                    <button style={{width:'100%',padding:'17px',borderRadius:'12px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'16px',letterSpacing:'0.02em',boxShadow:'0 0 28px rgba(0,230,118,0.35)'}}>
+                      DEPOSITAR R$ {(betNum - balance).toFixed(2)}
+                    </button>
+                  ) : (
+                    <button
+                      disabled={betNum <= 0}
+                      onClick={async () => {
+                        const token = localStorage.getItem('token')
+                        if (!token) { router.push('/login'); return }
+                        if (betNum <= 0) return
+                        try {
+                          const res = await fetch(API + '/api/bets', {
+                            method: 'POST',
+                            headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+                            body: JSON.stringify({market_id:marketModal.id,choice:modalBetChoice,amount:betNum})
+                          })
+                          const data = await res.json()
+                          if (!res.ok) throw new Error(data.error||'Erro ao apostar')
+                          setBalance(b => b - betNum)
+                          setMarketModal(null); setModalBetChoice(null); setBetValue('')
+                        } catch(err:any){ alert(err.message) }
+                      }}
+                      style={{
+                        width:'100%',padding:'17px',borderRadius:'12px',border:'none',
+                        cursor:betNum>0?'pointer':'not-allowed',
+                        background:betNum>0?'#00e676':'#222',
+                        color:betNum>0?'#000':'#444',
+                        fontWeight:900,fontSize:'16px',letterSpacing:'0.02em',
+                        boxShadow:betNum>0?'0 0 28px rgba(0,230,118,0.35)':'none',
+                        transition:'all 0.2s'
+                      }}
+                    >
+                      {betNum > 0 ? `APOSTAR ${modalBetChoice==='yes'?'SIM':'NÃO'} · R$ ${betNum.toFixed(2)}` : 'Selecione um valor'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-        </>
-      )}
+        )
+      })()}
 
     </div>
   )
