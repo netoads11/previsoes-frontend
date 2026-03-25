@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, X } from 'lucide-react'
@@ -8,6 +8,10 @@ const API = 'http://187.77.248.115:3001'
 
 export default function Login() {
   const router = useRouter()
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) router.push('/')
+  }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
@@ -79,7 +83,7 @@ export default function Login() {
       `}</style>
       <div className="auth-container">
         <button
-          onClick={() => window.history.length > 1 ? router.back() : router.push('/')}
+          onClick={() => router.push('/')}
           style={{position:'fixed',top:'16px',right:'16px',width:'36px',height:'36px',borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'1px solid rgba(255,255,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:50}}
         >
           <X style={{width:'18px',height:'18px',color:'#fff'}}/>

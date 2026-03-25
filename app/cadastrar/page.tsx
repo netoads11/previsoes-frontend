@@ -17,6 +17,7 @@ export default function Cadastrar() {
   const [refCode, setRefCode] = useState('')
 
   useEffect(() => {
+    if (localStorage.getItem('token')) { router.push('/'); return }
     const p = new URLSearchParams(window.location.search)
     const r = p.get('ref')
     if (r) setRefCode(r.toUpperCase())
@@ -86,7 +87,7 @@ export default function Cadastrar() {
       `}</style>
       <div className="auth-container">
         <button
-          onClick={() => window.history.length > 1 ? router.back() : router.push('/')}
+          onClick={() => router.push('/')}
           style={{position:'fixed',top:'16px',right:'16px',width:'36px',height:'36px',borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'1px solid rgba(255,255,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:50}}
         >
           <X style={{width:'18px',height:'18px',color:'#fff'}}/>
