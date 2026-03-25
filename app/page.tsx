@@ -39,7 +39,7 @@ export default function Home() {
   const [betValue, setBetValue] = useState('')
   const [marketModal, setMarketModal] = useState<Market|null>(null)
   const [modalBetChoice, setModalBetChoice] = useState<'yes'|'no'|null>(null)
-  const [tick, setTick] = useState(0)
+  const [cd, setCd] = useState<{d:number,h:number,m:number,s:number}|null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [activeNav, setActiveNav] = useState('mercados')
 
@@ -64,8 +64,33 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (!marketModal) return
-    const id = setInterval(() => setTick(t => t + 1), 1000)
+    if (marketModal) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [marketModal])
+
+  useEffect(() => {
+    if (!marketModal?.expires_at) { setCd(null); return }
+    const calc = () => {
+      const diff = new Date(marketModal.expires_at!).getTime() - Date.now()
+      if (diff <= 0) { setCd({d:0,h:0,m:0,s:0}); return }
+      setCd({
+        d: Math.floor(diff/86400000),
+        h: Math.floor((diff%86400000)/3600000),
+        m: Math.floor((diff%3600000)/60000),
+        s: Math.floor((diff%60000)/1000),
+      })
+    }
+    calc()
+    const id = setInterval(calc, 1000)
     return () => clearInterval(id)
   }, [marketModal])
 
@@ -498,37 +523,25 @@ export default function Home() {
         const mGain = (betNum * mOdd).toFixed(2)
         const mNoBalance = betNum > balance
 
-        // Countdown blocks
-        const getCd = (d?: string) => {
-          if (!d) return null
-          const diff = new Date(d).getTime() - Date.now()
-          if (diff <= 0) return { dy:0, h:0, m:0, s:0, ended:true }
-          return {
-            dy: Math.floor(diff/86400000),
-            h:  Math.floor((diff%86400000)/3600000),
-            m:  Math.floor((diff%3600000)/60000),
-            s:  Math.floor((diff%60000)/1000),
-            ended: false
-          }
-        }
-        const cd = getCd(marketModal.expires_at)
-
         // Category gradient fallback
         const catGrad: Record<string,string> = {
-          'Economia':       'linear-gradient(135deg,#0a1628,#1a3a5c)',
-          'Esportes':       'linear-gradient(135deg,#0a1a0a,#1a3a1a)',
-          'Politica':       'linear-gradient(135deg,#1a0a0a,#3a1a1a)',
-          'Criptomoedas':   'linear-gradient(135deg,#0a0a1a,#1a1a3a)',
-          'Entretenimento': 'linear-gradient(135deg,#1a0a1a,#3a1a3a)',
-          'Geopolitica':    'linear-gradient(135deg,#1a1a0a,#2a2a1a)',
+          'Financeiro':     'linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%)',
+          'Criptomoedas':   'linear-gradient(135deg, #2d1b69 0%, #1a0f3d 100%)',
+          'Política':       'linear-gradient(135deg, #5c1a1a 0%, #3d0d0d 100%)',
+          'Politica':       'linear-gradient(135deg, #5c1a1a 0%, #3d0d0d 100%)',
+          'Esportes':       'linear-gradient(135deg, #1a5c2d 0%, #0d3d1a 100%)',
+          'Entretenimento': 'linear-gradient(135deg, #5c3d1a 0%, #3d2510 100%)',
+          'Geopolitica':    'linear-gradient(135deg, #3d3d1a 0%, #252510 100%)',
+          'Economia':       'linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%)',
         }
-        const bg = catGrad[marketModal.category||''] || 'linear-gradient(135deg,#0a0a0a,#1a1a1a)'
+        const grad = catGrad[marketModal.category||''] || 'linear-gradient(135deg, #2a2a2a 0%, #111 100%)'
 
         const closeModal = () => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }
 
         return (
           <div style={{
-            position:'fixed',inset:0,zIndex:1020,
+            position:'fixed',top:0,left:0,width:'100vw',height:'100vh',
+            margin:0,zIndex:9999,borderRadius:0,boxSizing:'border-box',
             background:'#161616',
             display:'flex',flexDirection:'column',
             overflowY:'auto',
@@ -539,7 +552,7 @@ export default function Home() {
               {marketModal.image_url ? (
                 <img src={marketModal.image_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
               ) : (
-                <div style={{width:'100%',height:'100%',background:bg,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <div style={{width:'100%',height:'100%',background:grad,display:'flex',alignItems:'center',justifyContent:'center'}}>
                   <svg width="64" height="64" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
                   </svg>
@@ -598,7 +611,7 @@ export default function Home() {
 
               {/* Countdown timer */}
               <div style={{marginBottom:'20px'}}>
-                {!cd ? (
+                {!marketModal.expires_at ? (
                   <div style={{
                     display:'inline-flex',alignItems:'center',gap:'6px',
                     background:'rgba(0,200,83,0.08)',border:'1px solid rgba(0,200,83,0.2)',
@@ -607,13 +620,13 @@ export default function Home() {
                     <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#00c853'}}/>
                     <span style={{fontSize:'12px',fontWeight:600,color:'#00c853'}}>Mercado Aberto</span>
                   </div>
-                ) : cd.ended ? (
+                ) : cd && cd.d===0 && cd.h===0 && cd.m===0 && cd.s===0 ? (
                   <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(244,67,54,0.08)',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'8px 14px'}}>
                     <span style={{fontSize:'12px',fontWeight:600,color:'#f44336'}}>Encerrado</span>
                   </div>
-                ) : (
+                ) : cd ? (
                   <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
-                    {[{v:cd.dy,l:'DIAS'},{v:cd.h,l:'HORAS'},{v:cd.m,l:'MIN'},{v:cd.s,l:'SEG'}].map(({v,l})=>(
+                    {([{v:cd.d,l:'DIAS'},{v:cd.h,l:'HORAS'},{v:cd.m,l:'MIN'},{v:cd.s,l:'SEG'}] as {v:number,l:string}[]).map(({v,l})=>(
                       <div key={l} style={{flex:1,textAlign:'center',background:'#1e1e1e',borderRadius:'8px',padding:'8px 4px',border:'1px solid rgba(255,255,255,0.07)'}}>
                         <div style={{fontSize:'22px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>
                           {String(v).padStart(2,'0')}
@@ -622,7 +635,7 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* SIM / NÃO buttons */}
