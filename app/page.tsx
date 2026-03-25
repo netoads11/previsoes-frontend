@@ -78,9 +78,13 @@ export default function Home() {
   }, [marketModal])
 
   useEffect(() => {
-    if (!marketModal?.expires_at) { setCd(null); return }
+    if (!marketModal) { setCd(null); return }
+    // Use expires_at or fallback to 30 days from now for display
+    const target = marketModal.expires_at
+      ? new Date(marketModal.expires_at).getTime()
+      : Date.now() + 30 * 24 * 60 * 60 * 1000
     const calc = () => {
-      const diff = new Date(marketModal.expires_at!).getTime() - Date.now()
+      const diff = target - Date.now()
       if (diff <= 0) { setCd({d:0,h:0,m:0,s:0}); return }
       setCd({
         d: Math.floor(diff/86400000),
@@ -174,13 +178,15 @@ export default function Home() {
           .feed-main{padding:10px 10px 76px!important}
           .hero-h1{font-size:17px!important}
           .hide-mob{display:none!important}
+          .show-mob{display:flex!important}
           .header-inner{padding:0 12px!important}
         }
       `}</style>
 
       {/* HEADER */}
       <header style={{background:'#111',borderBottom:'1px solid rgba(255,255,255,0.07)',position:'sticky',top:0,zIndex:50,height:'54px',display:'flex',alignItems:'center'}}>
-        <div className="header-inner" style={{width:'100%',display:'flex',alignItems:'center',gap:'12px',padding:'0 20px'}}>
+        {/* DESKTOP header */}
+        <div className="header-inner hide-mob" style={{width:'100%',display:'flex',alignItems:'center',gap:'12px',padding:'0 20px'}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:'7px',textDecoration:'none',flexShrink:0}}>
             <div style={{width:'28px',height:'28px',borderRadius:'7px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
               <span style={{color:'#000',fontWeight:900,fontSize:'13px'}}>P</span>
@@ -202,6 +208,24 @@ export default function Home() {
             <button style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',boxShadow:'0 0 12px rgba(0,230,118,0.3)',transition:'opacity 0.15s'}}
               onMouseEnter={e=>e.currentTarget.style.opacity='0.85'}
               onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+              + Depositar
+            </button>
+          </div>
+        </div>
+        {/* MOBILE header */}
+        <div className="show-mob" style={{width:'100%',display:'none',alignItems:'center',justifyContent:'space-between',padding:'0 14px'}}>
+          <Link href="/" style={{display:'flex',alignItems:'center',gap:'6px',textDecoration:'none',flexShrink:0}}>
+            <div style={{width:'26px',height:'26px',borderRadius:'6px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <span style={{color:'#000',fontWeight:900,fontSize:'12px'}}>P</span>
+            </div>
+            <span style={{color:'#fff',fontWeight:700,fontSize:'14px'}}>Previmarket</span>
+          </Link>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.06em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
+              <div style={{fontSize:'13px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
+            </div>
+            <button onClick={()=>router.push('/perfil')} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'7px',padding:'7px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',boxShadow:'0 0 10px rgba(0,230,118,0.3)',whiteSpace:'nowrap'}}>
               + Depositar
             </button>
           </div>
@@ -371,7 +395,7 @@ export default function Home() {
           {[
             {label:'Mercados',id:'mercados',path:'/'},
             {label:'Portfolio',id:'portfolio',path:'/perfil'},
-            {label:'Depositar',id:'depositar',path:'/perfil'},
+            {label:'Depositar',id:'depositar',path:'/perfil?tab=depositar'},
             {label:'Duvidas',id:'duvidas',path:'/duvidas'},
           ].map(item=>{
             const active=activeNav===item.id
@@ -611,30 +635,29 @@ export default function Home() {
 
               {/* Countdown timer */}
               <div style={{marginBottom:'20px'}}>
-                {!marketModal.expires_at ? (
-                  <div style={{
-                    display:'inline-flex',alignItems:'center',gap:'6px',
-                    background:'rgba(0,200,83,0.08)',border:'1px solid rgba(0,200,83,0.2)',
-                    borderRadius:'8px',padding:'8px 14px'
-                  }}>
-                    <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#00c853'}}/>
-                    <span style={{fontSize:'12px',fontWeight:600,color:'#00c853'}}>Mercado Aberto</span>
-                  </div>
-                ) : cd && cd.d===0 && cd.h===0 && cd.m===0 && cd.s===0 ? (
+                {cd && cd.d===0 && cd.h===0 && cd.m===0 && cd.s===0 ? (
                   <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(244,67,54,0.08)',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'8px 14px'}}>
                     <span style={{fontSize:'12px',fontWeight:600,color:'#f44336'}}>Encerrado</span>
                   </div>
                 ) : cd ? (
-                  <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
-                    {([{v:cd.d,l:'DIAS'},{v:cd.h,l:'HORAS'},{v:cd.m,l:'MIN'},{v:cd.s,l:'SEG'}] as {v:number,l:string}[]).map(({v,l})=>(
-                      <div key={l} style={{flex:1,textAlign:'center',background:'#1e1e1e',borderRadius:'8px',padding:'8px 4px',border:'1px solid rgba(255,255,255,0.07)'}}>
-                        <div style={{fontSize:'22px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>
-                          {String(v).padStart(2,'0')}
-                        </div>
-                        <div style={{fontSize:'9px',color:'#555',fontWeight:600,letterSpacing:'0.08em',marginTop:'3px'}}>{l}</div>
+                  <>
+                    {!marketModal.expires_at && (
+                      <div style={{display:'inline-flex',alignItems:'center',gap:'5px',marginBottom:'8px',background:'rgba(0,200,83,0.08)',border:'1px solid rgba(0,200,83,0.2)',borderRadius:'6px',padding:'4px 10px'}}>
+                        <div style={{width:'5px',height:'5px',borderRadius:'50%',background:'#00c853'}}/>
+                        <span style={{fontSize:'10px',fontWeight:600,color:'#00c853'}}>Mercado Aberto</span>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                    <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
+                      {([{v:cd.d,l:'DIAS'},{v:cd.h,l:'HORAS'},{v:cd.m,l:'MIN'},{v:cd.s,l:'SEG'}] as {v:number,l:string}[]).map(({v,l})=>(
+                        <div key={l} style={{flex:1,textAlign:'center',background:'#1e1e1e',borderRadius:'8px',padding:'8px 4px',border:'1px solid rgba(255,255,255,0.07)'}}>
+                          <div style={{fontSize:'22px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>
+                            {String(v).padStart(2,'0')}
+                          </div>
+                          <div style={{fontSize:'9px',color:'#555',fontWeight:600,letterSpacing:'0.08em',marginTop:'3px'}}>{l}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 ) : null}
               </div>
 
@@ -695,7 +718,7 @@ export default function Home() {
                   </div>
 
                   {/* Quick value buttons */}
-                  <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
+                  <div style={{display:'flex',gap:'8px',marginBottom:'10px'}}>
                     {VALS.map(v => (
                       <button
                         key={v}
@@ -717,6 +740,29 @@ export default function Home() {
                         color:betValue===String(balance)&&balance>0?'#000':'#ccc',transition:'all 0.12s'
                       }}
                     >MAX</button>
+                  </div>
+
+                  {/* Free input */}
+                  <div style={{position:'relative',marginBottom:'12px'}}>
+                    <span style={{position:'absolute',left:'14px',top:'50%',transform:'translateY(-50%)',color:'#888',fontSize:'16px',fontWeight:700,pointerEvents:'none'}}>R$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      placeholder="0,00"
+                      value={betValue}
+                      onChange={e => setBetValue(e.target.value)}
+                      style={{
+                        width:'100%',padding:'13px 14px 13px 38px',
+                        background:'#1e1e1e',border:'1px solid rgba(255,255,255,0.12)',
+                        borderRadius:'10px',color:'#fff',
+                        fontSize:'18px',fontWeight:700,textAlign:'center',
+                        outline:'none',appearance:'none' as any,
+                        MozAppearance:'textfield' as any,
+                      }}
+                      onFocus={e=>{e.target.style.borderColor='#00e676';e.target.style.boxShadow='0 0 0 2px rgba(0,230,118,0.15)'}}
+                      onBlur={e=>{e.target.style.borderColor='rgba(255,255,255,0.12)';e.target.style.boxShadow='none'}}
+                    />
                   </div>
 
                   {/* Se acertar ganha */}
