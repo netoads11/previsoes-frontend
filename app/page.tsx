@@ -128,7 +128,7 @@ export default function Home() {
   const mult = betChoice==='yes'?(100/yes).toFixed(2):(100/no).toFixed(2)
   const betNum = Number(betValue)||0
   const gain = (betNum*Number(mult)).toFixed(2)
-  const noBalance = betNum > balance
+  const noBalance = Number(betNum) > Number(balance)
   const VALS = ['10','20','50','100']
 
 
@@ -366,13 +366,13 @@ export default function Home() {
               {noBalance && betNum>0 && (
                 <div style={{textAlign:'center',marginBottom:'10px'}}>
                   <p style={{color:'#ef5350',fontSize:'12px',marginBottom:'2px'}}>Você não tem saldo suficiente para esta previsão.</p>
-                  <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(betNum-balance).toFixed(2)} para continuar.</p>
+                  <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(Number(betNum)-Number(balance)).toFixed(2)} para continuar.</p>
                 </div>
               )}
 
               {noBalance && betNum>0 ? (
                 <button style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'14px',boxShadow:'0 0 16px rgba(0,230,118,0.3)'}}>
-                  Depositar R$ {(betNum-balance).toFixed(2)}
+                  Depositar R$ {(Number(betNum)-Number(balance)).toFixed(2)}
                 </button>
               ) : (
                 <button style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background: betNum>0?'#00e676':'#333',color: betNum>0?'#000':'#666',fontWeight:900,fontSize:'14px',boxShadow: betNum>0?'0 0 16px rgba(0,230,118,0.3)':'none',transition:'all 0.2s'}} onClick={handleBet} disabled={betNum<=0}>
@@ -510,14 +510,14 @@ export default function Home() {
             {noBalance && betNum > 0 && (
               <div style={{textAlign:'center',marginBottom:'10px'}}>
                 <p style={{color:'#ef5350',fontSize:'12px',marginBottom:'2px'}}>Saldo insuficiente para esta previsão.</p>
-                <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(betNum - balance).toFixed(2)} para continuar.</p>
+                <p style={{color:'#ef5350',fontSize:'12px'}}>Deposite R$ {(Number(betNum)-Number(balance)).toFixed(2)} para continuar.</p>
               </div>
             )}
 
             {/* Botão confirmar */}
             {noBalance && betNum > 0 ? (
               <button style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'15px',boxShadow:'0 0 20px rgba(0,230,118,0.35)'}}>
-                Depositar R$ {(betNum - balance).toFixed(2)}
+                Depositar R$ {(Number(betNum)-Number(balance)).toFixed(2)}
               </button>
             ) : (
               <button
@@ -548,7 +548,7 @@ export default function Home() {
         const mNM  = (100 / mNo).toFixed(2)
         const mOdd  = modalBetChoice === 'yes' ? (100 / mYes) : (100 / mNo)
         const mGain = (betNum * mOdd).toFixed(2)
-        const mNoBalance = betNum > balance
+        const mNoBalance = Number(betNum) > Number(balance)
 
         const catKey = (marketModal.category || '').toLowerCase()
         const categoryGradMap: Record<string,string> = {
