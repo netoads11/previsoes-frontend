@@ -92,7 +92,7 @@ export default function Admin() {
     setLoading(true)
     const h = {'Authorization':'Bearer '+t}
     const [m,u,d,w,a,s,aff] = await Promise.all([
-      fetch(API+'/api/markets').then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/markets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/deposits',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/withdrawals',{headers:h}).then(r=>r.json()).catch(()=>[]),
