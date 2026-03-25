@@ -419,7 +419,7 @@ export default function Admin() {
                   <span style={{fontWeight:500,color:'#ccc'}}>{u.name}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{u.email}</span>,
                   <SBadge status={u.status||'active'}/>,
-                  <SBadge status={u.is_admin?'admin':'user'}/>,
+                  <div style={{display:'flex',gap:'4px'}}><SBadge status={u.is_admin?'admin':'user'}/>{u.is_affiliate&&<SBadge status='affiliate'/>}</div>,
                   <span style={{color:V.green,fontWeight:600,fontSize:'13px'}}>R$ {Number(u.balance||0).toFixed(2)}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
@@ -523,14 +523,14 @@ export default function Admin() {
                 <MCard title="Apostas Resolvidas" value={bets.filter((b:any)=>b.status==='won'||b.status==='lost').length.toString()} sub="Finalizadas" icon={Check} color="green"/>
               </div>
               <DataTbl loading={loading}
-                cols={['Usuário','Mercado','Opção','Escolha','Valor','Odds','Status','Data']}
+                cols={['Usuário','Mercado','Opção','Escolha','Valor','Mult.','Status','Data']}
                 rows={bets.map((b:any)=>[
                   <div><p style={{fontWeight:500,color:'#ccc',fontSize:'13px'}}>{b.user_name||'—'}</p><p style={{color:V.muted,fontSize:'11px'}}>{b.user_email}</p></div>,
                   <span style={{color:'#aaa',fontSize:'12px',maxWidth:'200px',display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.market_question||'—'}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{b.option_title||'—'}</span>,
                   <SBadge status={b.choice}/>,
                   <span style={{color:V.green,fontWeight:600}}>R$ {Number(b.amount||0).toFixed(2)}</span>,
-                  <span style={{color:'#aaa',fontSize:'12px'}}>{Number(b.odds||0).toFixed(2)}x</span>,
+                  <span style={{color:'#aaa',fontSize:'12px'}}>{b.odds?Number(b.odds).toFixed(2)+'x':'—'}</span>,
                   <SBadge status={b.status}/>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{new Date(b.created_at).toLocaleDateString('pt-BR')}</span>,
                 ])}
@@ -541,8 +541,8 @@ export default function Admin() {
           {tab==='historico' && <div className="fade-in"><HistoricoPage/></div>}
           {tab==='eventos' && <div className="fade-in"><EventosPage/></div>}
           {tab==='configs' && tab==='configs' && false && null}
-          {tab==='estilo' && <div className="fade-in"><EstiloPage/></div>}
-          {tab==='banners' && <div className="fade-in"><BannersPage/></div>}
+          {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API}/></div>}
+          {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
         </main>
       </div>
 
@@ -603,7 +603,13 @@ export default function Admin() {
           <Modal title="Editar Usuário" onClose={()=>setEditUser(null)}>
             <FField label="Nome"><FInput value={editUser.name} onChange={(e:any)=>setEditUser({...editUser,name:e.target.value})}/></FField>
             <FField label="E-mail"><FInput value={editUser.email} onChange={(e:any)=>setEditUser({...editUser,email:e.target.value})}/></FField>
-            <FField label="Status"><FSelect value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>{['active','blocked','suspended'].map(s=><option key={s} value={s}>{s}</option>)}</FSelect></FField>
+            <FField label="Status"><FSelect value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>{[{v:'active',l:'Ativo'},{v:'blocked',l:'Bloqueado'},{v:'suspended',l:'Suspenso'}].map(s=><option key={s.v} value={s.v}>{s.l}</option>)}</FSelect></FField>
+            <FField label="Afiliado">
+              <label style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer'}}>
+                <input type="checkbox" checked={!!editUser.is_affiliate} onChange={(e:any)=>setEditUser({...editUser,is_affiliate:e.target.checked})} style={{width:'16px',height:'16px',cursor:'pointer',accentColor:'#00e676'}}/>
+                <span style={{fontSize:'13px',color:'#aaa'}}>Este usuário é afiliado</span>
+              </label>
+            </FField>
             <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
               <PrimaryBtn onClick={saveUser}>SALVAR</PrimaryBtn>
@@ -712,10 +718,13 @@ function SBadge({status}:{status:string}) {
     blocked:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
     rejected:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
     refunded:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
+    won:{bg:'rgba(0,230,118,0.1)',c:'#00e676',b:'rgba(0,230,118,0.2)'},
+    lost:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
+    affiliate:{bg:'rgba(139,92,246,0.1)',c:'#a78bfa',b:'rgba(139,92,246,0.2)'},
     user:{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'},
   }
   const s = m[status]||{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'}
-  const labels:any = {open:'Aberto',active:'Ativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',admin:'Admin',user:'Usuário'}
+  const labels:any = {open:'Aberto',active:'Ativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',admin:'Admin',user:'Usuário',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
   return <span style={{display:'inline-flex',alignItems:'center',padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:s.bg,color:s.c,border:`1px solid ${s.b}`}}>{labels[status]||status}</span>
 }
 
@@ -772,7 +781,7 @@ function FilterRow({search,onSearch,status,onStatus,statusOpts}:any) {
       </div>
       <select value={status} onChange={(e:any)=>onStatus(e.target.value)} style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'8px',padding:'7px 10px',color:status?'#ccc':'#555',fontSize:'12px',outline:'none',cursor:'pointer'}}>
         <option value="">Todos os status</option>
-        {statusOpts.map((s:string)=><option key={s} value={s}>{s}</option>)}
+        {statusOpts.map((s:string)=>{const lbl:any={active:'Ativo',blocked:'Bloqueado',suspended:'Suspenso',open:'Aberto',pending:'Pendente',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',cancelled:'Cancelado',rejected:'Recusado',won:'Ganhou',lost:'Perdeu'};return<option key={s} value={s}>{lbl[s]||s}</option>})}
       </select>
       {(search||status)&&<button onClick={()=>{onSearch('');onStatus('')}} style={{background:'transparent',border:'1px solid #222',borderRadius:'8px',padding:'7px 12px',color:'#555',fontSize:'12px',cursor:'pointer'}}>Limpar</button>}
     </div>
@@ -1306,65 +1315,91 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
   )
 }
 
-function EstiloPage() {
+function EstiloPage({token,api}:{token:string,api:string}) {
+  const [logoUrl,setLogoUrl]=useState('')
+  const [faviconUrl,setFaviconUrl]=useState('')
+  const [saving,setSaving]=useState(false)
+  const [msg,setMsg]=useState('')
+  async function uploadFile(endpoint:string,file:File,setUrl:(u:string)=>void){
+    setSaving(true);setMsg('')
+    const fd=new FormData();fd.append('image',file)
+    const r=await fetch(api+endpoint,{method:'POST',headers:{Authorization:'Bearer '+token},body:fd})
+    const d=await r.json()
+    if(d.url){setUrl(api+d.url);setMsg('Enviado com sucesso!')}
+    else setMsg(d.error||'Erro ao enviar')
+    setSaving(false)
+  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Customização - Estilo</h1>
       <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'20px',maxWidth:'500px'}}>
         <div>
-          <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Cor Primária</label>
-          <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <input type="color" defaultValue="#00e676" style={{width:'48px',height:'40px',cursor:'pointer',borderRadius:'6px',border:'1px solid #222',background:'transparent',padding:'2px'}}/>
-            <input defaultValue="#00e676" style={{width:'120px',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}}/>
-          </div>
-        </div>
-        <div>
           <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Logo</label>
-          <div style={{height:'100px',border:'2px dashed #222',borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'border-color 0.15s'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='rgba(0,230,118,0.3)'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#222'}>
-            <div style={{textAlign:'center'}}>
-              <Upload size={24} color="#555" style={{margin:'0 auto 6px'}}/>
-              <p style={{fontSize:'12px',color:'#555'}}>Clique para enviar</p>
-            </div>
-          </div>
+          <label style={{height:'100px',border:`2px dashed ${logoUrl?'rgba(0,230,118,0.4)':'#222'}`,borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'border-color 0.15s',overflow:'hidden'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='rgba(0,230,118,0.3)'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor=logoUrl?'rgba(0,230,118,0.4)':'#222'}>
+            {logoUrl?<img src={logoUrl} alt="logo" style={{maxHeight:'90px',maxWidth:'100%',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>:<div style={{textAlign:'center'}}><Upload size={24} color="#555" style={{margin:'0 auto 6px'}}/><p style={{fontSize:'12px',color:'#555'}}>Clique para enviar logo</p></div>}
+            <input type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f)uploadFile('/api/admin/settings/logo',f,setLogoUrl)}}/>
+          </label>
         </div>
         <div>
           <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Favicon</label>
-          <div style={{width:'80px',height:'80px',border:'2px dashed #222',borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='rgba(0,230,118,0.3)'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor='#222'}>
-            <Upload size={18} color="#555"/>
-          </div>
+          <label style={{width:'80px',height:'80px',border:`2px dashed ${faviconUrl?'rgba(0,230,118,0.4)':'#222'}`,borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden'}}>
+            {faviconUrl?<img src={faviconUrl} alt="favicon" style={{width:'60px',height:'60px',objectFit:'contain'}} onError={()=>setFaviconUrl('')}/>:<Upload size={18} color="#555"/>}
+            <input type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f)uploadFile('/api/admin/settings/favicon',f,setFaviconUrl)}}/>
+          </label>
         </div>
-        <PrimaryBtn onClick={()=>{}}>Salvar</PrimaryBtn>
+        {saving&&<p style={{fontSize:'12px',color:'#ffb300'}}>Enviando...</p>}
+        {msg&&<p style={{fontSize:'12px',color:msg.includes('Erro')?'#f44336':'#00e676'}}>{msg}</p>}
       </div>
     </div>
   )
 }
 
-function BannersPage() {
-  const [banners, setBanners] = useState([
-    { id:1, name:'Banner Principal', active:true },
-    { id:2, name:'Promoção Boas-Vindas', active:true },
-    { id:3, name:'Banner Evento', active:false },
-  ])
-  const toggle = (id:number) => setBanners(banners.map(b=>b.id===id?{...b,active:!b.active}:b))
+function BannersPage({token,api}:{token:string,api:string}) {
+  const [banners,setBanners]=useState<any[]>([])
+  const [uploading,setUploading]=useState(false)
+  const h={'Authorization':'Bearer '+token}
+  useEffect(()=>{ fetch(api+'/api/admin/banners',{headers:h}).then(r=>r.json()).then(d=>setBanners(Array.isArray(d)?d:[])).catch(()=>{}) },[])
+  async function toggleBanner(id:any,active:boolean){
+    await fetch(api+`/api/admin/banners/${id}`,{method:'PATCH',headers:{...h,'Content-Type':'application/json'},body:JSON.stringify({active})})
+    setBanners(banners.map(b=>String(b.id)===String(id)?{...b,active}:b))
+  }
+  async function deleteBanner(id:any){
+    await fetch(api+`/api/admin/banners/${id}`,{method:'DELETE',headers:h})
+    setBanners(banners.filter(b=>String(b.id)!==String(id)))
+  }
+  async function uploadBanner(file:File){
+    setUploading(true)
+    const fd=new FormData();fd.append('image',file);fd.append('name',file.name)
+    const r=await fetch(api+'/api/admin/banners',{method:'POST',headers:h,body:fd})
+    const d=await r.json()
+    if(d.banner) setBanners([...banners,d.banner])
+    setUploading(false)
+  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Banners</h1>
-        <PrimaryBtn onClick={()=>{}}><Upload size={14}/> Upload Banner</PrimaryBtn>
+        <label style={{cursor:'pointer'}}>
+          <PrimaryBtn onClick={()=>{}} style={{pointerEvents:'none'}}><Upload size={14}/> {uploading?'Enviando...':'Upload Banner'}</PrimaryBtn>
+          <input type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f)uploadBanner(f)}}/>
+        </label>
       </div>
+      {banners.length===0&&<p style={{color:'#555',fontSize:'13px',textAlign:'center',padding:'40px'}}>Nenhum banner cadastrado. Faça upload acima.</p>}
       <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-        {banners.map(banner=>(
+        {banners.map((banner:any)=>(
           <div key={banner.id} style={{display:'flex',alignItems:'center',gap:'14px',background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'14px'}}>
             <GripVertical size={16} color="#555" style={{cursor:'grab',flexShrink:0}}/>
-            <div style={{width:'100px',height:'56px',background:'#222',borderRadius:'6px',flexShrink:0}}/>
+            <div style={{width:'100px',height:'56px',background:'#222',borderRadius:'6px',flexShrink:0,overflow:'hidden'}}>
+              {banner.url&&<img src={api+banner.url} alt={banner.name} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={(e:any)=>e.target.style.display='none'}/>}
+            </div>
             <div style={{flex:1}}>
               <p style={{fontSize:'13px',fontWeight:500,color:'#ccc',marginBottom:'3px'}}>{banner.name}</p>
-              <p style={{fontSize:'11px',color:'#555'}}>1920x480px</p>
+              <p style={{fontSize:'11px',color:'#555'}}>{new Date(banner.created_at).toLocaleDateString('pt-BR')}</p>
             </div>
-            <div onClick={()=>toggle(banner.id)} style={{width:'36px',height:'20px',borderRadius:'10px',background:banner.active?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
+            <div onClick={()=>toggleBanner(banner.id,!banner.active)} style={{width:'36px',height:'20px',borderRadius:'10px',background:banner.active?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
               <div style={{position:'absolute',top:'2px',left:banner.active?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
             </div>
-            <button style={{width:'32px',height:'32px',borderRadius:'6px',border:'none',background:'transparent',cursor:'pointer',color:'#f44336',display:'flex',alignItems:'center',justifyContent:'center'}}><Trash2 size={14}/></button>
+            <button onClick={()=>deleteBanner(banner.id)} style={{width:'32px',height:'32px',borderRadius:'6px',border:'none',background:'transparent',cursor:'pointer',color:'#f44336',display:'flex',alignItems:'center',justifyContent:'center'}}><Trash2 size={14}/></button>
           </div>
         ))}
       </div>
