@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
+import DepositModalComp from '../components/DepositModal'
 import { RefreshCw, ArrowDownCircle, ArrowUpCircle, Search, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react'
 
 const API = 'http://187.77.248.115:3001'
@@ -17,6 +19,7 @@ export default function Portfolio() {
   const [isMobile, setIsMobile] = useState(false)
   const [transactions, setTransactions] = useState<any[]>([])
   const [depositModal, setDepositModal] = useState(false)
+  const [minDeposit, setMinDeposit] = useState('10.00')
   const [withdrawModal, setWithdrawModal] = useState(false)
   const [modalAmount, setModalAmount] = useState('')
   const [modalPix, setModalPix] = useState('')
@@ -32,6 +35,7 @@ export default function Portfolio() {
     check()
     window.addEventListener('resize', check)
     loadData(t)
+    fetch('http://187.77.248.115:3001/api/settings/public').then(r=>r.json()).then(d=>{if(d.min_deposit)setMinDeposit(d.min_deposit)}).catch(()=>{})
     return () => window.removeEventListener('resize', check)
   }, [])
 
@@ -334,37 +338,7 @@ export default function Portfolio() {
           </div>
         </div>
 
-      {depositModal && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>{setDepositModal(false);setModalMsg('')}}>
-          <div style={{background:'#1a1a1a',borderRadius:'16px',padding:'28px',width:'100%',maxWidth:'400px',border:'1px solid rgba(255,255,255,0.1)'}} onClick={e=>e.stopPropagation()}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
-              <h3 style={{fontSize:'18px',fontWeight:800,color:'#fff'}}>Depositar via PIX</h3>
-              <button onClick={()=>{setDepositModal(false);setModalMsg('')}} style={{background:'none',border:'none',color:'#888',cursor:'pointer',fontSize:'22px',lineHeight:1,padding:'0'}}>×</button>
-            </div>
-            {modalMsg && (
-              <div style={{background:modalMsg.includes('Erro')||modalMsg.includes('erro')?'rgba(239,68,68,0.1)':'rgba(0,255,136,0.1)',border:'1px solid '+(modalMsg.includes('Erro')||modalMsg.includes('erro')?'rgba(239,68,68,0.3)':'rgba(0,255,136,0.3)'),borderRadius:'8px',padding:'12px 14px',marginBottom:'16px',color:modalMsg.includes('Erro')||modalMsg.includes('erro')?'#f87171':'#00ff88',fontSize:'13px'}}>
-                {modalMsg}
-              </div>
-            )}
-            <form onSubmit={handleDeposit} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
-              <div>
-                <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Valor (R$)</label>
-                <input type="number" min="1" step="0.01" value={modalAmount} onChange={e=>setModalAmount(e.target.value)} required placeholder="Ex: 50.00"
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}/>
-              </div>
-              <div>
-                <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Sua chave PIX (opcional)</label>
-                <input type="text" value={modalPix} onChange={e=>setModalPix(e.target.value)} placeholder="CPF, email ou telefone"
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}/>
-              </div>
-              <button type="submit" disabled={modalLoading} className="btn-green" style={{marginTop:'4px',opacity:modalLoading?0.7:1}}>
-                <ArrowDownCircle style={{width:'16px',height:'16px'}}/>
-                {modalLoading?'Enviando...':'Solicitar Depósito'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {depositModal && <DepositModalComp onClose={()=>setDepositModal(false)} balance={balance} setBalance={b=>setBalance(typeof b==='function'?b(balance):b)} minDeposit={minDeposit} API={'http://187.77.248.115:3001'}/>}
 
       {withdrawModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>{setWithdrawModal(false);setModalMsg('')}}>
@@ -399,28 +373,7 @@ export default function Portfolio() {
         </div>
       )}
 
-        {/* BOTTOM NAV MOBILE */}
-        {isMobile && (
-          <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'rgba(15,15,15,0.97)',borderTop:'1px solid rgba(255,255,255,0.08)',zIndex:100,padding:'6px 0 8px',display:'flex',backdropFilter:'blur(16px)'}}>
-            {[
-              {label:'Mercados',action:()=>router.push('/'),active:false},
-              {label:'Portfolio',action:()=>{},active:true},
-              {label:'Depositar',action:()=>{},active:false},
-              {label:'Duvidas',action:()=>router.push('/duvidas'),active:false},
-              {label:'Perfil',action:()=>{},active:false},
-            ].map(item=>(
-              <button key={item.label} onClick={item.action}
-                style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'3px',border:'none',background:'transparent',cursor:'pointer',color:item.active?'#00ff88':'rgba(255,255,255,0.35)',padding:'4px 0',fontFamily:'Kanit,sans-serif'}}>
-                {item.label==='Mercados'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>}
-              {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
-              {item.label==='Depositar'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.59V8h2v8.59l2.3-2.3 1.41 1.41L12 20l-4.71-4.71 1.41-1.41L11 16.59z"/></svg>}
-              {item.label==='Duvidas'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>}
-              {item.label==='Perfil'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
-                <span style={{fontSize:'10px',fontWeight:item.active?700:400}}>{item.label}</span>
-              </button>
-            ))}
-          </nav>
-        )}
+        {isMobile && <BottomNav activePage="perfil" onDeposit={()=>setDepositModal(true)} />}
       </div>
     </>
   )
