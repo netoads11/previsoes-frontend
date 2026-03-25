@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'
@@ -14,6 +14,13 @@ export default function Cadastrar() {
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [refCode, setRefCode] = useState('')
+
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search)
+    const r = p.get('ref')
+    if (r) setRefCode(r.toUpperCase())
+  }, [])
 
   async function handleCadastro(e: any) {
     e.preventDefault()
@@ -23,7 +30,7 @@ export default function Cadastrar() {
       const res = await fetch(API + '/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password, ...(refCode ? { ref: refCode } : {}) })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -123,6 +130,12 @@ export default function Cadastrar() {
             <h2 style={{fontSize:'26px',fontWeight:800,color:'#fff',marginBottom:'6px'}}>Crie sua conta!</h2>
             <p style={{color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>Comece a concorrer a premios hoje!</p>
           </div>
+
+          {refCode && (
+            <div style={{background:'rgba(106,221,0,0.08)',border:'1px solid rgba(106,221,0,0.2)',borderRadius:'8px',padding:'10px 14px',marginBottom:'16px',display:'flex',alignItems:'center',gap:'8px'}}>
+              <span style={{color:'#6ADD00',fontSize:'13px'}}>Indicado por: <strong>{refCode}</strong></span>
+            </div>
+          )}
 
           {error && (
             <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'8px',padding:'12px 16px',marginBottom:'20px',color:'#f87171',fontSize:'14px'}}>

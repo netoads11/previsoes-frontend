@@ -68,7 +68,8 @@ export default function Admin() {
   const [balanceModal, setBalanceModal] = useState<any>(null)
   const [openSections, setOpenSections] = useState<any>({Principal:true,Gerenciamento:true,Financeiro:true,'Área de Afiliados':true,Operacional:true,Customização:true})
   const [chartPeriod, setChartPeriod] = useState('7d')
-  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:''})
+  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]})
+  const [affiliates, setAffiliates] = useState<any[]>([])
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
   const [filterStatus, setFilterStatus] = useState('')
@@ -90,17 +91,18 @@ export default function Admin() {
   async function load(t: string) {
     setLoading(true)
     const h = {'Authorization':'Bearer '+t}
-    const [m,u,d,w,a,s] = await Promise.all([
+    const [m,u,d,w,a,s,aff] = await Promise.all([
       fetch(API+'/api/markets').then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/deposits',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/withdrawals',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/audit',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/settings',{headers:h}).then(r=>r.json()).catch(()=>({})),
+      fetch(API+'/api/admin/referrals',{headers:h}).then(r=>r.json()).catch(()=>[]),
     ])
     setMarkets(Array.isArray(m)?m:[]);setUsers(Array.isArray(u)?u:[])
     setDeposits(Array.isArray(d)?d:[]);setWithdrawals(Array.isArray(w)?w:[])
-    setAudit(Array.isArray(a)?a:[]);setSettings(s||{});setLoading(false)
+    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setLoading(false)
   }
 
   function showToast(text: string, type='success') { setToast({text,type}); setTimeout(()=>setToast(null),3500) }
@@ -112,8 +114,8 @@ export default function Admin() {
 
   async function createMarket(e: any) {
     e.preventDefault()
-    const r = await api('/api/admin/markets','POST',{...newMarket,yes_odds:Number(newMarket.yes_odds),no_odds:Number(newMarket.no_odds),expires_at:newMarket.expires_at||null})
-    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:''}); load(token) } else showToast(r.error||'Erro','error')
+    const r = await api('/api/admin/markets','POST',{...newMarket,yes_odds:Number(newMarket.yes_odds),no_odds:Number(newMarket.no_odds),expires_at:newMarket.expires_at||null,type:newMarket.type,options:newMarket.type==='multiple'?newMarket.options.filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[]})
+    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]}); load(token) } else showToast(r.error||'Erro','error')
   }
   async function saveMarket() { const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',editMarket); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
@@ -360,6 +362,19 @@ export default function Admin() {
                 <form onSubmit={createMarket} style={{display:'flex',flexDirection:'column',gap:'16px'}}>
                   <FField label="Pergunta *"><FInput value={newMarket.question} onChange={(e:any)=>setNewMarket({...newMarket,question:e.target.value})} placeholder="Ex: Bitcoin vai superar $100k?" required/></FField>
                   <FField label="Categoria"><FSelect value={newMarket.category} onChange={(e:any)=>setNewMarket({...newMarket,category:e.target.value})}>{CATS.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
+                  <FField label="Tipo"><FSelect value={newMarket.type} onChange={(e:any)=>setNewMarket({...newMarket,type:e.target.value})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Multiplo (varias opcoes)</option></FSelect></FField>
+                  {newMarket.type==='multiple'&&(
+                    <FField label="Opcoes">
+                      {newMarket.options.map((opt:any,i:number)=>(
+                        <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
+                          <FInput placeholder={`Opcao ${i+1}`} value={opt.title} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})} style={{flex:2}}/>
+                          <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{flex:1,color:'#00e676'}}/>
+                          <button type="button" onClick={()=>setNewMarket({...newMarket,options:newMarket.options.filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'12px'}}>X</button>
+                        </div>
+                      ))}
+                      <button type="button" onClick={()=>setNewMarket({...newMarket,options:[...newMarket.options,{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opcao</button>
+                    </FField>
+                  )}
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                     <FField label="Chance SIM (%)"><FInput type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/></FField>
                     <FField label="Chance NAO (%)"><FInput type="number" min="1" max="99" value={newMarket.no_odds} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/></FField>
@@ -491,7 +506,7 @@ export default function Admin() {
 
           {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
           {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
-          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage/></div>}
+          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates}/></div>}
           {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage/></div>}
           {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
           {tab==='historico' && <div className="fade-in"><HistoricoPage/></div>}
@@ -879,62 +894,37 @@ function AdminsPage() {
   )
 }
 
-function AfiliadosPage() {
-  const [editOpen, setEditOpen] = useState(false)
-  const [selected, setSelected] = useState<any>(null)
-  const mockAfiliados = [
-    { id:1, nome:'Carlos Silva', email:'carlos@email.com', saldo:'R$ 4.200', indicados:84, status:'active' },
-    { id:2, nome:'Ana Martins', email:'ana@email.com', saldo:'R$ 2.100', indicados:42, status:'active' },
-    { id:3, nome:'Pedro Costa', email:'pedro@email.com', saldo:'R$ 890', indicados:18, status:'blocked' },
-  ]
+function AfiliadosPage({affiliates}:{affiliates:any[]}) {
+  const totalEarned = affiliates.reduce((s:number,a:any)=>s+Number(a.total_earned||0),0)
+  const totalReferred = affiliates.reduce((s:number,a:any)=>s+Number(a.total_referred||0),0)
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Afiliados</h1>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-        <MCard title="Saldo Total" value="R$ 7.190" sub="Todos afiliados" icon={Wallet} color="green"/>
-        <MCard title="Saques" value="R$ 304.000" sub="Total sacado" icon={TrendingUp} color="blue"/>
-        <MCard title="Total Convidados" value="144" sub="Todos os indicados" icon={Users} color="blue"/>
-        <MCard title="Convidados Ativos" value="98" sub="Com depósito" icon={UserCheck} color="green"/>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+        <MCard title="Total Afiliados" value={String(affiliates.length)} sub="Usuarios com indicados" icon={UserCheck} color="green"/>
+        <MCard title="Total Indicados" value={String(totalReferred)} sub="Todos os indicados" icon={Users} color="blue"/>
+        <MCard title="Comissoes Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuido" icon={Wallet} color="green"/>
       </div>
       <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
-            {['Nome','E-mail','Saldo Comissão','Indicados','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            {['Nome','Email','Codigo','Indicados','Comissoes'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {mockAfiliados.map((a,i)=>(
-              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e',cursor:'pointer'}} onClick={()=>{setSelected(a);setEditOpen(true)}}>
-                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.nome}</td>
+            {affiliates.length===0?(
+              <tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>
+            ):affiliates.map((a:any,i:number)=>(
+              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
                 <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
-                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{a.saldo}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{a.indicados}</td>
-                <td style={{padding:'11px 14px'}}><SBadge status={a.status}/></td>
-                <td style={{padding:'11px 14px'}}><GhostBtn onClick={()=>{setSelected(a);setEditOpen(true)}}>Editar</GhostBtn></td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:700,letterSpacing:'0.1em'}}>{a.referral_code}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{a.total_referred||0}</td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>R$ {Number(a.total_earned||0).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {editOpen&&selected&&(
-        <Overlay onClose={()=>setEditOpen(false)}>
-          <Modal title="Editar Afiliado" onClose={()=>setEditOpen(false)}>
-            <FField label="Saldo de Comissão"><FInput defaultValue={selected.saldo}/></FField>
-            <FField label="Total de Indicados"><FInput type="number" defaultValue={selected.indicados}/></FField>
-            <FField label="Código de Indicação"><FInput defaultValue={`AFF${selected.id}`}/></FField>
-            <FField label="Comissão Individual (%)"><FInput type="number" placeholder="Sobrescreve global"/></FField>
-            <FField label="Status">
-              <FSelect defaultValue={selected.status}>
-                <option value="active">Ativo</option>
-                <option value="blocked">Bloqueado</option>
-              </FSelect>
-            </FField>
-            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={()=>setEditOpen(false)}>SALVAR</PrimaryBtn>
-              <GhostBtn onClick={()=>setEditOpen(false)}>Cancelar</GhostBtn>
-            </div>
-          </Modal>
-        </Overlay>
-      )}
     </div>
   )
 }

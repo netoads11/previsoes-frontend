@@ -18,6 +18,16 @@ const CATS = [
   { name: 'Politica' },
 ]
 
+interface MarketOption {
+  id: string
+  title: string
+  yes_odds: number
+  no_odds: number
+  yes_percent: number
+  no_percent: number
+  order_index: number
+}
+
 interface Market {
   id: string
   question: string
@@ -27,6 +37,8 @@ interface Market {
   status?: string
   expires_at?: string
   image_url?: string
+  type?: string
+  options?: MarketOption[]
 }
 
 export default function Home() {
@@ -41,6 +53,7 @@ export default function Home() {
   const [betValue, setBetValue] = useState('')
   const [marketModal, setMarketModal] = useState<Market|null>(null)
   const [modalBetChoice, setModalBetChoice] = useState<'yes'|'no'|null>(null)
+  const [modalOption, setModalOption] = useState<any>(null)
   const [cd, setCd] = useState<{d:number,h:number,m:number,s:number}|null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [depositModal, setDepositModal] = useState(false)
@@ -116,7 +129,7 @@ export default function Home() {
 
   function handleCardClick(m: Market) {
     if (!user) { setAuthModal(true); return }
-    setMarketModal(m); setModalBetChoice(null); setBetValue('')
+    setMarketModal(m); setModalBetChoice(null); setModalOption(null); setBetValue('')
   }
 
   function handleLogout() {
@@ -638,7 +651,7 @@ export default function Home() {
         const bannerGrad  = categoryGradMap[catKey]  || 'linear-gradient(135deg, hsl(220 20% 12%), hsl(220 20% 6%))'
         const bannerEmoji = categoryEmojiMap[catKey] || '📊'
 
-        const closeModal = () => { setMarketModal(null); setModalBetChoice(null); setBetValue('') }
+        const closeModal = () => { setMarketModal(null); setModalBetChoice(null); setModalOption(null); setBetValue('') }
 
         const QVALS = ['10','20','50','100']
 
@@ -675,6 +688,33 @@ export default function Home() {
             </p>
 
             {/* ── PROBABILITY CARD ── */}
+            {marketModal.type === 'multiple' && marketModal.options && marketModal.options.length > 0 ? (
+              <div style={{margin:'20px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
+                <div style={{fontSize:'10px',fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'12px'}}>ESCOLHA UMA OPCAO</div>
+                {marketModal.options.map((opt: any) => {
+                  const isSelected = modalOption?.id === opt.id
+                  const yp = Number(opt.yes_percent) || 50
+                  const np = Number(opt.no_odds) || 50
+                  return (
+                    <div key={opt.id} onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
+                      style={{marginBottom:'10px',padding:'12px',borderRadius:'10px',cursor:'pointer',
+                        background: isSelected ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.03)',
+                        border: `2px solid ${isSelected ? '#22c55e' : 'rgba(255,255,255,0.08)'}`,
+                        transition:'all 0.15s'}}>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
+                        <span style={{fontSize:'14px',fontWeight:600,color:'#fff'}}>{opt.title}</span>
+                        <span style={{fontSize:'14px',fontWeight:800,color:'#22c55e'}}>{(100/Number(opt.yes_odds||50)).toFixed(2)}x</span>
+                      </div>
+                      <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
+                        <div style={{width:`${yp}%`,background:'#22c55e'}}/>
+                        <div style={{flex:1,background:'#555'}}/>
+                      </div>
+                      <div style={{fontSize:'10px',color:'#555',marginTop:'4px'}}>{yp}% de chance</div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
             <div style={{margin:'20px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
               {/* Row: SIM% | PROBABILIDADE | NÃO% */}
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
@@ -717,6 +757,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
+            )}
 
             {/* ── BET CARD ── */}
             <div style={{margin:'16px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
@@ -736,7 +777,7 @@ export default function Home() {
                       const res = await fetch(API + '/api/bets', {
                         method: 'POST',
                         headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
-                        body: JSON.stringify({market_id:marketModal.id,choice:modalBetChoice,amount:betNum})
+                        body: JSON.stringify({market_id:marketModal.id,choice:modalBetChoice,amount:betNum,...(modalOption?{option_id:modalOption.id}:{})})
                       })
                       const data = await res.json()
                       if (!res.ok) throw new Error(data.error||'Erro ao apostar')
@@ -924,6 +965,7 @@ function MCard({m,i,onBet,fav,onFav,onCardClick}:{m:Market,i:number,onBet:(m:Mar
         <div style={{flex:1,minWidth:0}}>
           {m.category&&<span style={{background:'rgba(0,200,83,0.1)',color:'#00c853',fontSize:'9px',fontWeight:700,padding:'1px 6px',borderRadius:'3px',textTransform:'uppercase',letterSpacing:'0.05em',display:'inline-block',marginBottom:'4px'}}>{m.category}</span>}
           <p style={{color:'#fff',fontSize:'13px',fontWeight:600,lineHeight:1.35,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{m.question}</p>
+          {m.type === 'multiple' && <span style={{background:'rgba(106,221,0,0.1)',color:'#6ADD00',fontSize:'9px',fontWeight:700,padding:'1px 6px',borderRadius:'3px',textTransform:'uppercase',letterSpacing:'0.05em',display:'inline-block',marginTop:'3px'}}>MULTIPLO</span>}
         </div>
         <button onClick={(e)=>{e.stopPropagation();onFav(m.id)}} style={{background:'none',border:'none',cursor:'pointer',padding:'2px',flexShrink:0,transition:'transform 0.15s'}}
           onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.2)')}
