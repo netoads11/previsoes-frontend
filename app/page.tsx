@@ -41,6 +41,8 @@ export default function Home() {
   const [modalBetChoice, setModalBetChoice] = useState<'yes'|'no'|null>(null)
   const [cd, setCd] = useState<{d:number,h:number,m:number,s:number}|null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [depositModal, setDepositModal] = useState(false)
+  const [minDeposit, setMinDeposit] = useState('10.00')
   const [activeNav, setActiveNav] = useState('mercados')
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function Home() {
     const check = () => setIsMobile(window.innerWidth <= 768)
     check()
     window.addEventListener('resize', check)
+    fetch(API + '/api/settings/public').then(r=>r.json()).then(d=>{ if(d.min_deposit) setMinDeposit(d.min_deposit) }).catch(()=>{})
     fetch(API + '/api/markets')
       .then(r => r.json())
       .then(d => { setMarkets(Array.isArray(d) ? d : []); setLoading(false) })
@@ -205,7 +208,7 @@ export default function Home() {
               <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.08em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
               <div style={{fontSize:'14px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
             </div>
-            <button style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',boxShadow:'0 0 12px rgba(0,230,118,0.3)',transition:'opacity 0.15s'}}
+            <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',boxShadow:'0 0 12px rgba(0,230,118,0.3)',transition:'opacity 0.15s'}}
               onMouseEnter={e=>e.currentTarget.style.opacity='0.85'}
               onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
               + Depositar
@@ -225,7 +228,7 @@ export default function Home() {
               <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.06em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
               <div style={{fontSize:'13px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
             </div>
-            <button onClick={()=>router.push('/perfil')} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'7px',padding:'7px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',boxShadow:'0 0 10px rgba(0,230,118,0.3)',whiteSpace:'nowrap'}}>
+            <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'7px',padding:'7px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',boxShadow:'0 0 10px rgba(0,230,118,0.3)',whiteSpace:'nowrap'}}>
               + Depositar
             </button>
           </div>
@@ -395,12 +398,12 @@ export default function Home() {
           {[
             {label:'Mercados',id:'mercados',path:'/'},
             {label:'Portfolio',id:'portfolio',path:'/perfil'},
-            {label:'Depositar',id:'depositar',path:'/perfil?tab=depositar'},
+            {label:'Depositar',id:'depositar',path:''},
             {label:'Duvidas',id:'duvidas',path:'/duvidas'},
           ].map(item=>{
             const active=activeNav===item.id
             return (
-              <button key={item.id} onClick={()=>{setActiveNav(item.id);router.push(item.path)}}
+              <button key={item.id} onClick={()=>{setActiveNav(item.id);if(item.id==='depositar'){setDepositModal(true)}else if(item.path){router.push(item.path)}}}
                 style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:active?'#00e676':'#666666',fontSize:'11px',transition:'color 0.15s',flex:1,height:'100%',justifyContent:'center'}}>
                 {item.label==='Mercados'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>}
                 {item.label==='Portfolio'&&<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h2v7H5v-7zm4-5h2v12H9V7zm4 2h2v10h-2V9zm4-4h2v14h-2V5z"/></svg>}
@@ -767,6 +770,9 @@ export default function Home() {
         )
       })()}
 
+      {/* MODAL DEPÓSITO */}
+      {depositModal && <DepositModal onClose={()=>setDepositModal(false)} balance={balance} setBalance={setBalance} minDeposit={minDeposit} API={API}/>}
+
     </div>
   )
 }
@@ -792,6 +798,218 @@ function Empty() {
     <div style={{textAlign:'center',padding:'40px 20px',background:'#1a1a1a',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.05)'}}>
       <svg width="28" height="28" fill="none" stroke="#444" strokeWidth="2" viewBox="0 0 24 24" style={{margin:'0 auto 8px',display:'block'}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <p style={{color:'#555',fontSize:'12px'}}>Nenhum mercado encontrado</p>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMPONENTE: MODAL DE DEPÓSITO
+// ═══════════════════════════════════════════════════════════
+function DepositModal({onClose, balance, setBalance, minDeposit, API}: {
+  onClose: ()=>void
+  balance: number
+  setBalance: (fn:(b:number)=>number)=>void
+  minDeposit: string
+  API: string
+}) {
+  const [step, setStep] = useState<'amount'|'pix'|'done'>('amount')
+  const [amount, setAmount] = useState<string>('')
+  const [pixCode, setPixCode] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  const [copied, setCopied] = useState<boolean>(false)
+
+  const num = Number(amount) || 0
+  const min = Number(minDeposit) || 10
+  const QUICK = ['10','20','50','100','200','500']
+
+  async function requestDeposit() {
+    if (num < min) { setError(`Valor mínimo: R$ ${Number(min).toFixed(2).replace('.',',')}`) ; return }
+    setError('')
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(API + '/api/wallet/deposit', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+(token||'')},
+        body: JSON.stringify({ amount: num })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao gerar depósito')
+      setPixCode(data.pix_code || data.code || `PIX-${Date.now()}`)
+      setStep('pix')
+    } catch(e:any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function copyPix() {
+    navigator.clipboard.writeText(pixCode).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2500) }).catch(()=>{})
+  }
+
+  function simulateConfirm() {
+    setBalance((b:number) => b + num)
+    setStep('done')
+  }
+
+  return (
+    <div style={{
+      position:'fixed',inset:0,zIndex:9999,
+      background:'#0f0f0f',overflowY:'auto',
+      WebkitOverflowScrolling:'touch' as any
+    }}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 20px 0'}}>
+        <h2 style={{fontSize:'20px',fontWeight:800,color:'#fff',letterSpacing:'-0.01em'}}>
+          {step==='done' ? '✅ Depósito Confirmado' : 'Depositar'}
+        </h2>
+        <button onClick={onClose} style={{
+          width:'34px',height:'34px',borderRadius:'50%',
+          background:'#1e1e1e',border:'1px solid rgba(255,255,255,0.1)',
+          color:'#888',fontSize:'20px',cursor:'pointer',
+          display:'flex',alignItems:'center',justifyContent:'center',
+        }}>×</button>
+      </div>
+
+      {/* Saldo atual */}
+      <div style={{margin:'16px 20px 0',background:'#1a1a1a',borderRadius:'14px',padding:'14px 16px',border:'1px solid rgba(255,255,255,0.07)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:'12px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Saldo atual</span>
+        <span style={{fontSize:'20px',fontWeight:900,color:'#22c55e'}}>R$ {balance.toFixed(2).replace('.',',')}</span>
+      </div>
+
+      {/* ── STEP: AMOUNT ── */}
+      {step === 'amount' && (
+        <div style={{padding:'0 20px'}}>
+          <div style={{marginTop:'20px'}}>
+            <div style={{fontSize:'10px',fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'8px'}}>VALOR DO DEPÓSITO</div>
+            {/* Big input */}
+            <div style={{position:'relative',marginBottom:'12px'}}>
+              <span style={{position:'absolute',left:'16px',top:'50%',transform:'translateY(-50%)',color:'#555',fontSize:'20px',fontWeight:700,pointerEvents:'none'}}>R$</span>
+              <input
+                type="number"
+                min={min}
+                step="1"
+                placeholder={`0,00`}
+                value={amount}
+                onChange={e=>{setAmount(e.target.value);setError('')}}
+                style={{
+                  width:'100%',padding:'16px 16px 16px 50px',
+                  background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',
+                  borderRadius:'14px',color:'#fff',
+                  fontSize:'28px',fontWeight:900,
+                  outline:'none',boxSizing:'border-box',
+                  appearance:'none' as any,
+                }}
+                onFocus={e=>{e.target.style.borderColor='#22c55e';e.target.style.boxShadow='0 0 0 2px rgba(34,197,94,0.15)'}}
+                onBlur={e=>{e.target.style.borderColor='rgba(255,255,255,0.1)';e.target.style.boxShadow='none'}}
+              />
+            </div>
+            {/* Min deposit info */}
+            <p style={{fontSize:'11px',color:'#555',marginBottom:'14px'}}>
+              Depósito mínimo: <span style={{color:'#22c55e',fontWeight:700}}>R$ {Number(min).toFixed(2).replace('.',',')}</span>
+            </p>
+            {/* Quick amounts */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'20px'}}>
+              {QUICK.map(v=>(
+                <button key={v} onClick={()=>{setAmount(v);setError('')}} style={{
+                  padding:'12px 0',borderRadius:'10px',fontSize:'14px',fontWeight:700,cursor:'pointer',
+                  border:`1px solid ${amount===v?'#22c55e':'rgba(255,255,255,0.1)'}`,
+                  background:amount===v?'rgba(34,197,94,0.12)':'#1a1a1a',
+                  color:amount===v?'#22c55e':'#888',transition:'all 0.12s',
+                }}>R$ {Number(v).toFixed(0)}</button>
+              ))}
+            </div>
+            {/* Error */}
+            {error && (
+              <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:'10px',padding:'10px 14px',marginBottom:'14px',textAlign:'center'}}>
+                <p style={{color:'#ef4444',fontSize:'13px',fontWeight:600}}>{error}</p>
+              </div>
+            )}
+            {/* CTA */}
+            <button
+              disabled={num < min || loading}
+              onClick={requestDeposit}
+              style={{
+                width:'100%',padding:'17px',borderRadius:'14px',border:'none',
+                background:num>=min?'#22c55e':'#1e1e1e',
+                color:num>=min?'#000':'#333',
+                fontWeight:900,fontSize:'16px',letterSpacing:'0.02em',cursor:num>=min?'pointer':'not-allowed',
+                boxShadow:num>=min?'0 0 28px rgba(34,197,94,0.3)':'none',
+                transition:'all 0.2s',
+              }}
+            >
+              {loading ? 'Gerando PIX...' : `GERAR PIX · R$ ${num.toFixed(2).replace('.',',')}`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP: PIX ── */}
+      {step === 'pix' && (
+        <div style={{padding:'0 20px'}}>
+          <div style={{marginTop:'24px',textAlign:'center'}}>
+            {/* QR placeholder */}
+            <div style={{
+              width:'180px',height:'180px',borderRadius:'16px',margin:'0 auto 16px',
+              background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',
+              boxShadow:'0 0 40px rgba(34,197,94,0.15)',
+            }}>
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:'48px'}}>📱</div>
+                <div style={{fontSize:'10px',color:'#333',fontWeight:700,marginTop:'4px'}}>QR CODE PIX</div>
+              </div>
+            </div>
+            <p style={{fontSize:'13px',color:'#555',marginBottom:'6px'}}>Valor: <span style={{color:'#fff',fontWeight:700}}>R$ {num.toFixed(2).replace('.',',')}</span></p>
+            <p style={{fontSize:'11px',color:'#444',marginBottom:'16px'}}>Escaneie o QR ou copie o código abaixo</p>
+          </div>
+          {/* Pix code box */}
+          <div style={{background:'#1a1a1a',borderRadius:'12px',padding:'14px 16px',border:'1px solid rgba(255,255,255,0.07)',marginBottom:'12px'}}>
+            <p style={{fontSize:'9px',color:'#555',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'6px'}}>CÓDIGO PIX COPIA E COLA</p>
+            <p style={{fontSize:'12px',color:'#ccc',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.5}}>{pixCode}</p>
+          </div>
+          <button onClick={copyPix} style={{
+            width:'100%',padding:'15px',borderRadius:'12px',
+            border: copied?'1px solid rgba(34,197,94,0.4)':'1px solid transparent',
+            background:copied?'rgba(34,197,94,0.15)':'#22c55e',
+            color:copied?'#22c55e':'#000',
+            fontWeight:900,fontSize:'15px',cursor:'pointer',marginBottom:'10px',
+            transition:'all 0.2s',
+          }}>
+            {copied ? '✓ CÓDIGO COPIADO!' : '📋 COPIAR CÓDIGO PIX'}
+          </button>
+          <button onClick={simulateConfirm} style={{
+            width:'100%',padding:'13px',borderRadius:'12px',
+            border:'1px solid rgba(255,255,255,0.1)',
+            background:'transparent',color:'#666',fontWeight:600,fontSize:'13px',cursor:'pointer',
+          }}>
+            Já paguei — confirmar depósito
+          </button>
+          <p style={{fontSize:'10px',color:'#333',textAlign:'center',marginTop:'12px'}}>
+            O saldo será creditado automaticamente após confirmação do pagamento
+          </p>
+        </div>
+      )}
+
+      {/* ── STEP: DONE ── */}
+      {step === 'done' && (
+        <div style={{padding:'40px 20px',textAlign:'center'}}>
+          <div style={{fontSize:'72px',marginBottom:'16px'}}>🎉</div>
+          <h3 style={{fontSize:'22px',fontWeight:900,color:'#fff',marginBottom:'8px'}}>Depósito adicionado!</h3>
+          <p style={{fontSize:'14px',color:'#555',marginBottom:'8px'}}>R$ <span style={{color:'#22c55e',fontWeight:700}}>{num.toFixed(2).replace('.',',')}</span> creditados na sua conta</p>
+          <p style={{fontSize:'13px',color:'#444',marginBottom:'32px'}}>Novo saldo: <span style={{color:'#22c55e',fontWeight:700}}>R$ {(balance).toFixed(2).replace('.',',')}</span></p>
+          <button onClick={onClose} style={{
+            width:'100%',padding:'17px',borderRadius:'14px',border:'none',
+            background:'#22c55e',color:'#000',fontWeight:900,fontSize:'16px',cursor:'pointer',
+            boxShadow:'0 0 28px rgba(34,197,94,0.3)',
+          }}>
+            APOSTAR AGORA
+          </button>
+        </div>
+      )}
+
+      <div style={{height:'40px'}}/>
     </div>
   )
 }

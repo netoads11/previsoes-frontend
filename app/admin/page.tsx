@@ -1210,6 +1210,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           {finTab==='usuario'&&(
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                <div><label style={LabelStyle}>Depósito Mínimo (R$) *</label><input type="number" value={settings.min_deposit||''} onChange={(e:any)=>setSettings({...settings,min_deposit:e.target.value})} style={InputStyle}/></div>
                 <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" value={settings.saque_minimo||''} onChange={(e:any)=>setSettings({...settings,saque_minimo:e.target.value})} style={InputStyle}/></div>
                 <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" value={settings.saque_maximo||''} onChange={(e:any)=>setSettings({...settings,saque_maximo:e.target.value})} style={InputStyle}/></div>
                 <div><label style={LabelStyle}>Rollover Base *</label><input type="number" value={settings.rollover||''} onChange={(e:any)=>setSettings({...settings,rollover:e.target.value})} style={InputStyle}/></div>
