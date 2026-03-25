@@ -371,7 +371,7 @@ export default function Home() {
               )}
 
               {noBalance && betNum>0 ? (
-                <button style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'14px',boxShadow:'0 0 16px rgba(0,230,118,0.3)'}}>
+                <button onClick={()=>setDepositModal(true)} style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'14px',boxShadow:'0 0 16px rgba(0,230,118,0.3)'}}>
                   Depositar R$ {(Number(betNum)-Number(balance)).toFixed(2)}
                 </button>
               ) : (
@@ -516,7 +516,7 @@ export default function Home() {
 
             {/* Botão confirmar */}
             {noBalance && betNum > 0 ? (
-              <button style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'15px',boxShadow:'0 0 20px rgba(0,230,118,0.35)'}}>
+              <button onClick={()=>setDepositModal(true)} style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:'pointer',background:'#00e676',color:'#000',fontWeight:900,fontSize:'15px',boxShadow:'0 0 20px rgba(0,230,118,0.35)'}}>
                 Depositar R$ {(Number(betNum)-Number(balance)).toFixed(2)}
               </button>
             ) : (
