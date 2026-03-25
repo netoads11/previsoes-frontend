@@ -27,6 +27,7 @@ const NAV_SECTIONS = [
     { label: 'Relatório', icon: FileText, id: 'relatorio' },
   ]},
   { title: 'Operacional', items: [
+    { label: 'Apostas', icon: DollarSign, id: 'apostas' },
     { label: 'Histórico', icon: History, id: 'historico' },
     { label: 'Eventos', icon: Calendar, id: 'eventos' },
     { label: 'Mercados', icon: TrendingUp, id: 'markets' },
@@ -69,6 +70,7 @@ export default function Admin() {
   const [openSections, setOpenSections] = useState<any>({Principal:true,Gerenciamento:true,Financeiro:true,'Área de Afiliados':true,Operacional:true,Customização:true})
   const [chartPeriod, setChartPeriod] = useState('7d')
   const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]})
+  const [bets, setBets] = useState<any[]>([])
   const [affiliates, setAffiliates] = useState<any[]>([])
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
@@ -91,7 +93,7 @@ export default function Admin() {
   async function load(t: string) {
     setLoading(true)
     const h = {'Authorization':'Bearer '+t}
-    const [m,u,d,w,a,s,aff] = await Promise.all([
+    const [m,u,d,w,a,s,aff,bt] = await Promise.all([
       fetch(API+'/api/admin/markets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/deposits',{headers:h}).then(r=>r.json()).catch(()=>[]),
@@ -99,10 +101,11 @@ export default function Admin() {
       fetch(API+'/api/admin/audit',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/settings',{headers:h}).then(r=>r.json()).catch(()=>({})),
       fetch(API+'/api/admin/referrals',{headers:h}).then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/bets',{headers:h}).then(r=>r.json()).catch(()=>[]),
     ])
     setMarkets(Array.isArray(m)?m:[]);setUsers(Array.isArray(u)?u:[])
     setDeposits(Array.isArray(d)?d:[]);setWithdrawals(Array.isArray(w)?w:[])
-    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setLoading(false)
+    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setLoading(false)
   }
 
   function showToast(text: string, type='success') { setToast({text,type}); setTimeout(()=>setToast(null),3500) }
@@ -411,12 +414,13 @@ export default function Admin() {
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Usuários</h1>
               <FilterRow search={filterSearch} onSearch={setFilterSearch} status={filterStatus} onStatus={setFilterStatus} statusOpts={['active','blocked','suspended']}/>
               <DataTbl loading={loading}
-                cols={['Nome','E-mail','Status','Tipo','Cadastro','Ações']}
+                cols={['Nome','E-mail','Status','Tipo','Saldo','Cadastro','Ações']}
                 rows={filteredUsers.map((u:any)=>[
                   <span style={{fontWeight:500,color:'#ccc'}}>{u.name}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{u.email}</span>,
                   <SBadge status={u.status||'active'}/>,
                   <SBadge status={u.is_admin?'admin':'user'}/>,
+                  <span style={{color:V.green,fontWeight:600,fontSize:'13px'}}>R$ {Number(u.balance||0).toFixed(2)}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
                     <GhostBtn onClick={()=>setEditUser({...u})}>Editar</GhostBtn>
@@ -510,6 +514,30 @@ export default function Admin() {
           {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates}/></div>}
           {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage/></div>}
           {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
+          {tab==='apostas' && (
+            <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+              <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Apostas</h1>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+                <MCard title="Total de Apostas" value={bets.length.toString()} sub="Todas as apostas" icon={DollarSign} color="blue"/>
+                <MCard title="Apostas Ativas" value={bets.filter((b:any)=>b.status==='pending').length.toString()} sub="Aguardando resolução" icon={TrendingUp} color="yellow"/>
+                <MCard title="Apostas Resolvidas" value={bets.filter((b:any)=>b.status==='won'||b.status==='lost').length.toString()} sub="Finalizadas" icon={Check} color="green"/>
+              </div>
+              <DataTbl loading={loading}
+                cols={['Usuário','Mercado','Opção','Escolha','Valor','Odds','Status','Data']}
+                rows={bets.map((b:any)=>[
+                  <div><p style={{fontWeight:500,color:'#ccc',fontSize:'13px'}}>{b.user_name||'—'}</p><p style={{color:V.muted,fontSize:'11px'}}>{b.user_email}</p></div>,
+                  <span style={{color:'#aaa',fontSize:'12px',maxWidth:'200px',display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.market_question||'—'}</span>,
+                  <span style={{color:V.muted,fontSize:'12px'}}>{b.option_title||'—'}</span>,
+                  <SBadge status={b.choice}/>,
+                  <span style={{color:V.green,fontWeight:600}}>R$ {Number(b.amount||0).toFixed(2)}</span>,
+                  <span style={{color:'#aaa',fontSize:'12px'}}>{Number(b.odds||0).toFixed(2)}x</span>,
+                  <SBadge status={b.status}/>,
+                  <span style={{color:V.muted,fontSize:'12px'}}>{new Date(b.created_at).toLocaleDateString('pt-BR')}</span>,
+                ])}
+                page={page} perPage={perPage} onPage={setPage} onPerPage={setPerPage}
+              />
+            </div>
+          )}
           {tab==='historico' && <div className="fade-in"><HistoricoPage/></div>}
           {tab==='eventos' && <div className="fade-in"><EventosPage/></div>}
           {tab==='configs' && tab==='configs' && false && null}
@@ -543,8 +571,21 @@ export default function Admin() {
             </div>
             <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?String(editMarket.expires_at).slice(0,16):''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
             <FField label="Status"><FSelect value={editMarket.status} onChange={(e:any)=>setEditMarket({...editMarket,status:e.target.value})}>{['open','suspended','resolved','cancelled'].map(s=><option key={s} value={s}>{s}</option>)}</FSelect></FField>
-            <FField label="Imagem (URL)">
-              <FInput placeholder="https://... ou deixe vazio" value={editMarket.image_url||''} onChange={(e:any)=>setEditMarket({...editMarket,image_url:e.target.value})}/>
+            <FField label="Imagem (URL ou Upload)">
+              <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+                <FInput placeholder="https://... ou deixe vazio" value={editMarket.image_url||''} onChange={(e:any)=>setEditMarket({...editMarket,image_url:e.target.value})} style={{flex:1}}/>
+                <label style={{cursor:'pointer',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'8px',padding:'8px 12px',fontSize:'12px',color:'#aaa',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:'6px'}}>
+                  <Upload size={14}/>Enviar
+                  <input type="file" accept="image/*" style={{display:'none'}} onChange={async(e:any)=>{
+                    const file=e.target.files?.[0];if(!file)return;
+                    const fd=new FormData();fd.append('image',file);
+                    const r=await fetch(API+`/api/admin/markets/${editMarket.id}/image`,{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
+                    const d=await r.json();
+                    if(d.image_url){setEditMarket({...editMarket,image_url:'http://187.77.248.115:3001'+d.image_url});showToast('Imagem enviada!')}
+                    else showToast(d.error||'Erro ao enviar','error')
+                  }}/>
+                </label>
+              </div>
               {editMarket.image_url && <img src={editMarket.image_url} alt="preview" style={{marginTop:'8px',width:'100%',height:'120px',objectFit:'cover',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.1)'}} onError={(e:any)=>e.target.style.display='none'}/>}
             </FField>
             <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
