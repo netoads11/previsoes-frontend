@@ -122,7 +122,15 @@ export default function Admin() {
   }
   async function saveMarket() { const opts=editMarket.type==='multiple'?(editMarket.options||[]).filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[] ; const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',{...editMarket,yes_odds:Number(editMarket.yes_odds),no_odds:Number(editMarket.no_odds),type:editMarket.type||'single',options:opts}); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
-  async function adjBalance() { const r = await api(`/api/admin/users/${balanceModal.id}/balance`,'POST',{amount:Number(balanceModal.amount),note:balanceModal.note}); if(r.success){showToast('Saldo ajustado!');setBalanceModal(null);load(token)}else showToast(r.error||'Erro','error') }
+  async function adjBalance() {
+    const r = await fetch(API+`/api/admin/users/${balanceModal.id}/balance`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({balance:Number(balanceModal.newBalance)})})
+    const d = await r.json()
+    if(d.success){
+      showToast('Saldo ajustado!')
+      setUsers(users.map((u:any)=>u.id===balanceModal.id?{...u,balance:d.new_balance}:u))
+      setBalanceModal(null)
+    } else showToast(d.error||'Erro','error')
+  }
   async function saveSettings(e: any) { e.preventDefault(); const r = await api('/api/admin/settings','PUT',settings); if(r.success){showToast('Configurações salvas!')}else{showToast(r.error||'Erro','error')} }
 
   const totalDep = deposits.filter((d:any)=>d.status==='completed').reduce((a:number,d:any)=>a+Number(d.amount),0)
@@ -424,7 +432,7 @@ export default function Admin() {
                   <span style={{color:V.muted,fontSize:'12px'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
                     <GhostBtn onClick={()=>setEditUser({...u})}>Editar</GhostBtn>
-                    <GhostBtn color="green" onClick={()=>setBalanceModal({id:u.id,name:u.name,amount:'',note:''})}>Saldo</GhostBtn>
+                    <GhostBtn color="green" onClick={()=>setBalanceModal({id:u.id,name:u.name,currentBalance:Number(u.balance||0),newBalance:''})}>Saldo</GhostBtn>
                   </div>
                 ])}
                 page={page} perPage={perPage} onPage={setPage} onPerPage={setPerPage}
@@ -511,7 +519,7 @@ export default function Admin() {
 
           {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
           {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
-          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates}/></div>}
+          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates} token={token} api={API}/></div>}
           {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage/></div>}
           {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
           {tab==='apostas' && (
@@ -623,12 +631,17 @@ export default function Admin() {
       {balanceModal && (
         <Overlay onClose={()=>setBalanceModal(null)}>
           <Modal title={`Ajustar Saldo — ${balanceModal.name}`} onClose={()=>setBalanceModal(null)}>
-            <p style={{fontSize:'12px',color:V.muted}}>Use valor negativo para remover saldo.</p>
-            <FField label="Valor (R$)"><FInput type="number" step="0.01" placeholder="Ex: 100.00 ou -50.00" value={balanceModal.amount} onChange={(e:any)=>setBalanceModal({...balanceModal,amount:e.target.value})}/></FField>
-            <FField label="Motivo"><FInput placeholder="Ex: Bônus de cadastro" value={balanceModal.note} onChange={(e:any)=>setBalanceModal({...balanceModal,note:e.target.value})}/></FField>
+            <div style={{background:'rgba(0,230,118,0.06)',border:'1px solid rgba(0,230,118,0.15)',borderRadius:'10px',padding:'14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <span style={{fontSize:'12px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>Saldo atual</span>
+              <span style={{fontSize:'22px',fontWeight:700,color:'#00e676',fontFamily:"'Manrope',sans-serif"}}>R$ {Number(balanceModal.currentBalance||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+            </div>
+            <FField label="Novo saldo (R$)">
+              <FInput type="number" step="0.01" min="0" placeholder="Ex: 150.00" value={balanceModal.newBalance} onChange={(e:any)=>setBalanceModal({...balanceModal,newBalance:e.target.value})}/>
+              <p style={{fontSize:'11px',color:'#555',marginTop:'4px'}}>Digite o valor final que o usuário deve ter.</p>
+            </FField>
             <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta ação será registrada no log de auditoria com seu IP.</p>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={()=>setConfirm({msg:`Ajustar saldo de ${balanceModal.name} em R$ ${balanceModal.amount}?`,action:adjBalance})}>AJUSTAR</PrimaryBtn>
+              <PrimaryBtn onClick={()=>setConfirm({msg:`Definir saldo de ${balanceModal.name} para R$ ${Number(balanceModal.newBalance||0).toFixed(2)}?`,action:adjBalance})}>AJUSTAR</PrimaryBtn>
               <GhostBtn onClick={()=>setBalanceModal(null)}>Cancelar</GhostBtn>
             </div>
           </Modal>
@@ -958,37 +971,109 @@ function AdminsPage() {
   )
 }
 
-function AfiliadosPage({affiliates}:{affiliates:any[]}) {
+function AfiliadosPage({affiliates,token,api}:{affiliates:any[],token:string,api:string}) {
   const totalEarned = affiliates.reduce((s:number,a:any)=>s+Number(a.total_earned||0),0)
   const totalReferred = affiliates.reduce((s:number,a:any)=>s+Number(a.total_referred||0),0)
+  const [editAff,setEditAff]=useState<any>(null)
+  const [detalhes,setDetalhes]=useState<any>(null)
+  const [saving,setSaving]=useState(false)
+  const [toast2,setToast2]=useState('')
+  async function saveAfiliado(){
+    setSaving(true)
+    const r=await fetch(api+`/api/admin/referrals/${editAff.id}`,{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({status:editAff.status,commission_rate:Number(editAff.commission_rate||0)})})
+    const d=await r.json()
+    setSaving(false)
+    if(d.success){setToast2('Salvo!');setEditAff(null)}else setToast2(d.error||'Erro')
+  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Afiliados</h1>
+      {toast2&&<div style={{padding:'10px 14px',borderRadius:'8px',background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',fontSize:'13px'}}>{toast2}</div>}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-        <MCard title="Total Afiliados" value={String(affiliates.length)} sub="Usuarios com indicados" icon={UserCheck} color="green"/>
+        <MCard title="Total Afiliados" value={String(affiliates.length)} sub="Usuários com indicados" icon={UserCheck} color="green"/>
         <MCard title="Total Indicados" value={String(totalReferred)} sub="Todos os indicados" icon={Users} color="blue"/>
-        <MCard title="Comissoes Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuido" icon={Wallet} color="green"/>
+        <MCard title="Comissões Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuído" icon={Wallet} color="green"/>
       </div>
       <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
-            {['Nome','Email','Codigo','Indicados','Comissoes'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            {['Nome','Email','Código','Indicados','Comissões','Taxa','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {affiliates.length===0?(
-              <tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>
+              <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>
             ):affiliates.map((a:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
                 <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
-                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:700,letterSpacing:'0.1em'}}>{a.referral_code}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{a.total_referred||0}</td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:700,letterSpacing:'0.1em',fontSize:'12px'}}>{a.referral_code}</td>
+                <td style={{padding:'11px 14px',color:'#888',textAlign:'center'}}>{a.total_referred||0}</td>
                 <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>R$ {Number(a.total_earned||0).toFixed(2)}</td>
+                <td style={{padding:'11px 14px',color:'#aaa'}}>{a.commission_rate||0}%</td>
+                <td style={{padding:'11px 14px'}}><SBadge status={a.status||'active'}/></td>
+                <td style={{padding:'11px 14px'}}>
+                  <div style={{display:'flex',gap:'5px'}}>
+                    <GhostBtn onClick={()=>setEditAff({...a,commission_rate:a.commission_rate||0})}>Editar</GhostBtn>
+                    <GhostBtn color="green" onClick={()=>setDetalhes(a)}>Detalhes</GhostBtn>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Modal Editar Afiliado */}
+      {editAff&&(
+        <Overlay onClose={()=>setEditAff(null)}>
+          <Modal title={`Editar Afiliado — ${editAff.name}`} onClose={()=>setEditAff(null)}>
+            <FField label="Status">
+              <FSelect value={editAff.status||'active'} onChange={(e:any)=>setEditAff({...editAff,status:e.target.value})}>
+                {[{v:'active',l:'Ativo'},{v:'blocked',l:'Bloqueado'},{v:'suspended',l:'Suspenso'}].map(s=><option key={s.v} value={s.v}>{s.l}</option>)}
+              </FSelect>
+            </FField>
+            <FField label="Taxa de comissão personalizada (%)">
+              <FInput type="number" min="0" max="100" step="0.5" placeholder="Ex: 5" value={editAff.commission_rate} onChange={(e:any)=>setEditAff({...editAff,commission_rate:e.target.value})}/>
+              <p style={{fontSize:'11px',color:'#555',marginTop:'4px'}}>0 = usa taxa padrão do sistema</p>
+            </FField>
+            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+              <PrimaryBtn onClick={saveAfiliado}>{saving?'Salvando...':'SALVAR'}</PrimaryBtn>
+              <GhostBtn onClick={()=>setEditAff(null)}>Cancelar</GhostBtn>
+            </div>
+          </Modal>
+        </Overlay>
+      )}
+
+      {/* Modal Detalhes do Afiliado */}
+      {detalhes&&(
+        <Overlay onClose={()=>setDetalhes(null)}>
+          <Modal title={`Detalhes — ${detalhes.name}`} onClose={()=>setDetalhes(null)}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'8px'}}>
+              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Código</p>
+                <p style={{fontSize:'16px',fontWeight:700,color:'#00e676',letterSpacing:'0.15em'}}>{detalhes.referral_code}</p>
+              </div>
+              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Indicados</p>
+                <p style={{fontSize:'20px',fontWeight:700,color:'#3b82f6'}}>{detalhes.total_referred||0}</p>
+              </div>
+              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Comissões</p>
+                <p style={{fontSize:'16px',fontWeight:700,color:'#00e676'}}>R$ {Number(detalhes.total_earned||0).toFixed(2)}</p>
+              </div>
+              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Taxa</p>
+                <p style={{fontSize:'20px',fontWeight:700,color:'#ffb300'}}>{detalhes.commission_rate||0}%</p>
+              </div>
+            </div>
+            <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
+              <p style={{fontSize:'11px',color:'#555',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Contato</p>
+              <p style={{fontSize:'13px',color:'#ccc'}}>{detalhes.email}</p>
+            </div>
+            <GhostBtn onClick={()=>setDetalhes(null)}>Fechar</GhostBtn>
+          </Modal>
+        </Overlay>
+      )}
     </div>
   )
 }
@@ -1379,10 +1464,10 @@ function BannersPage({token,api}:{token:string,api:string}) {
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Banners</h1>
-        <label style={{cursor:'pointer'}}>
-          <PrimaryBtn onClick={()=>{}} style={{pointerEvents:'none'}}><Upload size={14}/> {uploading?'Enviando...':'Upload Banner'}</PrimaryBtn>
-          <input type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f)uploadBanner(f)}}/>
-        </label>
+        <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+          <PrimaryBtn onClick={()=>{(document.getElementById('banner-file-input') as HTMLInputElement)?.click()}}><Upload size={14}/> {uploading?'Enviando...':'Upload Banner'}</PrimaryBtn>
+          <input id="banner-file-input" type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f){uploadBanner(f);(e.target as HTMLInputElement).value=''}}}/>
+        </div>
       </div>
       {banners.length===0&&<p style={{color:'#555',fontSize:'13px',textAlign:'center',padding:'40px'}}>Nenhum banner cadastrado. Faça upload acima.</p>}
       <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
