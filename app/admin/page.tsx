@@ -1414,6 +1414,14 @@ function EstiloPage({token,api}:{token:string,api:string}) {
   const [faviconUrl,setFaviconUrl]=useState('')
   const [saving,setSaving]=useState(false)
   const [msg,setMsg]=useState('')
+  useEffect(()=>{
+    fetch(api+'/api/admin/settings',{headers:{Authorization:'Bearer '+token}})
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.logo_url) setLogoUrl(api+d.logo_url)
+        if(d.favicon_url) setFaviconUrl(api+d.favicon_url)
+      }).catch(()=>{})
+  },[])
   async function uploadFile(endpoint:string,file:File,setUrl:(u:string)=>void){
     setSaving(true);setMsg('')
     const fd=new FormData();fd.append('image',file)
