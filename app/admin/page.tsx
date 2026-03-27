@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, GripVertical, Upload, HelpCircle, Pencil } from 'lucide-react'
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://187.77.248.115:3001'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
 const NAV_SECTIONS = [
   { title: 'Principal', items: [
@@ -118,7 +118,7 @@ export default function Admin() {
   async function createMarket(e: any) {
     e.preventDefault()
     const r = await api('/api/admin/markets','POST',{...newMarket,yes_odds:Number(newMarket.yes_odds),no_odds:Number(newMarket.no_odds),expires_at:newMarket.expires_at||null,type:newMarket.type,options:newMarket.type==='multiple'?newMarket.options.filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[]})
-    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]}); load(token) } else showToast(r.error||'Erro','error')
+    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]}); load(token); setTab('mercados') } else showToast(r.error||'Erro','error')
   }
   async function saveMarket() { const opts=editMarket.type==='multiple'?(editMarket.options||[]).filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[] ; const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',{...editMarket,yes_odds:Number(editMarket.yes_odds),no_odds:Number(editMarket.no_odds),type:editMarket.type||'single',options:opts}); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
@@ -589,7 +589,7 @@ export default function Admin() {
                     const fd=new FormData();fd.append('image',file);
                     const r=await fetch(API+`/api/admin/markets/${editMarket.id}/image`,{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
                     const d=await r.json();
-                    if(d.image_url){setEditMarket({...editMarket,image_url:'http://187.77.248.115:3001'+d.image_url});showToast('Imagem enviada!')}
+                    if(d.image_url){setEditMarket({...editMarket,image_url:API+d.image_url});showToast('Imagem enviada!')}
                     else showToast(d.error||'Erro ao enviar','error')
                   }}/>
                 </label>
@@ -737,7 +737,7 @@ function SBadge({status}:{status:string}) {
     user:{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'},
   }
   const s = m[status]||{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'}
-  const labels:any = {open:'Aberto',active:'Ativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',admin:'Admin',user:'Usuário',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
+  const labels:any = {open:'Aberto',active:'Ativo',inactive:'Inativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',admin:'Admin',user:'Usuário',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
   return <span style={{display:'inline-flex',alignItems:'center',padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:s.bg,color:s.c,border:`1px solid ${s.b}`}}>{labels[status]||status}</span>
 }
 
@@ -846,13 +846,29 @@ function GhostBtn({children,onClick,color='gray'}:{children:any,onClick:()=>void
 function MetricasPage() {
   const [activeTab, setActiveTab] = useState('Comissões')
   const tabs = ['Comissões', 'Depósitos', 'Convites']
-  const mockData = [
-    { pos: 1, nome: 'Carlos Silva', valor: 'R$ 12.480' },
-    { pos: 2, nome: 'Ana Martins', valor: 'R$ 9.320' },
-    { pos: 3, nome: 'João Oliveira', valor: 'R$ 7.150' },
-    { pos: 4, nome: 'Maria Santos', valor: 'R$ 5.890' },
-    { pos: 5, nome: 'Pedro Costa', valor: 'R$ 4.200' },
-  ]
+  const mockData:any = {
+    'Comissões': [
+      { pos: 1, nome: 'Carlos Silva', valor: 'R$ 12.480' },
+      { pos: 2, nome: 'Ana Martins', valor: 'R$ 9.320' },
+      { pos: 3, nome: 'João Oliveira', valor: 'R$ 7.150' },
+      { pos: 4, nome: 'Maria Santos', valor: 'R$ 5.890' },
+      { pos: 5, nome: 'Pedro Costa', valor: 'R$ 4.200' },
+    ],
+    'Depósitos': [
+      { pos: 1, nome: 'Carlos Silva', valor: 'R$ 45.200' },
+      { pos: 2, nome: 'Ana Martins', valor: 'R$ 38.100' },
+      { pos: 3, nome: 'João Oliveira', valor: 'R$ 29.500' },
+      { pos: 4, nome: 'Maria Santos', valor: 'R$ 21.300' },
+      { pos: 5, nome: 'Pedro Costa', valor: 'R$ 14.800' },
+    ],
+    'Convites': [
+      { pos: 1, nome: 'Carlos Silva', valor: '42' },
+      { pos: 2, nome: 'Ana Martins', valor: '30' },
+      { pos: 3, nome: 'João Oliveira', valor: '25' },
+      { pos: 4, nome: 'Maria Santos', valor: '18' },
+      { pos: 5, nome: 'Pedro Costa', valor: '11' },
+    ],
+  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -872,7 +888,7 @@ function MetricasPage() {
             </tr>
           </thead>
           <tbody>
-            {mockData.map((item,i)=>(
+            {(mockData[activeTab]||[]).map((item:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px'}}><span style={{fontWeight:700,color:'#00e676'}}>{item.pos}</span></td>
                 <td style={{padding:'11px 14px',color:'#ccc'}}>{item.nome}</td>
@@ -1317,7 +1333,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
               ))}
             </div>
           </div>
-          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('SEO salvo!'))}>Salvar</PrimaryBtn>
+          <PrimaryBtn onClick={()=>{if(!local.platform_name?.trim()){showToast('Nome da plataforma é obrigatório','error');return;}api('/api/admin/settings','PUT',local).then(()=>showToast('SEO salvo!'))}}>Salvar</PrimaryBtn>
         </div>
       )}
 
@@ -1344,7 +1360,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
             <input type="number" defaultValue="30" style={InputStyle}/>
           </div>
           <div><label style={LabelStyle}>Sub-afiliação (%)</label><input type="number" defaultValue="5" style={InputStyle}/></div>
-          <PrimaryBtn onClick={()=>showToast('CPA salvo!')}>Salvar</PrimaryBtn>
+          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('CPA salvo!'))}>Salvar</PrimaryBtn>
         </div>
       )}
 
@@ -1384,7 +1400,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
                 <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" defaultValue="10000" style={InputStyle}/></div>
                 <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" defaultValue="20000" style={InputStyle}/></div>
               </div>
-              <PrimaryBtn onClick={()=>showToast('Salvo!')}>Salvar</PrimaryBtn>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
           )}
         </div>
@@ -1393,7 +1409,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
       {activeTab==='scripts'&&(
         <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
           <div><label style={LabelStyle}>Scripts externos</label><textarea rows={10} placeholder="Cole seus scripts aqui..." style={{...InputStyle,resize:'vertical',fontFamily:"monospace",fontSize:'12px'} as any}/></div>
-          <PrimaryBtn onClick={()=>showToast('Scripts salvos!')}>Salvar</PrimaryBtn>
+          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Scripts salvos!'))}>Salvar</PrimaryBtn>
         </div>
       )}
 
@@ -1402,7 +1418,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           {['Instagram','Telegram','WhatsApp','Twitter/X','YouTube','TikTok'].map(s=>(
             <div key={s}><label style={LabelStyle}>{s}</label><input placeholder={`URL do ${s}`} style={InputStyle}/></div>
           ))}
-          <PrimaryBtn onClick={()=>showToast('Social salvo!')}>Salvar</PrimaryBtn>
+          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Social salvo!'))}>Salvar</PrimaryBtn>
         </div>
       )}
     </div>
