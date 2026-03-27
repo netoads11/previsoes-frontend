@@ -1283,6 +1283,8 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
   const [keywords, setKeywords] = useState<string[]>(['apostas','mercados','pix'])
   const [kwInput, setKwInput] = useState('')
   const [cpaType, setCpaType] = useState('fixed')
+  const [local, setLocal] = useState<any>(settings)
+  const upd = (k:string) => (e:any) => setLocal((p:any)=>({...p,[k]:e.target.value}))
   const tabs = [{id:'seo',l:'SEO'},{id:'cpa',l:'Afiliados CPA'},{id:'financeiro',l:'Financeiro'},{id:'scripts',l:'Scripts'},{id:'social',l:'Social'}]
   const finTabs = [{id:'usuario',l:'Usuário'},{id:'taxas',l:'Taxas'},{id:'afiliado',l:'Afiliado'}]
   const addKw = () => { if(kwInput.trim()&&!keywords.includes(kwInput.trim())){setKeywords([...keywords,kwInput.trim()]);setKwInput('')} }
@@ -1299,8 +1301,8 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
 
       {activeTab==='seo'&&(
         <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
-          <div><label style={LabelStyle}>Título do site *</label><input defaultValue="Minha Plataforma" style={InputStyle}/></div>
-          <div><label style={LabelStyle}>Descrição *</label><textarea defaultValue="A melhor plataforma de apostas" style={{...InputStyle,resize:'vertical',minHeight:'80px'} as any}/></div>
+          <div><label style={LabelStyle}>Título do site *</label><input value={local.platform_name||''} onChange={upd('platform_name')} style={InputStyle}/></div>
+          <div><label style={LabelStyle}>Descrição *</label><textarea value={local.platform_description||''} onChange={upd('platform_description')} style={{...InputStyle,resize:'vertical',minHeight:'80px'} as any}/></div>
           <div>
             <label style={LabelStyle}>Palavras-chave</label>
             <div style={{display:'flex',gap:'8px',marginBottom:'8px'}}>
@@ -1315,7 +1317,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
               ))}
             </div>
           </div>
-          <PrimaryBtn onClick={()=>showToast('SEO salvo!')}>Salvar</PrimaryBtn>
+          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('SEO salvo!'))}>Salvar</PrimaryBtn>
         </div>
       )}
 
@@ -1356,23 +1358,23 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           {finTab==='usuario'&&(
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-                <div><label style={LabelStyle}>Depósito Mínimo (R$) *</label><input type="number" value={settings.min_deposit||''} onChange={(e:any)=>setSettings({...settings,min_deposit:e.target.value})} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" value={settings.saque_minimo||''} onChange={(e:any)=>setSettings({...settings,saque_minimo:e.target.value})} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" value={settings.saque_maximo||''} onChange={(e:any)=>setSettings({...settings,saque_maximo:e.target.value})} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Rollover Base *</label><input type="number" value={settings.rollover||''} onChange={(e:any)=>setSettings({...settings,rollover:e.target.value})} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" value={settings.saque_diario||''} onChange={(e:any)=>setSettings({...settings,saque_diario:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Depósito Mínimo (R$) *</label><input type="number" value={local.min_deposit||''} onChange={upd('min_deposit')} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" value={local.saque_minimo||''} onChange={upd('saque_minimo')} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" value={local.saque_maximo||''} onChange={upd('saque_maximo')} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Rollover Base *</label><input type="number" value={local.rollover||''} onChange={upd('rollover')} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" value={local.saque_diario||''} onChange={upd('saque_diario')} style={InputStyle}/></div>
               </div>
-              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',settings).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
           )}
           {finTab==='taxas'&&(
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
-                <div><label style={LabelStyle}>Taxa Saque (%)</label><input type="number" value={settings.taxa_saque||''} onChange={(e:any)=>setSettings({...settings,taxa_saque:e.target.value})} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Taxa Depósito (%)</label><input type="number" value={settings.taxa_deposito||''} onChange={(e:any)=>setSettings({...settings,taxa_deposito:e.target.value})} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Taxa Vitória (%)</label><input type="number" value={settings.taxa_vitoria||''} onChange={(e:any)=>setSettings({...settings,taxa_vitoria:e.target.value})} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Taxa Saque (%)</label><input type="number" value={local.taxa_saque||''} onChange={upd('taxa_saque')} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Taxa Depósito (%)</label><input type="number" value={local.taxa_deposito||''} onChange={upd('taxa_deposito')} style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Taxa Vitória (%)</label><input type="number" value={local.taxa_vitoria||''} onChange={upd('taxa_vitoria')} style={InputStyle}/></div>
               </div>
-              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',settings).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
           )}
           {finTab==='afiliado'&&(
