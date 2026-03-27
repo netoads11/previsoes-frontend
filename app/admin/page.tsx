@@ -972,18 +972,25 @@ function AdminsPage() {
 }
 
 function AfiliadosPage({affiliates,token,api}:{affiliates:any[],token:string,api:string}) {
-  const totalEarned = affiliates.reduce((s:number,a:any)=>s+Number(a.total_earned||0),0)
-  const totalReferred = affiliates.reduce((s:number,a:any)=>s+Number(a.total_referred||0),0)
+  const safe = affiliates.filter(Boolean)
+  const totalEarned = safe.reduce((s:number,a:any)=>s+Number(a.total_earned||0),0)
+  const totalReferred = safe.reduce((s:number,a:any)=>s+Number(a.total_referred||0),0)
   const [editAff,setEditAff]=useState<any>(null)
   const [detalhes,setDetalhes]=useState<any>(null)
   const [saving,setSaving]=useState(false)
   const [toast2,setToast2]=useState('')
   async function saveAfiliado(){
+    if(!editAff)return
     setSaving(true)
-    const r=await fetch(api+`/api/admin/referrals/${editAff.id}`,{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({status:editAff.status,commission_rate:Number(editAff.commission_rate||0)})})
-    const d=await r.json()
-    setSaving(false)
-    if(d.success){setToast2('Salvo!');setEditAff(null)}else setToast2(d.error||'Erro')
+    try {
+      const r=await fetch(api+`/api/admin/referrals/${editAff.id}`,{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({status:editAff.status,commission_rate:Number(editAff.commission_rate||0)})})
+      const d=await r.json()
+      if(d.success){setToast2('Salvo!');setEditAff(null)}else setToast2(d.error||'Erro ao salvar')
+    } catch(e){
+      setToast2('Erro de conexão com o servidor')
+    } finally {
+      setSaving(false)
+    }
   }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
@@ -1000,9 +1007,9 @@ function AfiliadosPage({affiliates,token,api}:{affiliates:any[],token:string,api
             {['Nome','Email','Código','Indicados','Comissões','Taxa','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {affiliates.length===0?(
+            {safe.length===0?(
               <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>
-            ):affiliates.map((a:any,i:number)=>(
+            ):safe.map((a:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
                 <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
