@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, X } from 'lucide-react'
 
-const API = 'http://187.77.248.115:3001'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://187.77.248.115:3001'
 
 export default function Login() {
   const router = useRouter()

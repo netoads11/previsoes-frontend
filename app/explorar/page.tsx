@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-const API = 'http://187.77.248.115:3001'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://187.77.248.115:3001'
 
 interface Market {
   id: string

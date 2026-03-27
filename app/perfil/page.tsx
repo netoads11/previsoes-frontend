@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import BottomNav from '../components/BottomNav'
 import DepositModalComp from '../components/DepositModal'
 
-const API = 'http://187.77.248.115:3001'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://187.77.248.115:3001'
 
 export default function Perfil() {
   const router = useRouter()

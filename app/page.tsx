@@ -5,7 +5,7 @@ import Link from 'next/link'
 import BottomNav from './components/BottomNav'
 import DepositModalComp from './components/DepositModal'
 
-const API = 'http://187.77.248.115:3001'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://187.77.248.115:3001'
 
 const CATS = [
   { name: 'Live' },
