@@ -991,8 +991,8 @@ function FSelect({style,...p}:any) {
   return <select {...p} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer',...style}}/>
 }
 
-function PrimaryBtn({children,onClick,type,style}:{children:any,onClick?:()=>void,type?:any,style?:any}) {
-  return <button type={type||'button'} onClick={onClick} style={{background:'linear-gradient(135deg,#00e676,#00c853)',color:'#000',border:'none',borderRadius:'8px',padding:'10px 18px',fontWeight:700,fontSize:'13px',cursor:'pointer',transition:'opacity 0.15s',letterSpacing:'0.02em',display:'flex',alignItems:'center',gap:'6px',whiteSpace:'nowrap',...style}} onMouseEnter={(e:any)=>e.currentTarget.style.opacity='0.85'} onMouseLeave={(e:any)=>e.currentTarget.style.opacity='1'}>{children}</button>
+function PrimaryBtn({children,onClick,type,style,disabled}:{children:any,onClick?:()=>void,type?:any,style?:any,disabled?:boolean}) {
+  return <button type={type||'button'} onClick={onClick} disabled={disabled} style={{background:'linear-gradient(135deg,#00e676,#00c853)',color:'#000',border:'none',borderRadius:'8px',padding:'10px 18px',fontWeight:700,fontSize:'13px',cursor:disabled?'not-allowed':'pointer',transition:'opacity 0.15s',letterSpacing:'0.02em',display:'flex',alignItems:'center',gap:'6px',whiteSpace:'nowrap',opacity:disabled?0.6:1,...style}} onMouseEnter={(e:any)=>{if(!disabled)e.currentTarget.style.opacity='0.85'}} onMouseLeave={(e:any)=>{if(!disabled)e.currentTarget.style.opacity=disabled?'0.6':'1'}}>{children}</button>
 }
 
 function GhostBtn({children,onClick,color='gray'}:{children:any,onClick:()=>void,color?:string}) {
