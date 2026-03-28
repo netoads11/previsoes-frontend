@@ -618,52 +618,139 @@ export default function Admin() {
         </Overlay>
       )}
 
-      {/* ══ MODAL EDITAR USUARIO ══ */}
+      {/* ══ MODAL EDITAR USUARIO — Full Screen Premium ══ */}
       {editUser && (
-        <Overlay onClose={()=>setEditUser(null)}>
-          <Modal title="Editar Usuário" onClose={()=>setEditUser(null)}>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-              {/* Coluna esquerda */}
-              <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-                <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:'2px'}}>Dados Pessoais</p>
-                <FField label="Nome"><FInput value={editUser.name||''} onChange={(e:any)=>setEditUser({...editUser,name:e.target.value})}/></FField>
-                <FField label="E-mail"><FInput value={editUser.email||''} onChange={(e:any)=>setEditUser({...editUser,email:e.target.value})}/></FField>
-                <FField label="Telefone"><FInput value={editUser.phone||''} placeholder="(11) 99999-9999" onChange={(e:any)=>setEditUser({...editUser,phone:e.target.value})}/></FField>
-                <FField label="Código de Afiliação"><FInput value={editUser.referral_code||''} readOnly style={{opacity:0.5,cursor:'not-allowed'}}/></FField>
-                <FField label="Status"><FSelect value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>{[{v:'active',l:'Ativo'},{v:'blocked',l:'Bloqueado'},{v:'suspended',l:'Suspenso'}].map(s=><option key={s.v} value={s.v}>{s.l}</option>)}</FSelect></FField>
-                <FField label="Função"><FSelect value={editUser.role||'user'} onChange={(e:any)=>setEditUser({...editUser,role:e.target.value})}>{[{v:'user',l:'Usuário'},{v:'affiliate',l:'Afiliado'},{v:'vip',l:'VIP'},{v:'admin',l:'Admin'}].map(r=><option key={r.v} value={r.v}>{r.l}</option>)}</FSelect></FField>
-                <FField label="É afiliado">
-                  <label style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer'}}>
-                    <input type="checkbox" checked={!!editUser.is_affiliate} onChange={(e:any)=>setEditUser({...editUser,is_affiliate:e.target.checked})} style={{width:'16px',height:'16px',cursor:'pointer',accentColor:'#00e676'}}/>
-                    <span style={{fontSize:'13px',color:'#aaa'}}>Marcar como afiliado</span>
-                  </label>
-                </FField>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',backdropFilter:'blur(8px)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px',overflowY:'auto'}} onClick={(e:any)=>{if(e.target===e.currentTarget)setEditUser(null)}}>
+          <div style={{width:'100%',maxWidth:'880px',background:'#141414',borderRadius:'16px',border:'1px solid #1e1e1e',boxShadow:'0 24px 80px rgba(0,0,0,0.6)',overflow:'hidden'}}>
+
+            {/* Header */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 28px',borderBottom:'1px solid #1e1e1e',background:'#111'}}>
+              <div>
+                <h2 style={{fontSize:'17px',fontWeight:700,color:'#fff',fontFamily:"'Manrope',sans-serif",margin:0}}>Editar Usuário</h2>
+                <p style={{fontSize:'12px',color:'#555',margin:'3px 0 0',fontFamily:"'Manrope',sans-serif"}}>{editUser.email}</p>
               </div>
-              {/* Coluna direita */}
-              <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-                <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:'2px'}}>Segurança & Saldos</p>
-                <FField label="Nova Senha"><FInput type="password" placeholder="Deixe em branco para não alterar" value={editUser._password||''} onChange={(e:any)=>setEditUser({...editUser,_password:e.target.value,password:e.target.value})}/></FField>
-                <FField label="Confirmar Senha"><FInput type="password" placeholder="Repita a nova senha" value={editUser._password2||''} onChange={(e:any)=>setEditUser({...editUser,_password2:e.target.value})}/></FField>
-                <FField label="Saldo Disponível (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance||0} onChange={(e:any)=>setEditUser({...editUser,balance:e.target.value})}/></FField>
-                <FField label="Saldo Rollover (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_rollover||0} onChange={(e:any)=>setEditUser({...editUser,balance_rollover:e.target.value})}/></FField>
-                <FField label="Saldo Bônus (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_bonus||0} onChange={(e:any)=>setEditUser({...editUser,balance_bonus:e.target.value})}/></FField>
-                <FField label="Saldo Bloqueado (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_blocked||0} onChange={(e:any)=>setEditUser({...editUser,balance_blocked:e.target.value})}/></FField>
-                <FField label="Saldo Afiliado (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_affiliate||0} onChange={(e:any)=>setEditUser({...editUser,balance_affiliate:e.target.value})}/></FField>
-                <FField label="Saldo Demo (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_demo||0} onChange={(e:any)=>setEditUser({...editUser,balance_demo:e.target.value})}/></FField>
-                <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginTop:'4px'}}>Configurações de Afiliado</p>
-                <FField label="CPA (R$)"><FInput type="number" step="0.01" min="0" placeholder="0" value={editUser.cpa||0} onChange={(e:any)=>setEditUser({...editUser,cpa:e.target.value})}/></FField>
-                <FField label="RevShare (%)"><FInput type="number" step="0.01" min="0" max="100" placeholder="0" value={editUser.rev_share||0} onChange={(e:any)=>setEditUser({...editUser,rev_share:e.target.value})}/></FField>
-                <FField label="Baseline (R$)"><FInput type="number" step="0.01" min="0" placeholder="0" value={editUser.baseline||0} onChange={(e:any)=>setEditUser({...editUser,baseline:e.target.value})}/></FField>
-                <FField label="Taxa Comissão (%)"><FInput type="number" step="0.5" min="0" max="100" placeholder="0" value={editUser.commission_rate||0} onChange={(e:any)=>setEditUser({...editUser,commission_rate:e.target.value})}/></FField>
+              <button onClick={()=>setEditUser(null)} style={{background:'#1a1a1a',border:'1px solid #2a2a2a',cursor:'pointer',color:'#666',width:'32px',height:'32px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.15s'}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='#1a1a1a';e.currentTarget.style.color='#666'}}><X size={14}/></button>
+            </div>
+
+            {/* Body — 2 colunas */}
+            <div style={{padding:'24px 28px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'24px'}}>
+
+              {/* ── CARD ESQUERDO — Informações Pessoais ── */}
+              <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'24px',display:'flex',flexDirection:'column',gap:'20px'}}>
+                <div>
+                  <h3 style={{fontSize:'16px',fontWeight:700,color:'#fff',margin:'0 0 12px',fontFamily:"'Manrope',sans-serif"}}>Informações Pessoais</h3>
+                  <div style={{height:'1px',background:'#222'}}/>
+                </div>
+
+                <UField label="Nome">
+                  <UInput value={editUser.name||''} onChange={(e:any)=>setEditUser({...editUser,name:e.target.value})} placeholder="Nome completo"/>
+                </UField>
+                <UField label="E-mail">
+                  <UInput type="email" value={editUser.email||''} onChange={(e:any)=>setEditUser({...editUser,email:e.target.value})} placeholder="email@exemplo.com"/>
+                </UField>
+                <UField label="Telefone">
+                  <UInput value={editUser.phone||''} onChange={(e:any)=>setEditUser({...editUser,phone:e.target.value})} placeholder="(11) 99999-9999"/>
+                </UField>
+                <UField label="Código de Afiliação">
+                  <UInput value={editUser.referral_code||'—'} readOnly style={{opacity:0.45,cursor:'not-allowed'}}/>
+                </UField>
+                <UField label="Status">
+                  <USelect value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>
+                    <option value="active">Ativo</option>
+                    <option value="blocked">Bloqueado</option>
+                    <option value="suspended">Suspenso</option>
+                  </USelect>
+                </UField>
+                <UField label="Função">
+                  <USelect value={editUser.role||'user'} onChange={(e:any)=>setEditUser({...editUser,role:e.target.value,is_affiliate:e.target.value==='affiliate'||e.target.value==='manager'})}>
+                    <option value="user">Usuário</option>
+                    <option value="admin">Administrador</option>
+                    <option value="affiliate">Afiliado</option>
+                    <option value="manager">Gerente</option>
+                  </USelect>
+                </UField>
+              </div>
+
+              {/* ── CARD DIREITO — Segurança e Saldo ── */}
+              <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'24px',display:'flex',flexDirection:'column',gap:'20px',overflowY:'auto',maxHeight:'70vh'}}>
+                <div>
+                  <h3 style={{fontSize:'16px',fontWeight:700,color:'#fff',margin:'0 0 12px',fontFamily:"'Manrope',sans-serif"}}>Segurança e Saldo</h3>
+                  <div style={{height:'1px',background:'#222'}}/>
+                </div>
+
+                {/* Segurança */}
+                <UField label="Nova Senha">
+                  <UInput type="password" value={editUser._password||''} placeholder="deixe em branco para manter a atual" onChange={(e:any)=>setEditUser({...editUser,_password:e.target.value,password:e.target.value})}/>
+                </UField>
+                <UField label="Confirmar Nova Senha">
+                  <UInput type="password" value={editUser._password2||''} placeholder="deixe em branco para manter a atual" onChange={(e:any)=>setEditUser({...editUser,_password2:e.target.value})}/>
+                </UField>
+
+                {/* Saldos */}
+                <div>
+                  <p style={{fontSize:'11px',fontWeight:700,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'14px'}}>Saldos</p>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                    <UField label="Saldo Disponível (R$)">
+                      <UInput type="number" step="0.01" min="0" value={editUser.balance||0} onChange={(e:any)=>setEditUser({...editUser,balance:e.target.value})}/>
+                    </UField>
+                    <UField label="Saldo Rollover (R$)">
+                      <UInput type="number" step="0.01" min="0" value={editUser.balance_rollover||0} onChange={(e:any)=>setEditUser({...editUser,balance_rollover:e.target.value})}/>
+                    </UField>
+                    <UField label="Saldo Bônus (R$)">
+                      <UInput type="number" step="0.01" min="0" value={editUser.balance_bonus||0} onChange={(e:any)=>setEditUser({...editUser,balance_bonus:e.target.value})}/>
+                    </UField>
+                    <UField label="Saldo Bloqueado (R$)">
+                      <UInput type="number" step="0.01" min="0" value={editUser.balance_blocked||0} onChange={(e:any)=>setEditUser({...editUser,balance_blocked:e.target.value})}/>
+                    </UField>
+                    <UField label="Saldo Afiliado (R$)">
+                      <UInput type="number" step="0.01" min="0" value={editUser.balance_affiliate||0} onChange={(e:any)=>setEditUser({...editUser,balance_affiliate:e.target.value})}/>
+                    </UField>
+                    <UField label="Saldo Demo (R$)">
+                      <UInput type="number" step="0.01" min="0" value={editUser.balance_demo||0} onChange={(e:any)=>setEditUser({...editUser,balance_demo:e.target.value})}/>
+                    </UField>
+                  </div>
+                </div>
+
+                {/* Configurações de Afiliação — visível só para Afiliado ou Gerente */}
+                {(editUser.role==='affiliate'||editUser.role==='manager') && (
+                  <div>
+                    <p style={{fontSize:'11px',fontWeight:700,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'14px'}}>Configurações de Afiliação</p>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                      <UField label="CPA (R$)">
+                        <UInput type="number" step="0.01" min="0" placeholder="0" value={editUser.cpa||0} onChange={(e:any)=>setEditUser({...editUser,cpa:e.target.value})}/>
+                      </UField>
+                      <UField label="RevShare (%)">
+                        <UInput type="number" step="0.01" min="0" max="100" placeholder="0" value={editUser.rev_share||0} onChange={(e:any)=>setEditUser({...editUser,rev_share:e.target.value})}/>
+                      </UField>
+                    </div>
+                    <div style={{marginTop:'12px'}}>
+                      <UField label="Baseline (R$)">
+                        <UInput type="number" step="0.01" min="0" placeholder="0" value={editUser.baseline||0} onChange={(e:any)=>setEditUser({...editUser,baseline:e.target.value})}/>
+                      </UField>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-            <p style={{fontSize:'11px',color:'#333',marginTop:'12px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
-            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={()=>{if(editUser._password&&editUser._password!==editUser._password2){showToast('Senhas não conferem','error');return;}saveUser()}}>SALVAR</PrimaryBtn>
-              <GhostBtn onClick={()=>setEditUser(null)}>Cancelar</GhostBtn>
+
+            {/* Footer */}
+            <div style={{padding:'16px 28px 24px',borderTop:'1px solid #1e1e1e',display:'flex',gap:'12px',alignItems:'center'}}>
+              <button
+                onClick={()=>{if(editUser._password&&editUser._password!==editUser._password2){showToast('Senhas não conferem','error');return;}saveUser()}}
+                style={{flex:1,height:'48px',background:'#00e676',color:'#000',border:'none',borderRadius:'10px',fontWeight:600,fontSize:'14px',cursor:'pointer',letterSpacing:'0.04em',transition:'opacity 0.15s',fontFamily:"'Manrope',sans-serif"}}
+                onMouseEnter={(e:any)=>e.currentTarget.style.opacity='0.85'}
+                onMouseLeave={(e:any)=>e.currentTarget.style.opacity='1'}
+              >SALVAR ALTERAÇÕES</button>
+              <button
+                onClick={()=>setEditUser(null)}
+                style={{height:'48px',padding:'0 24px',background:'#1a1a1a',color:'#888',border:'1px solid #2a2a2a',borderRadius:'10px',fontWeight:500,fontSize:'14px',cursor:'pointer',transition:'all 0.15s',fontFamily:"'Manrope',sans-serif",whiteSpace:'nowrap'}}
+                onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc'}}
+                onMouseLeave={(e:any)=>{e.currentTarget.style.background='#1a1a1a';e.currentTarget.style.color='#888'}}
+              >Cancelar</button>
             </div>
-          </Modal>
-        </Overlay>
+
+          </div>
+        </div>
       )}
 
       {/* ══ MODAL SALDO ══ */}
@@ -862,6 +949,34 @@ function FField({label,children}:{label:string,children:any}) {
 
 function FInput({style,...p}:any) {
   return <input {...p} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',transition:'border-color 0.15s',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
+}
+
+/* ── Componentes premium para o modal de edição de usuário ── */
+function UField({label,children}:{label:string,children:any}) {
+  return (
+    <div>
+      <label style={{fontSize:'12px',color:'#888',display:'block',marginBottom:'6px',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>{label}</label>
+      {children}
+    </div>
+  )
+}
+function UInput({style,...p}:any) {
+  return (
+    <input {...p}
+      style={{width:'100%',background:'#111',border:'1px solid #333',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'42px',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
+      onFocus={(e:any)=>{e.target.style.borderColor='#00e676';e.target.style.boxShadow='0 0 0 3px rgba(0,230,118,0.08)'}}
+      onBlur={(e:any)=>{e.target.style.borderColor='#333';e.target.style.boxShadow='none'}}
+    />
+  )
+}
+function USelect({style,children,...p}:any) {
+  return (
+    <select {...p}
+      style={{width:'100%',background:'#111',border:'1px solid #333',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'42px',cursor:'pointer',transition:'border-color 0.15s',boxSizing:'border-box',...style}}
+      onFocus={(e:any)=>e.target.style.borderColor='#00e676'}
+      onBlur={(e:any)=>e.target.style.borderColor='#333'}
+    >{children}</select>
+  )
 }
 
 function FSelect({style,...p}:any) {
