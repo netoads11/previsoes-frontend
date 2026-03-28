@@ -54,10 +54,18 @@ export default function Perfil() {
 
   function copyRef() {
     const link = window.location.origin + '/cadastrar?ref=' + referrals?.referral_code
-    navigator.clipboard.writeText(link).then(() => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(link).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
+    } else {
+      const el = document.createElement('textarea')
+      el.value = link
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    })
+    }
   }
 
   function getBetStatusColor(status: string) {
