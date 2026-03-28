@@ -58,6 +58,8 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
   const [depositModal, setDepositModal] = useState(false)
   const [minDeposit, setMinDeposit] = useState('10.00')
+  const [logoUrl, setLogoUrl] = useState('')
+  const [platformName, setPlatformName] = useState('Previmarket')
   const [activeNav, setActiveNav] = useState('mercados')
   const [authModal, setAuthModal] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -75,7 +77,7 @@ export default function Home() {
     const check = () => setIsMobile(window.innerWidth <= 768)
     check()
     window.addEventListener('resize', check)
-    fetch(API + '/api/settings/public').then(r=>r.json()).then(d=>{ if(d.min_deposit) setMinDeposit(d.min_deposit) }).catch(()=>{})
+    fetch(API + '/api/settings/public').then(r=>r.json()).then(d=>{ if(d.min_deposit) setMinDeposit(d.min_deposit); if(d.logo_url) setLogoUrl(API+d.logo_url); if(d.platform_name) setPlatformName(d.platform_name) }).catch(()=>{})
     fetch(API + '/api/markets')
       .then(r => r.json())
       .then(d => { setMarkets(Array.isArray(d) ? d : []); setLoading(false) })
@@ -234,10 +236,13 @@ export default function Home() {
         {/* DESKTOP header */}
         <div className="header-inner hide-mob" style={{width:'100%',display:'flex',alignItems:'center',gap:'12px',padding:'0 20px'}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:'7px',textDecoration:'none',flexShrink:0}}>
-            <div style={{width:'28px',height:'28px',borderRadius:'7px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <span style={{color:'#000',fontWeight:900,fontSize:'13px'}}>P</span>
-            </div>
-            <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>Previmarket</span>
+            {logoUrl
+              ? <img src={logoUrl} alt={platformName} style={{height:'32px',maxWidth:'120px',objectFit:'contain'}}/>
+              : <><div style={{width:'28px',height:'28px',borderRadius:'7px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <span style={{color:'#000',fontWeight:900,fontSize:'13px'}}>P</span>
+                </div>
+                <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>{platformName}</span></>
+            }
           </Link>
           <div style={{flex:1,position:'relative',margin:'0 12px'}}>
             <svg style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',width:'14px',height:'14px',color:'#666'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -314,10 +319,13 @@ export default function Home() {
         {/* MOBILE header */}
         <div className="show-mob" style={{width:'100%',display:'none',alignItems:'center',justifyContent:'space-between',padding:'0 14px'}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:'6px',textDecoration:'none',flexShrink:0}}>
-            <div style={{width:'26px',height:'26px',borderRadius:'6px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <span style={{color:'#000',fontWeight:900,fontSize:'12px'}}>P</span>
-            </div>
-            <span style={{color:'#fff',fontWeight:700,fontSize:'14px'}}>Previmarket</span>
+            {logoUrl
+              ? <img src={logoUrl} alt={platformName} style={{height:'28px',maxWidth:'100px',objectFit:'contain'}}/>
+              : <><div style={{width:'26px',height:'26px',borderRadius:'6px',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <span style={{color:'#000',fontWeight:900,fontSize:'12px'}}>P</span>
+                </div>
+                <span style={{color:'#fff',fontWeight:700,fontSize:'14px'}}>{platformName}</span></>
+            }
           </Link>
           <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
             {user ? (

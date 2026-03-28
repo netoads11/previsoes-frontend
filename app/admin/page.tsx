@@ -72,6 +72,7 @@ export default function Admin() {
   const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]})
   const [bets, setBets] = useState<any[]>([])
   const [affiliates, setAffiliates] = useState<any[]>([])
+  const [sidebarLogo, setSidebarLogo] = useState('')
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
   const [filterStatus, setFilterStatus] = useState('')
@@ -106,6 +107,7 @@ export default function Admin() {
     setMarkets(Array.isArray(m)?m:[]);setUsers(Array.isArray(u)?u:[])
     setDeposits(Array.isArray(d)?d:[]);setWithdrawals(Array.isArray(w)?w:[])
     setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setLoading(false)
+    if(s?.logo_url) setSidebarLogo(API+s.logo_url)
   }
 
   function showToast(text: string, type='success') { setToast({text,type}); setTimeout(()=>setToast(null),3500) }
@@ -184,10 +186,13 @@ export default function Admin() {
       <aside style={{width:'240px',flexShrink:0,background:V.sidebar,borderRight:`1px solid ${V.border}`,display:'flex',flexDirection:'column',position:'fixed',top:0,left:0,height:'100vh',zIndex:40,overflowY:'auto'}}>
         {/* Logo */}
         <div style={{padding:'16px',borderBottom:`1px solid ${V.border}`,display:'flex',alignItems:'center',gap:'10px',height:'56px',flexShrink:0}}>
-          <div style={{width:'32px',height:'32px',borderRadius:'8px',background:V.green,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            <TrendingUp size={16} color="#000" strokeWidth={2.5}/>
-          </div>
-          <span style={{fontWeight:700,fontSize:'14px',color:V.text}}>Admin Panel</span>
+          {sidebarLogo
+            ? <img src={sidebarLogo} alt="logo" style={{height:'32px',maxWidth:'160px',objectFit:'contain'}} onError={()=>setSidebarLogo('')}/>
+            : <><div style={{width:'32px',height:'32px',borderRadius:'8px',background:V.green,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <TrendingUp size={16} color="#000" strokeWidth={2.5}/>
+              </div>
+              <span style={{fontWeight:700,fontSize:'14px',color:V.text}}>Admin Panel</span></>
+          }
         </div>
 
         {/* Nav */}
@@ -549,7 +554,7 @@ export default function Admin() {
           {tab==='historico' && <div className="fade-in"><HistoricoPage/></div>}
           {tab==='eventos' && <div className="fade-in"><EventosPage/></div>}
           {tab==='configs' && tab==='configs' && false && null}
-          {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API}/></div>}
+          {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API} onLogoChange={setSidebarLogo}/></div>}
           {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
         </main>
       </div>
@@ -1425,7 +1430,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
   )
 }
 
-function EstiloPage({token,api}:{token:string,api:string}) {
+function EstiloPage({token,api,onLogoChange}:{token:string,api:string,onLogoChange?:(url:string)=>void}) {
   const [logoUrl,setLogoUrl]=useState('')
   const [faviconUrl,setFaviconUrl]=useState('')
   const [saving,setSaving]=useState(false)
@@ -1440,12 +1445,17 @@ function EstiloPage({token,api}:{token:string,api:string}) {
   },[])
   async function uploadFile(endpoint:string,file:File,setUrl:(u:string)=>void){
     setSaving(true);setMsg('')
-    const fd=new FormData();fd.append('image',file)
-    const r=await fetch(api+endpoint,{method:'POST',headers:{Authorization:'Bearer '+token},body:fd})
-    const d=await r.json()
-    if(d.url){setUrl(api+d.url);setMsg('Enviado com sucesso!')}
-    else setMsg(d.error||'Erro ao enviar')
-    setSaving(false)
+    try {
+      const fd=new FormData();fd.append('image',file)
+      const r=await fetch(api+endpoint,{method:'POST',headers:{Authorization:'Bearer '+token},body:fd})
+      const d=await r.json()
+      if(d.url){const full=api+d.url;setUrl(full);setMsg('Enviado com sucesso!');if(endpoint.includes('logo')&&onLogoChange)onLogoChange(full)}
+      else setMsg(d.error||'Erro ao enviar')
+    } catch(e:any) {
+      setMsg('Erro de conexão: '+e.message)
+    } finally {
+      setSaving(false)
+    }
   }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
