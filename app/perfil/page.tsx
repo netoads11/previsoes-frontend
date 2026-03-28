@@ -58,7 +58,8 @@ export default function Perfil() {
   }
 
   function copyRef() {
-    const link = window.location.origin + '/cadastrar?ref=' + referrals?.referral_code
+    if (!referrals?.referral_code) return
+    const link = window.location.origin + '/cadastrar?ref=' + referrals.referral_code
     if (navigator.clipboard) {
       navigator.clipboard.writeText(link).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
     } else {
@@ -214,10 +215,12 @@ export default function Perfil() {
           <div>
             <div style={{ background: '#1a1a1a', border: '1px solid rgba(0,230,118,0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
               <p style={{ fontSize: '12px', color: '#555', marginBottom: '8px' }}>Seu codigo de indicacao</p>
-              <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '0.1em', color: '#00e676', marginBottom: '12px' }}>{referrals.referral_code}</p>
-              <button className="copy-btn" onClick={copyRef}>
-                {copied ? 'Copiado!' : 'Copiar link de indicacao'}
-              </button>
+              <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '0.1em', color: '#00e676', marginBottom: '12px' }}>{referrals.referral_code || '...'}</p>
+              {referrals.referral_code && (
+                <button className="copy-btn" onClick={copyRef}>
+                  {copied ? 'Copiado!' : 'Copiar link de indicacao'}
+                </button>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '16px' }}>
