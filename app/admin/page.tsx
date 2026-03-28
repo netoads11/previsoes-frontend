@@ -124,6 +124,14 @@ export default function Admin() {
   }
   async function saveMarket() { const opts=editMarket.type==='multiple'?(editMarket.options||[]).filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[] ; const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',{...editMarket,yes_odds:Number(editMarket.yes_odds),no_odds:Number(editMarket.no_odds),type:editMarket.type||'single',options:opts}); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
+  async function openEditUser(id: string) {
+    try {
+      const r = await fetch(API+`/api/admin/users/${id}/details`,{headers:{'Authorization':'Bearer '+token}})
+      const d = await r.json()
+      if(d.id) setEditUser(d)
+      else showToast('Erro ao carregar usuário','error')
+    } catch(e) { showToast('Erro de conexão','error') }
+  }
   async function adjBalance() {
     const r = await fetch(API+`/api/admin/users/${balanceModal.id}/balance`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({balance:Number(balanceModal.newBalance)})})
     const d = await r.json()
@@ -524,7 +532,7 @@ export default function Admin() {
 
           {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
           {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
-          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates} token={token} api={API}/></div>}
+          {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates} token={token} api={API} onEdit={openEditUser}/></div>}
           {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage/></div>}
           {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
           {tab==='apostas' && (
@@ -614,18 +622,44 @@ export default function Admin() {
       {editUser && (
         <Overlay onClose={()=>setEditUser(null)}>
           <Modal title="Editar Usuário" onClose={()=>setEditUser(null)}>
-            <FField label="Nome"><FInput value={editUser.name} onChange={(e:any)=>setEditUser({...editUser,name:e.target.value})}/></FField>
-            <FField label="E-mail"><FInput value={editUser.email} onChange={(e:any)=>setEditUser({...editUser,email:e.target.value})}/></FField>
-            <FField label="Status"><FSelect value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>{[{v:'active',l:'Ativo'},{v:'blocked',l:'Bloqueado'},{v:'suspended',l:'Suspenso'}].map(s=><option key={s.v} value={s.v}>{s.l}</option>)}</FSelect></FField>
-            <FField label="Afiliado">
-              <label style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer'}}>
-                <input type="checkbox" checked={!!editUser.is_affiliate} onChange={(e:any)=>setEditUser({...editUser,is_affiliate:e.target.checked})} style={{width:'16px',height:'16px',cursor:'pointer',accentColor:'#00e676'}}/>
-                <span style={{fontSize:'13px',color:'#aaa'}}>Este usuário é afiliado</span>
-              </label>
-            </FField>
-            <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+              {/* Coluna esquerda */}
+              <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+                <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:'2px'}}>Dados Pessoais</p>
+                <FField label="Nome"><FInput value={editUser.name||''} onChange={(e:any)=>setEditUser({...editUser,name:e.target.value})}/></FField>
+                <FField label="E-mail"><FInput value={editUser.email||''} onChange={(e:any)=>setEditUser({...editUser,email:e.target.value})}/></FField>
+                <FField label="Telefone"><FInput value={editUser.phone||''} placeholder="(11) 99999-9999" onChange={(e:any)=>setEditUser({...editUser,phone:e.target.value})}/></FField>
+                <FField label="Código de Afiliação"><FInput value={editUser.referral_code||''} readOnly style={{opacity:0.5,cursor:'not-allowed'}}/></FField>
+                <FField label="Status"><FSelect value={editUser.status||'active'} onChange={(e:any)=>setEditUser({...editUser,status:e.target.value})}>{[{v:'active',l:'Ativo'},{v:'blocked',l:'Bloqueado'},{v:'suspended',l:'Suspenso'}].map(s=><option key={s.v} value={s.v}>{s.l}</option>)}</FSelect></FField>
+                <FField label="Função"><FSelect value={editUser.role||'user'} onChange={(e:any)=>setEditUser({...editUser,role:e.target.value})}>{[{v:'user',l:'Usuário'},{v:'affiliate',l:'Afiliado'},{v:'vip',l:'VIP'},{v:'admin',l:'Admin'}].map(r=><option key={r.v} value={r.v}>{r.l}</option>)}</FSelect></FField>
+                <FField label="É afiliado">
+                  <label style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer'}}>
+                    <input type="checkbox" checked={!!editUser.is_affiliate} onChange={(e:any)=>setEditUser({...editUser,is_affiliate:e.target.checked})} style={{width:'16px',height:'16px',cursor:'pointer',accentColor:'#00e676'}}/>
+                    <span style={{fontSize:'13px',color:'#aaa'}}>Marcar como afiliado</span>
+                  </label>
+                </FField>
+              </div>
+              {/* Coluna direita */}
+              <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+                <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:'2px'}}>Segurança & Saldos</p>
+                <FField label="Nova Senha"><FInput type="password" placeholder="Deixe em branco para não alterar" value={editUser._password||''} onChange={(e:any)=>setEditUser({...editUser,_password:e.target.value,password:e.target.value})}/></FField>
+                <FField label="Confirmar Senha"><FInput type="password" placeholder="Repita a nova senha" value={editUser._password2||''} onChange={(e:any)=>setEditUser({...editUser,_password2:e.target.value})}/></FField>
+                <FField label="Saldo Disponível (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance||0} onChange={(e:any)=>setEditUser({...editUser,balance:e.target.value})}/></FField>
+                <FField label="Saldo Rollover (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_rollover||0} onChange={(e:any)=>setEditUser({...editUser,balance_rollover:e.target.value})}/></FField>
+                <FField label="Saldo Bônus (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_bonus||0} onChange={(e:any)=>setEditUser({...editUser,balance_bonus:e.target.value})}/></FField>
+                <FField label="Saldo Bloqueado (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_blocked||0} onChange={(e:any)=>setEditUser({...editUser,balance_blocked:e.target.value})}/></FField>
+                <FField label="Saldo Afiliado (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_affiliate||0} onChange={(e:any)=>setEditUser({...editUser,balance_affiliate:e.target.value})}/></FField>
+                <FField label="Saldo Demo (R$)"><FInput type="number" step="0.01" min="0" value={editUser.balance_demo||0} onChange={(e:any)=>setEditUser({...editUser,balance_demo:e.target.value})}/></FField>
+                <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginTop:'4px'}}>Configurações de Afiliado</p>
+                <FField label="CPA (R$)"><FInput type="number" step="0.01" min="0" placeholder="0" value={editUser.cpa||0} onChange={(e:any)=>setEditUser({...editUser,cpa:e.target.value})}/></FField>
+                <FField label="RevShare (%)"><FInput type="number" step="0.01" min="0" max="100" placeholder="0" value={editUser.rev_share||0} onChange={(e:any)=>setEditUser({...editUser,rev_share:e.target.value})}/></FField>
+                <FField label="Baseline (R$)"><FInput type="number" step="0.01" min="0" placeholder="0" value={editUser.baseline||0} onChange={(e:any)=>setEditUser({...editUser,baseline:e.target.value})}/></FField>
+                <FField label="Taxa Comissão (%)"><FInput type="number" step="0.5" min="0" max="100" placeholder="0" value={editUser.commission_rate||0} onChange={(e:any)=>setEditUser({...editUser,commission_rate:e.target.value})}/></FField>
+              </div>
+            </div>
+            <p style={{fontSize:'11px',color:'#333',marginTop:'12px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={saveUser}>SALVAR</PrimaryBtn>
+              <PrimaryBtn onClick={()=>{if(editUser._password&&editUser._password!==editUser._password2){showToast('Senhas não conferem','error');return;}saveUser()}}>SALVAR</PrimaryBtn>
               <GhostBtn onClick={()=>setEditUser(null)}>Cancelar</GhostBtn>
             </div>
           </Modal>
@@ -992,27 +1026,12 @@ function AdminsPage() {
   )
 }
 
-function AfiliadosPage({affiliates,token,api}:{affiliates:any[],token:string,api:string}) {
+function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:string,api:string,onEdit:(id:string)=>void}) {
   const safe = affiliates.filter(Boolean)
   const totalEarned = safe.reduce((s:number,a:any)=>s+Number(a.total_earned||0),0)
   const totalReferred = safe.reduce((s:number,a:any)=>s+Number(a.total_referred||0),0)
-  const [editAff,setEditAff]=useState<any>(null)
   const [detalhes,setDetalhes]=useState<any>(null)
-  const [saving,setSaving]=useState(false)
   const [toast2,setToast2]=useState('')
-  async function saveAfiliado(){
-    if(!editAff)return
-    setSaving(true)
-    try {
-      const r=await fetch(api+`/api/admin/referrals/${editAff.id}`,{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({status:editAff.status,commission_rate:Number(editAff.commission_rate||0)})})
-      const d=await r.json()
-      if(d.success){setToast2('Salvo!');setEditAff(null)}else setToast2(d.error||'Erro ao salvar')
-    } catch(e){
-      setToast2('Erro de conexão com o servidor')
-    } finally {
-      setSaving(false)
-    }
-  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Afiliados</h1>
@@ -1041,7 +1060,7 @@ function AfiliadosPage({affiliates,token,api}:{affiliates:any[],token:string,api
                 <td style={{padding:'11px 14px'}}><SBadge status={a.status||'active'}/></td>
                 <td style={{padding:'11px 14px'}}>
                   <div style={{display:'flex',gap:'5px'}}>
-                    <GhostBtn onClick={()=>setEditAff({...a,commission_rate:a.commission_rate||0})}>Editar</GhostBtn>
+                    <GhostBtn onClick={()=>onEdit(a.id)}>Editar</GhostBtn>
                     <GhostBtn color="green" onClick={()=>setDetalhes(a)}>Detalhes</GhostBtn>
                   </div>
                 </td>
@@ -1051,26 +1070,6 @@ function AfiliadosPage({affiliates,token,api}:{affiliates:any[],token:string,api
         </table>
       </div>
 
-      {/* Modal Editar Afiliado */}
-      {editAff&&(
-        <Overlay onClose={()=>setEditAff(null)}>
-          <Modal title={`Editar Afiliado — ${editAff.name}`} onClose={()=>setEditAff(null)}>
-            <FField label="Status">
-              <FSelect value={editAff.status||'active'} onChange={(e:any)=>setEditAff({...editAff,status:e.target.value})}>
-                {[{v:'active',l:'Ativo'},{v:'blocked',l:'Bloqueado'},{v:'suspended',l:'Suspenso'}].map(s=><option key={s.v} value={s.v}>{s.l}</option>)}
-              </FSelect>
-            </FField>
-            <FField label="Taxa de comissão personalizada (%)">
-              <FInput type="number" min="0" max="100" step="0.5" placeholder="Ex: 5" value={editAff.commission_rate} onChange={(e:any)=>setEditAff({...editAff,commission_rate:e.target.value})}/>
-              <p style={{fontSize:'11px',color:'#555',marginTop:'4px'}}>0 = usa taxa padrão do sistema</p>
-            </FField>
-            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={saveAfiliado}>{saving?'Salvando...':'SALVAR'}</PrimaryBtn>
-              <GhostBtn onClick={()=>setEditAff(null)}>Cancelar</GhostBtn>
-            </div>
-          </Modal>
-        </Overlay>
-      )}
 
       {/* Modal Detalhes do Afiliado */}
       {detalhes&&(
