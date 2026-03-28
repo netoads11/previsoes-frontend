@@ -533,7 +533,7 @@ export default function Admin() {
           {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
           {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
           {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates} token={token} api={API} onEdit={openEditUser}/></div>}
-          {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage/></div>}
+          {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage token={token} api={API}/></div>}
           {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
           {tab==='apostas' && (
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
@@ -1228,27 +1228,66 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
   )
 }
 
-function SaquesAfiliadosPage() {
+function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
   const [activeTab, setActiveTab] = useState('todos')
+  const [rows, setRows] = useState<any[]>([])
+  const [stats, setStats] = useState<any>({})
+  const [loading, setLoading] = useState(true)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [confirmMsg, setConfirmMsg] = useState('')
-  const mockData = [
-    { id:1, afiliado:'Carlos Silva', valor:'R$ 1.500', pix:'***456', data:'24/03/2026', status:'pending' },
-    { id:2, afiliado:'Ana Martins', valor:'R$ 800', pix:'***789', data:'23/03/2026', status:'paid' },
-    { id:3, afiliado:'Pedro Costa', valor:'R$ 450', pix:'***321', data:'22/03/2026', status:'paid' },
-  ]
-  const filtered = activeTab==='todos'?mockData:mockData.filter(d=>d.status===activeTab)
+  const [confirmAction, setConfirmAction] = useState<{id:string,type:'approve'|'reject'}|null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [acting, setActing] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const r = await fetch(api+'/api/admin/affiliate-withdrawals',{headers:{'Authorization':'Bearer '+token}})
+      const d = await r.json()
+      setRows(d.rows||[])
+      setStats(d.stats||{})
+    } catch{}
+    setLoading(false)
+  }
+  useEffect(()=>{load()},[])
+
+  const filtered = activeTab==='todos'?rows:rows.filter((r:any)=>r.status===activeTab)
+
+  const openConfirm = (id:string,type:'approve'|'reject') => {
+    setConfirmAction({id,type})
+    setRejectReason('')
+    setConfirmOpen(true)
+  }
+
+  const doAction = async () => {
+    if(!confirmAction) return
+    setActing(true)
+    const {id,type} = confirmAction
+    const url = api+`/api/admin/affiliate-withdrawals/${id}/${type==='approve'?'approve':'reject'}`
+    try {
+      await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({reason:rejectReason||undefined})})
+    } catch{}
+    setActing(false)
+    setConfirmOpen(false)
+    setConfirmAction(null)
+    load()
+  }
+
+  const fmt = (v:number) => 'R$ '+Number(v||0).toFixed(2)
+  const fmtDate = (d:string) => new Date(d).toLocaleDateString('pt-BR')
+
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Saques Afiliados</h1>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-        <MCard title="Pendentes" value="R$ 3.200" sub="4 saques" icon={ArrowUpFromLine} color="yellow"/>
-        <MCard title="Pagos Hoje" value="R$ 1.800" sub="3 saques" icon={ArrowUpFromLine} color="green"/>
-        <MCard title="Total Pago" value="R$ 304.000" sub="Acumulado" icon={ArrowUpFromLine} color="blue"/>
+        <MCard title="Pendentes" value={fmt(stats.total_pending)} sub={`${stats.count_pending||0} saques`} icon={ArrowUpFromLine} color="yellow"/>
+        <MCard title="Total Pago" value={fmt(stats.total_paid_all)} sub={`${stats.count_paid||0} pagos`} icon={ArrowUpFromLine} color="green"/>
+        <MCard title="Total Solicitações" value={String(rows.length)} sub="Todas" icon={ArrowUpFromLine} color="blue"/>
       </div>
       <div style={{display:'flex',gap:'8px'}}>
-        {['pending','paid','todos'].map(t=>(
-          <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'#00e676':'#222'}`,background:t===activeTab?'rgba(0,230,118,0.1)':'transparent',color:t===activeTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s',textTransform:'capitalize'}}>{t==='todos'?'Todos':t==='pending'?'Pendentes':'Pagos'}</button>
+        {(['todos','pending','paid','rejected'] as const).map(t=>(
+          <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'#00e676':'#222'}`,background:t===activeTab?'rgba(0,230,118,0.1)':'transparent',color:t===activeTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s'}}>
+            {t==='todos'?'Todos':t==='pending'?'Pendentes':t==='paid'?'Pagos':'Rejeitados'}
+          </button>
         ))}
       </div>
       <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
@@ -1257,18 +1296,23 @@ function SaquesAfiliadosPage() {
             {['Afiliado','Valor','PIX','Data','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {filtered.map((item,i)=>(
-              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
-                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{item.afiliado}</td>
-                <td style={{padding:'11px 14px',color:'#f44336',fontWeight:600}}>{item.valor}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.pix}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.data}</td>
+            {loading && <tr><td colSpan={6} style={{padding:'24px',textAlign:'center',color:'#555'}}>Carregando...</td></tr>}
+            {!loading && filtered.length===0 && <tr><td colSpan={6} style={{padding:'24px',textAlign:'center',color:'#555'}}>Nenhum saque</td></tr>}
+            {filtered.map((item:any)=>(
+              <tr key={item.id} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px'}}>
+                  <p style={{color:'#ccc',fontWeight:500,fontSize:'13px'}}>{item.name}</p>
+                  <p style={{color:'#555',fontSize:'11px'}}>{item.email}</p>
+                </td>
+                <td style={{padding:'11px 14px',color:'#ffb300',fontWeight:600}}>{fmt(item.amount)}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.pix_key}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{fmtDate(item.created_at)}</td>
                 <td style={{padding:'11px 14px'}}><SBadge status={item.status}/></td>
                 <td style={{padding:'11px 14px'}}>
                   {item.status==='pending'&&(
                     <div style={{display:'flex',gap:'5px'}}>
-                      <GhostBtn color="green" onClick={()=>{setConfirmMsg('Aprovar este saque?');setConfirmOpen(true)}}>Aprovar</GhostBtn>
-                      <GhostBtn color="red" onClick={()=>{setConfirmMsg('Recusar este saque?');setConfirmOpen(true)}}>Recusar</GhostBtn>
+                      <GhostBtn color="green" onClick={()=>openConfirm(item.id,'approve')}>Aprovar</GhostBtn>
+                      <GhostBtn color="red" onClick={()=>openConfirm(item.id,'reject')}>Recusar</GhostBtn>
                     </div>
                   )}
                 </td>
@@ -1277,14 +1321,17 @@ function SaquesAfiliadosPage() {
           </tbody>
         </table>
       </div>
-      {confirmOpen&&(
+      {confirmOpen&&confirmAction&&(
         <Overlay onClose={()=>setConfirmOpen(false)}>
           <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
             <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(255,179,0,0.1)',border:'1px solid rgba(255,179,0,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#ffb300"/></div>
-            <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>{confirmMsg}</p>
+            <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>{confirmAction.type==='approve'?'Aprovar este saque?':'Recusar este saque?'}</p>
+            {confirmAction.type==='reject'&&(
+              <input value={rejectReason} onChange={e=>setRejectReason(e.target.value)} placeholder="Motivo (opcional)" style={{width:'100%',background:'#111',border:'1px solid #333',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',fontFamily:'inherit',outline:'none',marginBottom:'12px',boxSizing:'border-box'}}/>
+            )}
             <p style={{fontSize:'11px',color:'#888',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
             <div style={{display:'flex',gap:'8px'}}>
-              <PrimaryBtn onClick={()=>setConfirmOpen(false)}>Confirmar</PrimaryBtn>
+              <PrimaryBtn onClick={doAction} disabled={acting}>{acting?'Aguarde...':'Confirmar'}</PrimaryBtn>
               <GhostBtn onClick={()=>setConfirmOpen(false)}>Cancelar</GhostBtn>
             </div>
           </div>

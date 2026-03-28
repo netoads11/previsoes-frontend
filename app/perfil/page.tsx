@@ -18,6 +18,11 @@ export default function Perfil() {
   const [minDeposit, setMinDeposit] = useState('10.00')
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [saqueModal, setSaqueModal] = useState(false)
+  const [saqueValor, setSaqueValor] = useState('')
+  const [saquePix, setSaquePix] = useState('')
+  const [saqueLoading, setSaqueLoading] = useState(false)
+  const [saqueMsg, setSaqueMsg] = useState('')
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -68,6 +73,33 @@ export default function Perfil() {
     }
   }
 
+  async function handleSaqueAfiliado() {
+    const t = localStorage.getItem('token')
+    const amt = Number(saqueValor)
+    if (!amt || amt <= 0) { setSaqueMsg('Valor inválido'); return }
+    if (!saquePix.trim()) { setSaqueMsg('Informe a chave PIX'); return }
+    setSaqueLoading(true)
+    setSaqueMsg('')
+    try {
+      const r = await fetch(API + '/api/wallet/affiliate-withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+        body: JSON.stringify({ amount: amt, pix_key: saquePix.trim() }),
+      })
+      const data = await r.json()
+      if (!r.ok) { setSaqueMsg(data.error || 'Erro ao solicitar saque'); return }
+      setSaqueMsg('Saque solicitado! Aguarde aprovação.')
+      setReferrals((prev: any) => prev ? { ...prev, balance_affiliate: Math.max(0, (prev.balance_affiliate || 0) - amt) } : prev)
+      setSaqueValor('')
+      setSaquePix('')
+      setTimeout(() => { setSaqueModal(false); setSaqueMsg('') }, 2000)
+    } catch {
+      setSaqueMsg('Erro de conexão')
+    } finally {
+      setSaqueLoading(false)
+    }
+  }
+
   function getBetStatusColor(status: string) {
     if (status === 'won') return '#00e676'
     if (status === 'lost') return '#ef5350'
@@ -96,6 +128,12 @@ export default function Perfil() {
         .bet-row{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;margin-bottom:8px}
         .copy-btn{background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all 0.2s}
         .copy-btn:hover{background:rgba(0,230,118,0.2)}
+        .saque-btn{background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.3);color:#ffb300;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all 0.2s}
+        .saque-btn:hover{background:rgba(255,179,0,0.2)}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+        .modal-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:24px;width:100%;max-width:360px}
+        .modal-input{width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box}
+        .modal-input:focus{border-color:#00e676}
       `}</style>
 
       <div style={{ padding: '20px 16px 0', maxWidth: '480px', margin: '0 auto' }}>
@@ -182,16 +220,26 @@ export default function Perfil() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '16px' }}>
               <div className="stat-card">
-                <p style={{ fontSize: '28px', fontWeight: 800, color: '#fff' }}>{referrals.total_referred || 0}</p>
+                <p style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>{referrals.total_referred || 0}</p>
                 <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Indicados</p>
               </div>
               <div className="stat-card">
-                <p style={{ fontSize: '22px', fontWeight: 800, color: '#00e676' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
-                <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Comissoes ganhas</p>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: '#00e676' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
+                <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Total ganho</p>
+              </div>
+              <div className="stat-card">
+                <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffb300' }}>R$ {Number(referrals.balance_affiliate || 0).toFixed(2)}</p>
+                <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Disponível</p>
               </div>
             </div>
+
+            {Number(referrals.balance_affiliate || 0) > 0 && (
+              <button className="saque-btn" style={{ width: '100%', marginBottom: '16px', padding: '12px' }} onClick={() => setSaqueModal(true)}>
+                Solicitar Saque de Comissão
+              </button>
+            )}
 
             <div style={{ background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.1)', borderRadius: '10px', padding: '14px', fontSize: '13px', color: '#888', lineHeight: 1.6 }}>
               <p style={{ color: '#00e676', fontWeight: 600, marginBottom: '6px' }}>Como funciona?</p>
@@ -200,6 +248,36 @@ export default function Perfil() {
           </div>
         )}
       </div>
+
+      {saqueModal && (
+        <div className="modal-overlay" onClick={() => setSaqueModal(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <p style={{ fontWeight: 700, fontSize: '16px', marginBottom: '6px' }}>Saque de Comissão</p>
+            <p style={{ fontSize: '12px', color: '#555', marginBottom: '20px' }}>
+              Disponível: <span style={{ color: '#ffb300', fontWeight: 700 }}>R$ {Number(referrals?.balance_affiliate || 0).toFixed(2)}</span>
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <p style={{ fontSize: '11px', color: '#666', marginBottom: '6px' }}>Valor (R$)</p>
+                <input className="modal-input" type="number" min="1" step="0.01" placeholder="0,00" value={saqueValor} onChange={e => setSaqueValor(e.target.value)} />
+              </div>
+              <div>
+                <p style={{ fontSize: '11px', color: '#666', marginBottom: '6px' }}>Chave PIX</p>
+                <input className="modal-input" type="text" placeholder="CPF, email, celular ou chave aleatória" value={saquePix} onChange={e => setSaquePix(e.target.value)} />
+              </div>
+              {saqueMsg && <p style={{ fontSize: '13px', color: saqueMsg.includes('solicitado') ? '#00e676' : '#ef5350' }}>{saqueMsg}</p>}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={handleSaqueAfiliado} disabled={saqueLoading} style={{ flex: 1, background: '#ffb300', border: 'none', borderRadius: '8px', padding: '12px', color: '#000', fontWeight: 700, fontSize: '14px', cursor: saqueLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: saqueLoading ? 0.6 : 1 }}>
+                  {saqueLoading ? 'Enviando...' : 'Solicitar'}
+                </button>
+                <button onClick={() => { setSaqueModal(false); setSaqueMsg('') }} style={{ padding: '12px 16px', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {depositModal && <DepositModalComp
         onClose={() => setDepositModal(false)}
