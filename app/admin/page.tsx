@@ -61,6 +61,7 @@ export default function Admin() {
   const [withdrawals, setWithdrawals] = useState<any[]>([])
   const [audit, setAudit] = useState<any[]>([])
   const [settings, setSettings] = useState<any>({})
+  const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState<any>(null)
   const [confirm, setConfirm] = useState<any>(null)
@@ -94,7 +95,7 @@ export default function Admin() {
   async function load(t: string) {
     setLoading(true)
     const h = {'Authorization':'Bearer '+t}
-    const [m,u,d,w,a,s,aff,bt] = await Promise.all([
+    const [m,u,d,w,a,s,aff,bt,st] = await Promise.all([
       fetch(API+'/api/admin/markets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/deposits',{headers:h}).then(r=>r.json()).catch(()=>[]),
@@ -103,10 +104,11 @@ export default function Admin() {
       fetch(API+'/api/admin/settings',{headers:h}).then(r=>r.json()).catch(()=>({})),
       fetch(API+'/api/admin/referrals',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/bets',{headers:h}).then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/stats',{headers:h}).then(r=>r.json()).catch(()=>({})),
     ])
     setMarkets(Array.isArray(m)?m:[]);setUsers(Array.isArray(u)?u:[])
     setDeposits(Array.isArray(d)?d:[]);setWithdrawals(Array.isArray(w)?w:[])
-    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setLoading(false)
+    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setStats(st||{});setLoading(false)
     if(s?.logo_url) setSidebarLogo(API+s.logo_url)
   }
 
@@ -279,31 +281,31 @@ export default function Admin() {
                 <>
                   {/* ROW 1 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Usuários Cadastrados" value={users.length.toLocaleString()} sub={`${users.filter((u:any)=>u.status!=='blocked').length} ativos`} icon={Users} color="blue"/>
-                    <MCard title="Saldo dos Jogadores" value={fmt(totalDep)} sub={`${deposits.filter((d:any)=>d.status==='completed').length} com saldo`} icon={Wallet} color="green"/>
-                    <MCard title="Saldo do Portfólio" value={fmt(lucro)} sub="Valor investido" icon={Briefcase} color="green"/>
-                    <MCard title="Mercados Ativos" value={markets.filter((m:any)=>m.status==='open').length.toString()} sub={`${markets.length} total`} icon={TrendingUp} color="green"/>
+                    <MCard title="Usuários Cadastrados" value={(stats?.usuarios_total??users.length).toLocaleString()} sub={`${stats?.usuarios_ativos??0} ativos`} icon={Users} color="blue"/>
+                    <MCard title="Saldo dos Jogadores" value={fmt(stats?.saldo_jogadores??0)} sub={`${stats?.usuarios_com_saldo??0} com saldo`} icon={Wallet} color="green"/>
+                    <MCard title="Saldo do Portfólio" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={Briefcase} color="green"/>
+                    <MCard title="Mercados Ativos" value={(stats?.mercados_ativos??markets.filter((m:any)=>m.status==='open').length).toString()} sub={`${stats?.mercados_total??markets.length} total`} icon={TrendingUp} color="green"/>
                   </div>
                   {/* ROW 2 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Depósitos Hoje" value={fmt(totalDep)} sub={`${deposits.length} pagamentos`} icon={ArrowDownToLine} color="green"/>
-                    <MCard title="Saques Hoje" value={fmt(totalWith)} sub={`${withdrawals.length} pagamentos`} icon={ArrowUpFromLine} color="red"/>
-                    <MCard title="Pix Gerados Hoje" value={deposits.length.toString()} sub="—% pagos" icon={QrCode} color="green"/>
-                    <MCard title="Usuários Hoje" value={users.length.toString()} sub="—% depositaram" icon={UserPlus} color="blue"/>
+                    <MCard title="Depósitos Hoje" value={fmt(stats?.dep_hoje_valor??0)} sub={`${stats?.dep_hoje_total??0} gerados · ${stats?.dep_hoje_pagos??0} pagos`} icon={ArrowDownToLine} color="green"/>
+                    <MCard title="Saques Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} solicitados`} icon={ArrowUpFromLine} color="red"/>
+                    <MCard title="Pix Gerados Hoje" value={(stats?.pix_hoje_total??0).toString()} sub={stats?.pix_hoje_total?`${Math.round((stats.pix_hoje_pagos/stats.pix_hoje_total)*100)}% pagos`:'—% pagos'} icon={QrCode} color="green"/>
+                    <MCard title="Usuários Hoje" value={(stats?.usuarios_hoje??0).toString()} sub={stats?.usuarios_hoje&&stats?.dep_hoje_pagos?`${Math.round((stats.dep_hoje_pagos/stats.usuarios_hoje)*100)}% depositaram`:'—% depositaram'} icon={UserPlus} color="blue"/>
                   </div>
                   {/* ROW 3 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Depósitos Total" value={fmt(totalDep)} sub={`${deposits.filter((d:any)=>d.status==='completed').length} recebidos`} icon={ArrowDownToLine} color="green"/>
-                    <MCard title="Saques Total" value={fmt(totalWith)} sub={`${withdrawals.filter((w:any)=>w.status==='paid').length} aprovados`} icon={ArrowUpFromLine} color="red"/>
-                    <MCard title="Pix Gerados Total" value={deposits.length.toString()} sub="—% conversão" icon={QrCode} color="blue"/>
-                    <MCard title="Lucro Total" value={fmt(lucro)} sub="Lucro acumulado" icon={DollarSign} color="green"/>
+                    <MCard title="Depósitos Total" value={fmt(stats?.dep_total_valor??0)} sub={`${stats?.dep_total_pagos??0} recebidos`} icon={ArrowDownToLine} color="green"/>
+                    <MCard title="Saques Total" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={ArrowUpFromLine} color="red"/>
+                    <MCard title="Pix Gerados Total" value={(stats?.pix_total_total??0).toString()} sub={stats?.pix_total_total?`${Math.round((stats.pix_total_pagos/stats.pix_total_total)*100)}% conversão`:'—% conversão'} icon={QrCode} color="blue"/>
+                    <MCard title="Lucro Total" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={DollarSign} color="green"/>
                   </div>
                   {/* ROW 4 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Saques Usuários Geral" value={fmt(totalWith)} sub={`${withdrawals.length} aprovados`} icon={Wallet} color="green"/>
-                    <MCard title="Saques Usuários Hoje" value={fmt(totalWith)} sub="hoje" icon={Wallet} color="yellow"/>
-                    <MCard title="Saques Afiliados Geral" value="R$ 0,00" sub="0 aprovados" icon={Wallet} color="green"/>
-                    <MCard title="Saques Afiliados Hoje" value="R$ 0,00" sub="0 hoje" icon={Wallet} color="yellow"/>
+                    <MCard title="Saques Usuários Geral" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={Wallet} color="green"/>
+                    <MCard title="Saques Usuários Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} hoje`} icon={Wallet} color="yellow"/>
+                    <MCard title="Saques Afiliados Geral" value={fmt(stats?.afiliados_total_valor??0)} sub={`${stats?.afiliados_total_aprovados??0} aprovados`} icon={Wallet} color="green"/>
+                    <MCard title="Saques Afiliados Hoje" value={fmt(stats?.afiliados_hoje_valor??0)} sub="hoje" icon={Wallet} color="yellow"/>
                   </div>
 
                   {/* CHARTS */}
@@ -1708,10 +1710,10 @@ function BannersPage({token,api}:{token:string,api:string}) {
               </div>
               <button onClick={()=>deleteBanner(banner.id)} style={{width:'32px',height:'32px',borderRadius:'6px',border:'none',background:'transparent',cursor:'pointer',color:'#f44336',display:'flex',alignItems:'center',justifyContent:'center'}}><Trash2 size={14}/></button>
             </div>
-            {editingLink?.id===banner.id?(
+            {editingLink?.id===banner.id&&editingLink?(
               <div style={{display:'flex',gap:'8px'}}>
                 <input value={editingLink.val} onChange={e=>setEditingLink({id:banner.id,val:e.target.value})} placeholder="https://..." style={{flex:1,background:'#111',border:'1px solid rgba(0,230,118,0.3)',borderRadius:'7px',padding:'7px 10px',color:'#ccc',fontSize:'12px',outline:'none'}} autoFocus/>
-                <button onClick={()=>saveLink(banner.id,editingLink.val)} style={{padding:'7px 14px',borderRadius:'7px',border:'none',background:'#00e676',color:'#000',fontWeight:700,fontSize:'12px',cursor:'pointer'}}>Salvar</button>
+                <button onClick={()=>{const v=editingLink.val;saveLink(banner.id,v)}} style={{padding:'7px 14px',borderRadius:'7px',border:'none',background:'#00e676',color:'#000',fontWeight:700,fontSize:'12px',cursor:'pointer'}}>Salvar</button>
                 <button onClick={()=>setEditingLink(null)} style={{padding:'7px 10px',borderRadius:'7px',border:'1px solid #333',background:'transparent',color:'#777',fontSize:'12px',cursor:'pointer'}}>Cancelar</button>
               </div>
             ):(
