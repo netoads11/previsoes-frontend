@@ -1220,11 +1220,28 @@ function AdminsPage() {
 function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:string,api:string,onRefresh:()=>void}) {
   const [selected, setSelected] = useState<any>(null)
   const [editAff, setEditAff] = useState<any>(null)
+  const [editTeto, setEditTeto] = useState<any>(null)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
   const V2 = {green:'#00e676',border:'#222',card:'#1a1a1a',muted:'#888',label:'#555',text:'#ccc'}
   const LabelStyle = {fontSize:'11px',color:V2.label,display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
   const InputStyle = {width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:V2.text,fontSize:'13px',outline:'none'}
+
+  async function saveTeto() {
+    if(!editTeto) return
+    setSaving(true)
+    try {
+      const r = await fetch(api+`/api/admin/users/${editTeto.id}`,{
+        method:'PUT',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({cpa:Number(editTeto.cpa||0),rev_share:Number(editTeto.rev_share||0),baseline:Number(editTeto.baseline||0)})
+      })
+      const d = await r.json()
+      if(d.id||d.success){setToast('Teto salvo!');setEditTeto(null);onRefresh()}else setToast(d.error||'Erro')
+    } catch{setToast('Erro de conexão')}
+    setSaving(false)
+    setTimeout(()=>setToast(''),3000)
+  }
 
   async function saveCommission() {
     if(!editAff||!selected) return
@@ -1279,9 +1296,12 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
                   <td style={{padding:'11px 14px',color:V2.green,fontWeight:600}}>R$ {Number(m.total_commissions||0).toFixed(2)}</td>
                   <td style={{padding:'11px 14px'}}><SBadge status={m.status||'active'}/></td>
                   <td style={{padding:'11px 14px'}}>
-                    <button onClick={()=>setSelected(m)} style={{padding:'5px 12px',borderRadius:'6px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'12px',cursor:'pointer'}}>
-                      Ver afiliados ({m.total_affiliates})
-                    </button>
+                    <div style={{display:'flex',gap:'6px'}}>
+                      <button onClick={()=>setEditTeto({id:m.id,name:m.name,cpa:m.cpa||0,rev_share:m.rev_share||0,baseline:m.baseline||0})} style={{padding:'5px 10px',borderRadius:'6px',border:'1px solid rgba(59,130,246,0.4)',background:'transparent',color:'#3b82f6',fontSize:'12px',cursor:'pointer'}}>Teto</button>
+                      <button onClick={()=>setSelected(m)} style={{padding:'5px 12px',borderRadius:'6px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'12px',cursor:'pointer'}}>
+                        Afiliados ({m.total_affiliates})
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -1333,6 +1353,35 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
             </table>
           </div>
         </div>
+      )}
+
+      {/* Modal teto do gerente */}
+      {editTeto&&(
+        <Overlay onClose={()=>setEditTeto(null)}>
+          <Modal title={`Teto de comissão — ${editTeto.name}`} onClose={()=>setEditTeto(null)}>
+            <div style={{display:'flex',flexDirection:'column',gap:'14px',minWidth:'320px'}}>
+              <p style={{fontSize:'12px',color:'#888'}}>Define o máximo que este gerente pode distribuir para seus afiliados.</p>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                <div>
+                  <label style={LabelStyle}>CPA máximo (R$)</label>
+                  <input type="number" step="0.01" min="0" style={InputStyle} value={editTeto.cpa||0} onChange={(e:any)=>setEditTeto({...editTeto,cpa:e.target.value})}/>
+                </div>
+                <div>
+                  <label style={LabelStyle}>RevShare máximo (%)</label>
+                  <input type="number" step="0.1" min="0" max="100" style={InputStyle} value={editTeto.rev_share||0} onChange={(e:any)=>setEditTeto({...editTeto,rev_share:e.target.value})}/>
+                </div>
+                <div style={{gridColumn:'1/-1'}}>
+                  <label style={LabelStyle}>Baseline mínimo (R$)</label>
+                  <input type="number" step="0.01" min="0" style={InputStyle} value={editTeto.baseline||0} onChange={(e:any)=>setEditTeto({...editTeto,baseline:e.target.value})}/>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:'10px',justifyContent:'flex-end'}}>
+                <button onClick={()=>setEditTeto(null)} style={{padding:'8px 16px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'#888',fontSize:'13px',cursor:'pointer'}}>Cancelar</button>
+                <PrimaryBtn onClick={saveTeto}>{saving?'Salvando...':'Salvar teto'}</PrimaryBtn>
+              </div>
+            </div>
+          </Modal>
+        </Overlay>
       )}
 
       {/* Modal editar comissão do afiliado */}
