@@ -281,31 +281,31 @@ export default function Admin() {
                 <>
                   {/* ROW 1 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Usuários Cadastrados" value={(stats?.usuarios_total??users.length).toLocaleString()} sub={`${stats?.usuarios_ativos??0} ativos`} icon={Users} color="blue"/>
-                    <MCard title="Saldo dos Jogadores" value={fmt(stats?.saldo_jogadores??0)} sub={`${stats?.usuarios_com_saldo??0} com saldo`} icon={Wallet} color="green"/>
-                    <MCard title="Saldo do Portfólio" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={Briefcase} color="green"/>
-                    <MCard title="Mercados Ativos" value={(stats?.mercados_ativos??markets.filter((m:any)=>m.status==='open').length).toString()} sub={`${stats?.mercados_total??markets.length} total`} icon={TrendingUp} color="green"/>
+                    <MCard title="Usuários Cadastrados" value={(stats?.usuarios_total??users.length).toLocaleString()} sub={`${stats?.usuarios_ativos??0} ativos`} icon={Users} color="blue" tip="Total de contas criadas na plataforma. Ativos = contas não bloqueadas."/>
+                    <MCard title="Saldo dos Jogadores" value={fmt(stats?.saldo_jogadores??0)} sub={`${stats?.usuarios_com_saldo??0} com saldo`} icon={Wallet} color="green" tip="Soma real do saldo disponível nas carteiras de todos os jogadores agora."/>
+                    <MCard title="Saldo do Portfólio" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={Briefcase} color="green" tip="Lucro da plataforma: total de depósitos aprovados menos total de saques pagos."/>
+                    <MCard title="Mercados Ativos" value={(stats?.mercados_ativos??markets.filter((m:any)=>m.status==='open').length).toString()} sub={`${stats?.mercados_total??markets.length} total`} icon={TrendingUp} color="green" tip="Mercados com status 'aberto' disponíveis para apostas agora."/>
                   </div>
                   {/* ROW 2 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Depósitos Hoje" value={fmt(stats?.dep_hoje_valor??0)} sub={`${stats?.dep_hoje_total??0} gerados · ${stats?.dep_hoje_pagos??0} pagos`} icon={ArrowDownToLine} color="green"/>
-                    <MCard title="Saques Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} solicitados`} icon={ArrowUpFromLine} color="red"/>
-                    <MCard title="Pix Gerados Hoje" value={(stats?.pix_hoje_total??0).toString()} sub={stats?.pix_hoje_total?`${Math.round((stats.pix_hoje_pagos/stats.pix_hoje_total)*100)}% pagos`:'—% pagos'} icon={QrCode} color="green"/>
-                    <MCard title="Usuários Hoje" value={(stats?.usuarios_hoje??0).toString()} sub={stats?.usuarios_hoje&&stats?.dep_hoje_pagos?`${Math.round((stats.dep_hoje_pagos/stats.usuarios_hoje)*100)}% depositaram`:'—% depositaram'} icon={UserPlus} color="blue"/>
+                    <MCard title="Depósitos Hoje" value={fmt(stats?.dep_hoje_valor??0)} sub={`${stats?.dep_hoje_total??0} gerados · ${stats?.dep_hoje_pagos??0} pagos`} icon={ArrowDownToLine} color="green" tip="Valor total de depósitos confirmados (status=completed) apenas no dia de hoje."/>
+                    <MCard title="Saques Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} solicitados`} icon={ArrowUpFromLine} color="red" tip="Valor total de saques aprovados/pagos solicitados hoje."/>
+                    <MCard title="Pix Gerados Hoje" value={(stats?.pix_hoje_total??0).toString()} sub={stats?.pix_hoje_total?`${Math.round((stats.pix_hoje_pagos/stats.pix_hoje_total)*100)}% pagos`:'—% pagos'} icon={QrCode} color="green" tip="Quantidade de cobranças Pix geradas hoje. % pagos = quantas foram efetivamente pagas."/>
+                    <MCard title="Usuários Hoje" value={(stats?.usuarios_hoje??0).toString()} sub={stats?.usuarios_hoje&&stats?.dep_hoje_pagos?`${Math.round((stats.dep_hoje_pagos/stats.usuarios_hoje)*100)}% depositaram`:'—% depositaram'} icon={UserPlus} color="blue" tip="Novos cadastros realizados hoje. % depositaram = quantos dos novos já fizeram um depósito."/>
                   </div>
                   {/* ROW 3 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Depósitos Total" value={fmt(stats?.dep_total_valor??0)} sub={`${stats?.dep_total_pagos??0} recebidos`} icon={ArrowDownToLine} color="green"/>
-                    <MCard title="Saques Total" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={ArrowUpFromLine} color="red"/>
-                    <MCard title="Pix Gerados Total" value={(stats?.pix_total_total??0).toString()} sub={stats?.pix_total_total?`${Math.round((stats.pix_total_pagos/stats.pix_total_total)*100)}% conversão`:'—% conversão'} icon={QrCode} color="blue"/>
-                    <MCard title="Lucro Total" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={DollarSign} color="green"/>
+                    <MCard title="Depósitos Total" value={fmt(stats?.dep_total_valor??0)} sub={`${stats?.dep_total_pagos??0} recebidos`} icon={ArrowDownToLine} color="green" tip="Soma de todos os depósitos confirmados desde o início da plataforma."/>
+                    <MCard title="Saques Total" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={ArrowUpFromLine} color="red" tip="Soma de todos os saques pagos desde o início da plataforma."/>
+                    <MCard title="Pix Gerados Total" value={(stats?.pix_total_total??0).toString()} sub={stats?.pix_total_total?`${Math.round((stats.pix_total_pagos/stats.pix_total_total)*100)}% conversão`:'—% conversão'} icon={QrCode} color="blue" tip="Total de cobranças Pix geradas na plataforma. % conversão = proporção que foi paga."/>
+                    <MCard title="Lucro Total" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={DollarSign} color="green" tip="Lucro líquido da plataforma: depósitos totais menos saques totais pagos."/>
                   </div>
                   {/* ROW 4 */}
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
-                    <MCard title="Saques Usuários Geral" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={Wallet} color="green"/>
-                    <MCard title="Saques Usuários Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} hoje`} icon={Wallet} color="yellow"/>
-                    <MCard title="Saques Afiliados Geral" value={fmt(stats?.afiliados_total_valor??0)} sub={`${stats?.afiliados_total_aprovados??0} aprovados`} icon={Wallet} color="green"/>
-                    <MCard title="Saques Afiliados Hoje" value={fmt(stats?.afiliados_hoje_valor??0)} sub="hoje" icon={Wallet} color="yellow"/>
+                    <MCard title="Saques Usuários Geral" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={Wallet} color="green" tip="Total sacado por jogadores comuns (excluindo afiliados) desde o início."/>
+                    <MCard title="Saques Usuários Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} hoje`} icon={Wallet} color="yellow" tip="Total sacado por jogadores comuns apenas hoje."/>
+                    <MCard title="Saques Afiliados Geral" value={fmt(stats?.afiliados_total_valor??0)} sub={`${stats?.afiliados_total_aprovados??0} aprovados`} icon={Wallet} color="green" tip="Total de comissões de afiliados sacadas e aprovadas desde o início."/>
+                    <MCard title="Saques Afiliados Hoje" value={fmt(stats?.afiliados_hoje_valor??0)} sub="hoje" icon={Wallet} color="yellow" tip="Total de comissões de afiliados aprovadas para saque hoje."/>
                   </div>
 
                   {/* CHARTS */}
@@ -834,14 +834,30 @@ export default function Admin() {
 
 // ── COMPONENTS ──
 
-function MCard({title,value,sub,icon:Icon,color='green'}:{title:string,value:string,sub:string,icon:any,color?:string}) {
+function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value:string,sub:string,icon:any,color?:string,tip?:string}) {
   const colors:any = {green:'#00e676',red:'#f44336',blue:'#3b82f6',yellow:'#ffb300'}
   const bgs:any = {green:'rgba(0,230,118,0.08)',red:'rgba(244,67,54,0.08)',blue:'rgba(59,130,246,0.08)',yellow:'rgba(255,179,0,0.08)'}
   const c = colors[color]||'#00e676', bg = bgs[color]||bgs.green
+  const [show,setShow] = useState(false)
   return (
-    <div className="metric-card" style={{background:'#1a1a1a',borderRadius:'10px',border:'1px solid #222',padding:'16px',transition:'all 0.2s',cursor:'default'}}>
+    <div className="metric-card" style={{background:'#1a1a1a',borderRadius:'10px',border:'1px solid #222',padding:'16px',transition:'all 0.2s',cursor:'default',position:'relative'}}>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'10px'}}>
-        <p style={{fontSize:'11px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',lineHeight:1.3}}>{title}</p>
+        <div style={{display:'flex',alignItems:'center',gap:'5px',flex:1,minWidth:0}}>
+          <p style={{fontSize:'11px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',lineHeight:1.3}}>{title}</p>
+          {tip&&(
+            <div style={{position:'relative',flexShrink:0}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
+              <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid #444',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help'}}>
+                <span style={{fontSize:'9px',color:'#666',fontWeight:700,lineHeight:1}}>?</span>
+              </div>
+              {show&&(
+                <div style={{position:'absolute',bottom:'calc(100% + 6px)',left:'50%',transform:'translateX(-50%)',background:'#2a2a2a',border:'1px solid #333',borderRadius:'8px',padding:'8px 10px',width:'200px',zIndex:100,boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
+                  <p style={{fontSize:'11px',color:'#ccc',lineHeight:1.5,margin:0}}>{tip}</p>
+                  <div style={{position:'absolute',bottom:'-5px',left:'50%',transform:'translateX(-50%)',width:'8px',height:'8px',background:'#2a2a2a',border:'1px solid #333',borderTop:'none',borderLeft:'none',rotate:'45deg'}}/>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         <div style={{width:'28px',height:'28px',borderRadius:'7px',background:bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <Icon size={14} color={c} strokeWidth={1.75}/>
         </div>
