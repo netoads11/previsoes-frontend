@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, GripVertical, Upload, HelpCircle, Pencil } from 'lucide-react'
@@ -868,14 +868,25 @@ function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value
 }
 
 function AdminTip({text,pos='top'}:{text:string,pos?:'top'|'bottom'}) {
-  const [show,setShow]=useState(false)
+  const [rect,setRect]=useState<DOMRect|null>(null)
+  const ref=useRef<HTMLDivElement>(null)
+  const show=rect!==null
+  const enter=()=>{if(ref.current)setRect(ref.current.getBoundingClientRect())}
+  const leave=()=>setRect(null)
+  const tipStyle:any = rect ? {
+    position:'fixed',
+    left: rect.left + rect.width/2,
+    ...(pos==='top' ? {top: rect.top - 8, transform:'translateX(-50%) translateY(-100%)'} : {top: rect.bottom + 8, transform:'translateX(-50%)'}),
+    background:'#2a2a2a',border:'1px solid #333',borderRadius:'8px',padding:'8px 10px',
+    width:'210px',zIndex:99999,boxShadow:'0 4px 20px rgba(0,0,0,0.7)',pointerEvents:'none',
+  } : {}
   return (
-    <div style={{position:'relative',display:'inline-flex',alignItems:'center',flexShrink:0}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
-      <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid #444',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help',transition:'border-color 0.15s'}} onMouseOver={e=>(e.currentTarget.style.borderColor='#00e676')} onMouseOut={e=>(e.currentTarget.style.borderColor='#444')}>
-        <span style={{fontSize:'9px',color:'#666',fontWeight:700,lineHeight:1}}>?</span>
+    <div ref={ref} style={{display:'inline-flex',alignItems:'center',flexShrink:0}} onMouseEnter={enter} onMouseLeave={leave}>
+      <div style={{width:'14px',height:'14px',borderRadius:'50%',border:`1px solid ${show?'#00e676':'#444'}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'help',transition:'border-color 0.15s'}}>
+        <span style={{fontSize:'9px',color:show?'#00e676':'#666',fontWeight:700,lineHeight:1}}>?</span>
       </div>
       {show&&(
-        <div style={{position:'absolute',...(pos==='top'?{bottom:'calc(100% + 8px)'}:{top:'calc(100% + 8px)'}),left:'50%',transform:'translateX(-50%)',background:'#2a2a2a',border:'1px solid #333',borderRadius:'8px',padding:'8px 10px',width:'210px',zIndex:9999,boxShadow:'0 4px 20px rgba(0,0,0,0.6)',pointerEvents:'none'}}>
+        <div style={tipStyle}>
           <p style={{fontSize:'11px',color:'#ccc',lineHeight:1.5,margin:0,whiteSpace:'normal'}}>{text}</p>
           <div style={{position:'absolute',...(pos==='top'?{bottom:'-5px',borderTop:'none',borderLeft:'none'}:{top:'-5px',borderBottom:'none',borderRight:'none'}),left:'50%',transform:'translateX(-50%)',width:'8px',height:'8px',background:'#2a2a2a',border:'1px solid #333',rotate:'45deg'}}/>
         </div>
