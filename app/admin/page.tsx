@@ -1593,10 +1593,10 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
             </div>
             <div>
               <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
-                <label style={{...LabelStyle,marginBottom:0}}>Chance raspadinha afiliados (%)</label>
-                <AdminTip text="Probabilidade de ganho nas raspadinhas para usuários afiliados (padrão: 40%)." pos="bottom"/>
+                <label style={{...LabelStyle,marginBottom:0}}>Taxa de contabilização (%)</label>
+                <AdminTip text="Percentual de depósitos dos indicados que contabilizam comissão por ciclo. Ex: 40% = de 10 depósitos, apenas 4 geram comissão, então o ciclo reinicia." pos="bottom"/>
               </div>
-              <input type="number" step="1" min="0" max="100" placeholder="40" value={local.scratch_win_prob??''} onChange={upd('scratch_win_prob')} style={InputStyle}/>
+              <input type="number" step="1" min="0" max="100" placeholder="40" value={local.commission_rate??''} onChange={upd('commission_rate')} style={InputStyle}/>
             </div>
           </div>
           <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Configurações de afiliação salvas!'))}>Salvar</PrimaryBtn>
