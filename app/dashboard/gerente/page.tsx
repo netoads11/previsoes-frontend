@@ -132,11 +132,39 @@ export default function GerenteDashboard() {
         </div>
 
         {/* Cards de stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px', marginBottom: '24px' }} className="g3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px', marginBottom: '16px' }} className="g3">
           <StatCard icon={UserCheck} color={V.green} label="Afiliados" value={String(data?.stats?.total_affiliates || 0)} sub="Vinculados ao seu link" />
           <StatCard icon={Users} color={V.blue} label="Indicados pelos afiliados" value={String(data?.stats?.total_referred || 0)} sub="Total de usuários captados" />
-          <StatCard icon={Wallet} color={V.green} label="Comissões geradas" value={fmt(data?.stats?.total_commissions || 0)} sub="Total distribuído" />
+          <StatCard icon={Wallet} color={V.green} label="Comissões geradas" value={fmt(data?.stats?.total_commissions || 0)} sub="Total acumulado" />
         </div>
+
+        {/* Painel de comissão — teto + distribuição + margem */}
+        {data?.my_commission && (
+          <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, padding: '20px', marginBottom: '24px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '14px' }}>Sua comissão</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }} className="g3">
+              {/* Teto */}
+              <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+                <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Seu teto (admin)</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: V.blue }}>CPA: {fmt(data.my_commission.cpa)}</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: V.blue, marginTop: '2px' }}>RevShare: {data.my_commission.rev_share}%</p>
+                <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Máximo que pode distribuir</p>
+              </div>
+              {/* Distribuído */}
+              <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+                <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Distribuído (média)</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: V.yellow }}>RevShare: {data.stats.avg_affiliate_rev_share}%</p>
+                <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Média dos seus afiliados</p>
+              </div>
+              {/* Sua margem */}
+              <div style={{ background: 'rgba(0,230,118,0.04)', borderRadius: '10px', padding: '14px', border: `1px solid rgba(0,230,118,0.15)` }}>
+                <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Sua margem</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: V.green }}>{data.stats.my_margin > 0 ? data.stats.my_margin : 0}%</p>
+                <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Teto − média distribuída</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Link de recrutamento */}
         <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, padding: '20px', marginBottom: '24px' }}>
@@ -169,7 +197,7 @@ export default function GerenteDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#141414' }}>
-                  {['Nome', 'Email', 'CPA (R$)', 'RevShare (%)', 'Baseline (R$)', 'Indicados', 'Comissões', 'Ações'].map(c => (
+                  {['Nome', 'Email', 'CPA (R$)', 'RevShare (%)', 'Sua margem', 'Indicados', 'Comissões', 'Ações'].map(c => (
                     <th key={c} style={{ textAlign: 'left', padding: '10px 16px', fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: `1px solid ${V.border}`, whiteSpace: 'nowrap' }}>{c}</th>
                   ))}
                 </tr>
@@ -188,7 +216,11 @@ export default function GerenteDashboard() {
                     <td style={{ padding: '12px 16px', color: V.muted, fontSize: '12px' }}>{a.email}</td>
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>R$ {Number(a.cpa || 0).toFixed(2)}</td>
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>{Number(a.rev_share || 0).toFixed(1)}%</td>
-                    <td style={{ padding: '12px 16px', color: '#ccc' }}>R$ {Number(a.baseline || 0).toFixed(2)}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{ color: V.green, fontWeight: 600 }}>
+                        {Math.max(0, (data?.my_commission?.rev_share || 0) - Number(a.rev_share || 0)).toFixed(1)}%
+                      </span>
+                    </td>
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>{a.total_referred}</td>
                     <td style={{ padding: '12px 16px', color: V.green, fontWeight: 600 }}>{fmt(a.total_earned || 0)}</td>
                     <td style={{ padding: '12px 16px' }}>
@@ -216,16 +248,33 @@ export default function GerenteDashboard() {
               <button onClick={() => setEditAff(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: V.muted }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Resumo teto + margem em tempo real */}
+              <div style={{ background: '#111', borderRadius: '8px', padding: '12px 14px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                <div>
+                  <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Seu teto RevShare</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: V.blue }}>{data?.my_commission?.rev_share || 0}%</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Afiliado recebe</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: V.yellow }}>{Number(editAff.rev_share || 0).toFixed(1)}%</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sua margem</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: V.green }}>
+                    {Math.max(0, (data?.my_commission?.rev_share || 0) - Number(editAff.rev_share || 0)).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={LabelStyle}>CPA (R$)</label>
-                  <input type="number" step="0.01" min="0" style={InputStyle} value={editAff.cpa || 0} onChange={(e: any) => setEditAff({ ...editAff, cpa: e.target.value })} />
+                  <label style={LabelStyle}>CPA (R$) — máx: R$ {(data?.my_commission?.cpa || 0).toFixed(2)}</label>
+                  <input type="number" step="0.01" min="0" max={data?.my_commission?.cpa || 0} style={InputStyle} value={editAff.cpa || 0} onChange={(e: any) => setEditAff({ ...editAff, cpa: e.target.value })} />
                   <p style={{ fontSize: '10px', color: V.label, marginTop: '4px' }}>Valor fixo por 1º depósito</p>
                 </div>
                 <div>
-                  <label style={LabelStyle}>RevShare (%)</label>
-                  <input type="number" step="0.01" min="0" max="100" style={InputStyle} value={editAff.rev_share || 0} onChange={(e: any) => setEditAff({ ...editAff, rev_share: e.target.value })} />
-                  <p style={{ fontSize: '10px', color: V.label, marginTop: '4px' }}>% sobre depósitos</p>
+                  <label style={LabelStyle}>RevShare (%) — máx: {data?.my_commission?.rev_share || 0}%</label>
+                  <input type="number" step="0.1" min="0" max={data?.my_commission?.rev_share || 0} style={InputStyle} value={editAff.rev_share || 0} onChange={(e: any) => setEditAff({ ...editAff, rev_share: e.target.value })} />
+                  <p style={{ fontSize: '10px', color: V.label, marginTop: '4px' }}>% sobre depósitos dos indicados</p>
                 </div>
               </div>
               <div>
