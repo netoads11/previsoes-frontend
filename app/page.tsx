@@ -63,6 +63,8 @@ export default function Home() {
   const [activeNav, setActiveNav] = useState('mercados')
   const [authModal, setAuthModal] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [banners, setBanners] = useState<any[]>([])
+  const [bannerIdx, setBannerIdx] = useState(0)
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -78,12 +80,19 @@ export default function Home() {
     check()
     window.addEventListener('resize', check)
     fetch(API + '/api/settings/public').then(r=>r.json()).then(d=>{ if(d.min_deposit) setMinDeposit(d.min_deposit); if(d.logo_url) setLogoUrl(API+d.logo_url); if(d.platform_name) setPlatformName(d.platform_name) }).catch(()=>{})
+    fetch(API + '/api/admin/banners/public').then(r=>r.json()).then(d=>{ if(Array.isArray(d)&&d.length) setBanners(d) }).catch(()=>{})
     fetch(API + '/api/markets')
       .then(r => r.json())
       .then(d => { setMarkets(Array.isArray(d) ? d : []); setLoading(false) })
       .catch(() => setLoading(false))
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  useEffect(() => {
+    if (banners.length <= 1) return
+    const t = setInterval(() => setBannerIdx(i => (i + 1) % banners.length), 4000)
+    return () => clearInterval(t)
+  }, [banners])
 
   useEffect(() => {
     if (marketModal) {
@@ -398,24 +407,44 @@ export default function Home() {
         {/* FEED */}
         <main className="feed-main" style={{flex:1,padding:'14px 14px',overflowY:'auto',minWidth:0}}>
 
-          {/* HERO */}
-          <div style={{background:'#1b3a2a',border:'1px solid rgba(0,200,83,0.15)',borderRadius:'12px',padding:'18px 20px',marginBottom:'14px',position:'relative',overflow:'hidden'}}>
-            <div style={{position:'absolute',top:0,right:0,width:'40%',height:'100%',background:'linear-gradient(135deg,transparent,rgba(0,200,83,0.06))'}}/>
-            <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px'}}>
-              <span className="live-dot" style={{width:'6px',height:'6px',borderRadius:'50%',background:'#ff4444',display:'inline-block'}}/>
-              <span style={{color:'#ff6b6b',fontSize:'10px',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase'}}>AO VIVO · {markets.length} mercados</span>
+          {/* HERO / BANNER CAROUSEL */}
+          {banners.length > 0 ? (
+            <div style={{position:'relative',borderRadius:'12px',overflow:'hidden',marginBottom:'14px',cursor:banners[bannerIdx]?.link?'pointer':'default'}}
+              onClick={()=>{ const l=banners[bannerIdx]?.link; if(l) window.open(l,'_blank') }}>
+              <div style={{position:'relative',width:'100%',aspectRatio:'16/5',minHeight:'100px',maxHeight:'200px',overflow:'hidden',background:'#111'}}>
+                {banners.map((b,i)=>(
+                  <img key={b.id} src={API+b.url} alt={b.name}
+                    style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:i===bannerIdx?1:0,transition:'opacity 0.5s ease'}}/>
+                ))}
+              </div>
+              {banners.length > 1 && (
+                <div style={{position:'absolute',bottom:'8px',left:'50%',transform:'translateX(-50%)',display:'flex',gap:'5px'}}>
+                  {banners.map((_,i)=>(
+                    <div key={i} onClick={e=>{e.stopPropagation();setBannerIdx(i)}}
+                      style={{width:i===bannerIdx?18:6,height:'6px',borderRadius:'3px',background:i===bannerIdx?'#fff':'rgba(255,255,255,0.4)',transition:'all 0.3s',cursor:'pointer'}}/>
+                  ))}
+                </div>
+              )}
             </div>
-            <h1 className="hero-h1" style={{fontSize:'20px',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'4px',lineHeight:1.2}}>
-              TUDO QUE BOMBA<br/>
-              <span style={{color:'#00e676'}}>NA INTERNET ESTÁ AQUI!!</span>
-            </h1>
-            <p style={{color:'#aaa',fontSize:'12px',marginBottom:'12px'}}>Preveja eventos reais · Ganhe dinheiro via PIX</p>
-            <Link href="/cadastrar" style={{display:'inline-flex',alignItems:'center',gap:'5px',background:'transparent',color:'#00c853',border:'1px solid #00c853',borderRadius:'7px',padding:'7px 16px',fontWeight:700,fontSize:'12px',textDecoration:'none',transition:'all 0.15s'}}
-              onMouseEnter={(e:any)=>{e.currentTarget.style.background='#00c853';e.currentTarget.style.color='#000'}}
-              onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#00c853'}}>
-              Começar grátis →
-            </Link>
-          </div>
+          ) : (
+            <div style={{background:'#1b3a2a',border:'1px solid rgba(0,200,83,0.15)',borderRadius:'12px',padding:'18px 20px',marginBottom:'14px',position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',top:0,right:0,width:'40%',height:'100%',background:'linear-gradient(135deg,transparent,rgba(0,200,83,0.06))'}}/>
+              <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px'}}>
+                <span className="live-dot" style={{width:'6px',height:'6px',borderRadius:'50%',background:'#ff4444',display:'inline-block'}}/>
+                <span style={{color:'#ff6b6b',fontSize:'10px',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase'}}>AO VIVO · {markets.length} mercados</span>
+              </div>
+              <h1 className="hero-h1" style={{fontSize:'20px',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'4px',lineHeight:1.2}}>
+                TUDO QUE BOMBA<br/>
+                <span style={{color:'#00e676'}}>NA INTERNET ESTÁ AQUI!!</span>
+              </h1>
+              <p style={{color:'#aaa',fontSize:'12px',marginBottom:'12px'}}>Preveja eventos reais · Ganhe dinheiro via PIX</p>
+              <Link href="/cadastrar" style={{display:'inline-flex',alignItems:'center',gap:'5px',background:'transparent',color:'#00c853',border:'1px solid #00c853',borderRadius:'7px',padding:'7px 16px',fontWeight:700,fontSize:'12px',textDecoration:'none',transition:'all 0.15s'}}
+                onMouseEnter={(e:any)=>{e.currentTarget.style.background='#00c853';e.currentTarget.style.color='#000'}}
+                onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#00c853'}}>
+                Começar grátis →
+              </Link>
+            </div>
+          )}
 
           {/* MERCADOS */}
           {cat==='Explorar'&&!busca ? (

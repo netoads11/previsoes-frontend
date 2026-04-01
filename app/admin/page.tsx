@@ -1654,6 +1654,8 @@ function EstiloPage({token,api,onLogoChange}:{token:string,api:string,onLogoChan
 function BannersPage({token,api}:{token:string,api:string}) {
   const [banners,setBanners]=useState<any[]>([])
   const [uploading,setUploading]=useState(false)
+  const [newLink,setNewLink]=useState('')
+  const [editingLink,setEditingLink]=useState<{id:any,val:string}|null>(null)
   const h={'Authorization':'Bearer '+token}
   useEffect(()=>{ fetch(api+'/api/admin/banners',{headers:h}).then(r=>r.json()).then(d=>setBanners(Array.isArray(d)?d:[])).catch(()=>{}) },[])
   async function toggleBanner(id:any,active:boolean){
@@ -1664,39 +1666,60 @@ function BannersPage({token,api}:{token:string,api:string}) {
     await fetch(api+`/api/admin/banners/${id}`,{method:'DELETE',headers:h})
     setBanners(banners.filter(b=>String(b.id)!==String(id)))
   }
+  async function saveLink(id:any,link:string){
+    await fetch(api+`/api/admin/banners/${id}`,{method:'PATCH',headers:{...h,'Content-Type':'application/json'},body:JSON.stringify({link})})
+    setBanners(banners.map(b=>String(b.id)===String(id)?{...b,link}:b))
+    setEditingLink(null)
+  }
   async function uploadBanner(file:File){
     setUploading(true)
-    const fd=new FormData();fd.append('image',file);fd.append('name',file.name)
+    const fd=new FormData();fd.append('image',file);fd.append('name',file.name);if(newLink)fd.append('link',newLink)
     const r=await fetch(api+'/api/admin/banners',{method:'POST',headers:h,body:fd})
     const d=await r.json()
     if(d.banner) setBanners([...banners,d.banner])
-    setUploading(false)
+    setNewLink('');setUploading(false)
   }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Banners</h1>
-        <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
-          <PrimaryBtn onClick={()=>{(document.getElementById('banner-file-input') as HTMLInputElement)?.click()}}><Upload size={14}/> {uploading?'Enviando...':'Upload Banner'}</PrimaryBtn>
-          <input id="banner-file-input" type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f){uploadBanner(f);(e.target as HTMLInputElement).value=''}}}/>
-        </div>
       </div>
-      {banners.length===0&&<p style={{color:'#555',fontSize:'13px',textAlign:'center',padding:'40px'}}>Nenhum banner cadastrado. Faça upload acima.</p>}
+      <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'16px',display:'flex',flexDirection:'column',gap:'10px'}}>
+        <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>Novo Banner</p>
+        <input value={newLink} onChange={e=>setNewLink(e.target.value)} placeholder="Link ao clicar (opcional, ex: https://...)" style={{background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',width:'100%'}}/>
+        <PrimaryBtn onClick={()=>{(document.getElementById('banner-file-input') as HTMLInputElement)?.click()}}><Upload size={14}/> {uploading?'Enviando...':'Escolher imagem e enviar'}</PrimaryBtn>
+        <input id="banner-file-input" type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f){uploadBanner(f);(e.target as HTMLInputElement).value=''}}}/>
+      </div>
+      {banners.length===0&&<p style={{color:'#555',fontSize:'13px',textAlign:'center',padding:'40px'}}>Nenhum banner cadastrado.</p>}
       <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
         {banners.map((banner:any)=>(
-          <div key={banner.id} style={{display:'flex',alignItems:'center',gap:'14px',background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'14px'}}>
-            <GripVertical size={16} color="#555" style={{cursor:'grab',flexShrink:0}}/>
-            <div style={{width:'100px',height:'56px',background:'#222',borderRadius:'6px',flexShrink:0,overflow:'hidden'}}>
-              {banner.url&&<img src={api+banner.url} alt={banner.name} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={(e:any)=>e.target.style.display='none'}/>}
+          <div key={banner.id} style={{display:'flex',flexDirection:'column',gap:'8px',background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'14px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'14px'}}>
+              <GripVertical size={16} color="#555" style={{cursor:'grab',flexShrink:0}}/>
+              <div style={{width:'100px',height:'56px',background:'#222',borderRadius:'6px',flexShrink:0,overflow:'hidden'}}>
+                {banner.url&&<img src={api+banner.url} alt={banner.name} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={(e:any)=>e.target.style.display='none'}/>}
+              </div>
+              <div style={{flex:1}}>
+                <p style={{fontSize:'13px',fontWeight:500,color:'#ccc',marginBottom:'3px'}}>{banner.name}</p>
+                <p style={{fontSize:'11px',color:'#555'}}>{new Date(banner.created_at).toLocaleDateString('pt-BR')}</p>
+              </div>
+              <div onClick={()=>toggleBanner(banner.id,!banner.active)} style={{width:'36px',height:'20px',borderRadius:'10px',background:banner.active?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
+                <div style={{position:'absolute',top:'2px',left:banner.active?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
+              </div>
+              <button onClick={()=>deleteBanner(banner.id)} style={{width:'32px',height:'32px',borderRadius:'6px',border:'none',background:'transparent',cursor:'pointer',color:'#f44336',display:'flex',alignItems:'center',justifyContent:'center'}}><Trash2 size={14}/></button>
             </div>
-            <div style={{flex:1}}>
-              <p style={{fontSize:'13px',fontWeight:500,color:'#ccc',marginBottom:'3px'}}>{banner.name}</p>
-              <p style={{fontSize:'11px',color:'#555'}}>{new Date(banner.created_at).toLocaleDateString('pt-BR')}</p>
-            </div>
-            <div onClick={()=>toggleBanner(banner.id,!banner.active)} style={{width:'36px',height:'20px',borderRadius:'10px',background:banner.active?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
-              <div style={{position:'absolute',top:'2px',left:banner.active?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
-            </div>
-            <button onClick={()=>deleteBanner(banner.id)} style={{width:'32px',height:'32px',borderRadius:'6px',border:'none',background:'transparent',cursor:'pointer',color:'#f44336',display:'flex',alignItems:'center',justifyContent:'center'}}><Trash2 size={14}/></button>
+            {editingLink?.id===banner.id?(
+              <div style={{display:'flex',gap:'8px'}}>
+                <input value={editingLink.val} onChange={e=>setEditingLink({id:banner.id,val:e.target.value})} placeholder="https://..." style={{flex:1,background:'#111',border:'1px solid rgba(0,230,118,0.3)',borderRadius:'7px',padding:'7px 10px',color:'#ccc',fontSize:'12px',outline:'none'}} autoFocus/>
+                <button onClick={()=>saveLink(banner.id,editingLink.val)} style={{padding:'7px 14px',borderRadius:'7px',border:'none',background:'#00e676',color:'#000',fontWeight:700,fontSize:'12px',cursor:'pointer'}}>Salvar</button>
+                <button onClick={()=>setEditingLink(null)} style={{padding:'7px 10px',borderRadius:'7px',border:'1px solid #333',background:'transparent',color:'#777',fontSize:'12px',cursor:'pointer'}}>Cancelar</button>
+              </div>
+            ):(
+              <div style={{display:'flex',alignItems:'center',gap:'8px',paddingLeft:'30px'}}>
+                <span style={{fontSize:'11px',color:banner.link?'#00e676':'#444'}}>{banner.link||'Sem link'}</span>
+                <button onClick={()=>setEditingLink({id:banner.id,val:banner.link||''})} style={{fontSize:'11px',color:'#666',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'}}>editar link</button>
+              </div>
+            )}
           </div>
         ))}
       </div>
