@@ -33,6 +33,7 @@ interface Market {
   question: string
   yes_odds: number
   no_odds: number
+  house_margin?: number
   category?: string
   status?: string
   expires_at?: string
@@ -179,7 +180,8 @@ export default function Home() {
   const betChoice = betPanel?.choice
   const yes = Number(betMarket?.yes_odds)||50
   const no = Number(betMarket?.no_odds)||50
-  const mult = betChoice==='yes'?(100/yes).toFixed(2):(100/no).toFixed(2)
+  const betMargin = Number(betMarket?.house_margin) || 0.05
+  const mult = betChoice==='yes'?((1-betMargin)*100/yes).toFixed(2):((1-betMargin)*100/no).toFixed(2)
   const betNum = Number(betValue)||0
   const gain = (betNum*Number(mult)).toFixed(2)
   const noBalance = Number(betNum) > Number(balance)
@@ -201,6 +203,9 @@ export default function Home() {
       setBalance(b => b - betNum)
       setBetPanel(null)
       setBetValue('')
+      // Atualiza odds e saldo após aposta
+      fetch(API + '/api/markets').then(r => r.json()).then(d => { if (Array.isArray(d)) setMarkets(d) }).catch(() => {})
+      fetch(API + '/api/wallet/balance', { headers: { 'Authorization': 'Bearer ' + token } }).then(r => r.json()).then(d => setBalance(Number(d.balance) || 0)).catch(() => {})
     } catch (err: any) {
       alert(err.message)
     }
@@ -652,11 +657,12 @@ export default function Home() {
       {isMobile && marketModal && (() => {
         const mYes = Number(marketModal.yes_odds) || 50
         const mNo  = Number(marketModal.no_odds)  || 50
-        const mYM  = (100 / mYes).toFixed(2)
-        const mNM  = (100 / mNo).toFixed(2)
+        const mMargin = Number(marketModal.house_margin) || 0.05
+        const mYM  = ((1 - mMargin) * 100 / mYes).toFixed(2)
+        const mNM  = ((1 - mMargin) * 100 / mNo).toFixed(2)
         const mOdd  = (modalOption && marketModal.type === 'multiple')
-          ? (modalBetChoice === 'yes' ? (100 / Number(modalOption.yes_odds || 50)) : (100 / Number(modalOption.no_odds || 50)))
-          : (modalBetChoice === 'yes' ? (100 / mYes) : (100 / mNo))
+          ? (modalBetChoice === 'yes' ? ((1 - mMargin) * 100 / Number(modalOption.yes_odds || 50)) : ((1 - mMargin) * 100 / Number(modalOption.no_odds || 50)))
+          : (modalBetChoice === 'yes' ? ((1 - mMargin) * 100 / mYes) : ((1 - mMargin) * 100 / mNo))
         const mGain = (betNum * mOdd).toFixed(2)
         const mNoBalance = Number(betNum) > Number(balance)
 
@@ -837,6 +843,9 @@ export default function Home() {
                       if (!res.ok) throw new Error(data.error||'Erro ao apostar')
                       setBalance(b => b - betNum)
                       setMarketModal(null); setModalBetChoice(null); setBetValue('')
+                      // Atualiza odds e saldo após aposta
+                      fetch(API + '/api/markets').then(r => r.json()).then(d => { if (Array.isArray(d)) setMarkets(d) }).catch(() => {})
+                      fetch(API + '/api/wallet/balance', { headers: { 'Authorization': 'Bearer ' + token } }).then(r => r.json()).then(d => setBalance(Number(d.balance) || 0)).catch(() => {})
                     } catch(err:any){ alert(err.message) }
                   }}
                   style={{
@@ -1000,8 +1009,9 @@ function Empty() {
 function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:number,onBet:(m:Market,c:'yes'|'no')=>void,fav:boolean,onFav:(id:string)=>void,onCardClick?:(m:Market)=>void,onOptionClick?:(m:Market,opt:any,choice:'yes'|'no')=>void}) {
   const yes=Number(m.yes_odds)||50
   const no=Number(m.no_odds)||50
-  const yM=(100/yes).toFixed(2)
-  const nM=(100/no).toFixed(2)
+  const margin=Number(m.house_margin)||0.05
+  const yM=((1-margin)*100/yes).toFixed(2)
+  const nM=((1-margin)*100/no).toFixed(2)
 
   return (
     <div className="mcard fadein" style={{animationDelay:`${i*0.03}s`,cursor:'pointer'}} onClick={()=>onCardClick&&onCardClick(m)}>
@@ -1032,8 +1042,8 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
         <div style={{marginBottom:'8px'}}>
           {m.options.slice(0,3).map((opt:any)=>{
             const initials = opt.title.split(' ').filter(Boolean).map((w:string)=>w[0]).slice(0,2).join('').toUpperCase()
-            const yOdd = (100/Number(opt.yes_odds||50)).toFixed(2)
-            const nOdd = (100/Number(opt.no_odds||50)).toFixed(2)
+            const yOdd = ((1-margin)*100/Number(opt.yes_odds||50)).toFixed(2)
+            const nOdd = ((1-margin)*100/Number(opt.no_odds||50)).toFixed(2)
             return (
               <div key={opt.id} style={{display:'flex',alignItems:'center',gap:'7px',marginBottom:'6px'}}>
                 <div style={{width:'26px',height:'26px',borderRadius:'6px',background:'#2a2a2a',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'9px',fontWeight:700,color:'#888'}}>
