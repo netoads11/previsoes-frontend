@@ -60,7 +60,23 @@ export default function GerenteDashboard() {
   function copyLink() {
     if (!data?.referral_code) return
     const url = `${window.location.origin}/cadastrar?ref=${data.referral_code}`
-    navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
+      } else {
+        const el = document.createElement('textarea')
+        el.value = url
+        el.style.position = 'fixed'
+        el.style.opacity = '0'
+        document.body.appendChild(el)
+        el.focus()
+        el.select()
+        document.execCommand('copy')
+        document.body.removeChild(el)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    } catch { setCopied(false) }
   }
 
   const V = {
