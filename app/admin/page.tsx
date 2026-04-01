@@ -909,7 +909,7 @@ function SBadge({status}:{status:string}) {
   return <span style={{display:'inline-flex',alignItems:'center',padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:s.bg,color:s.c,border:`1px solid ${s.b}`}}>{labels[status]||status}</span>
 }
 
-function DataTbl({cols,rows,loading,page,perPage,onPage,onPerPage}:{cols:string[],rows:any[][],loading:boolean,page:number,perPage:number,onPage:(p:number)=>void,onPerPage:(p:number)=>void}) {
+function DataTbl({cols,rows,loading,page,perPage,onPage,onPerPage}:{cols:any[],rows:any[][],loading:boolean,page:number,perPage:number,onPage:(p:number)=>void,onPerPage:(p:number)=>void}) {
   if (loading) return <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>{Array(5).fill(0).map((_,i)=><div key={i} className="skel" style={{height:'44px'}}/>)}</div>
   const totalPages = Math.ceil(rows.length/perPage)
   const paged = rows.slice((page-1)*perPage, page*perPage)
