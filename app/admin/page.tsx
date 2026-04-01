@@ -377,7 +377,7 @@ export default function Admin() {
                 <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Mercados</h1>
                 <PrimaryBtn onClick={()=>setTab('criar-mercado')}><Plus size={14}/> Criar Mercado</PrimaryBtn>
               </div>
-              <FilterRow search={filterSearch} onSearch={setFilterSearch} status={filterStatus} onStatus={setFilterStatus} statusOpts={['open','suspended','resolved','cancelled']}/>
+              <FilterRow search={filterSearch} onSearch={setFilterSearch} status={filterStatus} onStatus={setFilterStatus} statusOpts={['open','closed','suspended','resolved','cancelled','archived']}/>
               <DataTbl loading={loading}
                 cols={['Pergunta','Categoria','SIM%','NAO%','Tipo','Status','Encerra','Ações']}
                 rows={filteredMarkets.map((m:any)=>[
@@ -394,6 +394,11 @@ export default function Admin() {
                       <GhostBtn color="green" onClick={()=>setConfirm({msg:'Resolver como SIM?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'yes'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>SIM</GhostBtn>
                       <GhostBtn color="red" onClick={()=>setConfirm({msg:'Resolver como NAO?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'no'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>NAO</GhostBtn>
                       <GhostBtn color="red" onClick={()=>setConfirm({msg:'Cancelar mercado?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/cancel`,'PUT',{});if(r.success){showToast('Cancelado!');load(token)}else showToast(r.error,'error')}})}>Cancelar</GhostBtn>
+                    </>}
+                    {m.status==='closed'&&<>
+                      <GhostBtn color="green" onClick={()=>setConfirm({msg:'Resolver como SIM?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'yes'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>SIM</GhostBtn>
+                      <GhostBtn color="red" onClick={()=>setConfirm({msg:'Resolver como NAO?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'no'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>NAO</GhostBtn>
+                      <GhostBtn color="yellow" onClick={()=>setConfirm({msg:'Arquivar mercado? Ele ficará invisível para os jogadores.',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/archive`,'PUT',{});if(r.success){showToast('Arquivado!');load(token)}else showToast(r.error,'error')}})}>Arquivar</GhostBtn>
                     </>}
                   </div>
                 ])}
@@ -929,6 +934,8 @@ function SBadge({status}:{status:string}) {
     pending:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',b:'rgba(255,179,0,0.2)'},
     suspended:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',b:'rgba(255,179,0,0.2)'},
     processing:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',b:'rgba(255,179,0,0.2)'},
+    closed:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',b:'rgba(255,179,0,0.2)'},
+    archived:{bg:'rgba(255,255,255,0.05)',c:'#555',b:'rgba(255,255,255,0.1)'},
     cancelled:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
     blocked:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
     rejected:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
