@@ -390,15 +390,24 @@ export default function Admin() {
                   <span style={{color:V.muted,fontSize:'11px'}}>{m.expires_at?new Date(m.expires_at).toLocaleDateString('pt-BR'):'—'}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
                     <GhostBtn onClick={()=>setEditMarket({...m})}>Editar</GhostBtn>
-                    {m.status==='open'&&<>
-                      <GhostBtn color="green" onClick={()=>setConfirm({msg:'Resolver como SIM?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'yes'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>SIM</GhostBtn>
-                      <GhostBtn color="red" onClick={()=>setConfirm({msg:'Resolver como NAO?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'no'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>NAO</GhostBtn>
+                    {(m.status==='open'||m.status==='closed')&&<>
+                      {m.type==='multiple'?(
+                        <select defaultValue="" style={{background:'#1a1a1a',border:'1px solid #333',borderRadius:'6px',padding:'4px 8px',color:'#ccc',fontSize:'11px',cursor:'pointer'}}
+                          onChange={async(e:any)=>{
+                            const opt=e.target.value; if(!opt) return; e.target.value='';
+                            if(!confirm(`Resolver: "${m.options?.find((o:any)=>o.id===opt)?.title}" venceu?`)) return;
+                            const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{winning_option_id:opt});
+                            if(r.success){showToast(`Resolvido! ${r.winners} vencedores · R$${r.totalPaid}`);load(token)}else showToast(r.error,'error');
+                          }}>
+                          <option value="">Resolver...</option>
+                          {(m.options||[]).map((o:any)=><option key={o.id} value={o.id}>{o.title}</option>)}
+                        </select>
+                      ):<>
+                        <GhostBtn color="green" onClick={()=>setConfirm({msg:'Resolver como SIM?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'yes'});if(r.success){showToast(`Resolvido! ${r.winners} vencedores · R$${r.totalPaid}`);load(token)}else showToast(r.error,'error')}})}>SIM</GhostBtn>
+                        <GhostBtn color="red" onClick={()=>setConfirm({msg:'Resolver como NAO?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'no'});if(r.success){showToast(`Resolvido! ${r.winners} vencedores · R$${r.totalPaid}`);load(token)}else showToast(r.error,'error')}})}>NAO</GhostBtn>
+                      </>}
                       <GhostBtn color="red" onClick={()=>setConfirm({msg:'Cancelar mercado?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/cancel`,'PUT',{});if(r.success){showToast('Cancelado!');load(token)}else showToast(r.error,'error')}})}>Cancelar</GhostBtn>
-                    </>}
-                    {m.status==='closed'&&<>
-                      <GhostBtn color="green" onClick={()=>setConfirm({msg:'Resolver como SIM?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'yes'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>SIM</GhostBtn>
-                      <GhostBtn color="red" onClick={()=>setConfirm({msg:'Resolver como NAO?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{result:'no'});if(r.success){showToast('Resolvido!');load(token)}else showToast(r.error,'error')}})}>NAO</GhostBtn>
-                      <GhostBtn color="yellow" onClick={()=>setConfirm({msg:'Arquivar mercado? Ele ficará invisível para os jogadores.',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/archive`,'PUT',{});if(r.success){showToast('Arquivado!');load(token)}else showToast(r.error,'error')}})}>Arquivar</GhostBtn>
+                      {m.status==='closed'&&<GhostBtn color="yellow" onClick={()=>setConfirm({msg:'Arquivar mercado?',action:async()=>{const r=await api(`/api/admin/markets/${m.id}/archive`,'PUT',{});if(r.success){showToast('Arquivado!');load(token)}else showToast(r.error,'error')}})}>Arquivar</GhostBtn>}
                     </>}
                   </div>
                 ])}
