@@ -32,7 +32,7 @@ export default function BottomNav({ activePage, onDeposit }: { activePage: 'home
             <button key={item.id}
               onClick={() => {
                 if (item.id === 'depositar') { onDeposit(); return }
-                if (item.id === 'duvidas') { setDuvidaModal(true); return }
+                if (item.id === 'duvidas') { router.push('/como-funciona'); return }
                 if (item.id === 'home') { router.push('/'); return }
                 if (item.id === 'perfil') { router.push('/perfil'); return }
               }}

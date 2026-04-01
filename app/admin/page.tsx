@@ -402,12 +402,12 @@ export default function Admin() {
                     </FField>
                   )}
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-                    <FField label="Chance SIM (%)"><FInput type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/></FField>
-                    <FField label="Chance NAO (%)"><FInput type="number" min="1" max="99" value={newMarket.no_odds} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/></FField>
+                    <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Chance SIM (%)<AdminTip text="Probabilidade de o evento ocorrer. Quanto menor a chance, maior o multiplicador e mais arriscada a aposta." pos="bottom"/></span>}><FInput type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/></FField>
+                    <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Chance NAO (%)<AdminTip text="Probabilidade de o evento NÃO ocorrer. Ajustado automaticamente ao alterar Chance SIM." pos="bottom"/></span>}><FInput type="number" min="1" max="99" value={newMarket.no_odds} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/></FField>
                   </div>
                   <div style={{background:'#141414',borderRadius:'8px',padding:'14px',display:'flex',justifyContent:'space-around'}}>
                     <div style={{textAlign:'center'}}>
-                      <p style={{fontSize:'11px',color:V.muted,marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Mult. SIM</p>
+                      <p style={{fontSize:'11px',color:V.muted,marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em',display:'flex',alignItems:'center',justifyContent:'center',gap:'4px'}}>Mult. SIM<AdminTip text="Multiplicador de ganho para quem apostar SIM. Calculado como 100 ÷ Chance SIM." pos="bottom"/></p>
                       <p style={{fontSize:'24px',fontWeight:700,color:V.green,fontFamily:"'Manrope',sans-serif"}}>{(100/Number(newMarket.yes_odds||1)).toFixed(2)}x</p>
                     </div>
                     <div style={{width:'1px',background:V.border}}/>
@@ -419,7 +419,7 @@ export default function Admin() {
                   <div style={{height:'4px',borderRadius:'2px',background:V.border,overflow:'hidden'}}>
                     <div style={{height:'100%',background:`linear-gradient(90deg,${V.green},${V.green}60)`,width:`${newMarket.yes_odds}%`,transition:'width 0.3s',borderRadius:'2px'}}/>
                   </div>
-                  <FField label="Data de encerramento"><FInput type="datetime-local" value={newMarket.expires_at} onChange={(e:any)=>setNewMarket({...newMarket,expires_at:e.target.value})}/></FField>
+                  <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Data de encerramento<AdminTip text="Quando o mercado fecha para novas apostas. Após esta data, não é possível apostar — apenas resolver." pos="bottom"/></span>}><FInput type="datetime-local" value={newMarket.expires_at} onChange={(e:any)=>setNewMarket({...newMarket,expires_at:e.target.value})}/></FField>
                   <FField label="Imagem (URL)">
                     <FInput placeholder="https://... ou deixe vazio" value={newMarket.image_url} onChange={(e:any)=>setNewMarket({...newMarket,image_url:e.target.value})}/>
                     {newMarket.image_url && <img src={newMarket.image_url} alt="preview" style={{marginTop:'8px',width:'100%',height:'120px',objectFit:'cover',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.1)'}} onError={(e:any)=>e.target.style.display='none'}/>}
@@ -459,9 +459,9 @@ export default function Admin() {
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Saques</h1>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-                <MCard title="Pendentes" value={withdrawals.filter((w:any)=>w.status==='pending').length.toString()} sub="Aguardando aprovação" icon={ArrowUpFromLine} color="yellow"/>
-                <MCard title="Pagos" value={withdrawals.filter((w:any)=>w.status==='paid'||w.status==='completed').length.toString()} sub="Processados" icon={Check} color="green"/>
-                <MCard title="Total Saques" value={fmt(totalWith)} sub="Volume total" icon={Wallet} color="red"/>
+                <MCard title="Pendentes" value={withdrawals.filter((w:any)=>w.status==='pending').length.toString()} sub="Aguardando aprovação" icon={ArrowUpFromLine} color="yellow" tip="Saques solicitados pelos jogadores que ainda não foram aprovados ou pagos."/>
+                <MCard title="Pagos" value={withdrawals.filter((w:any)=>w.status==='paid'||w.status==='completed').length.toString()} sub="Processados" icon={Check} color="green" tip="Total de saques que já foram aprovados e pagos com sucesso."/>
+                <MCard title="Total Saques" value={fmt(totalWith)} sub="Volume total" icon={Wallet} color="red" tip="Soma em reais de todos os saques pagos e pendentes na plataforma."/>
               </div>
               <FilterRow search={filterSearch} onSearch={setFilterSearch} status={filterStatus} onStatus={setFilterStatus} statusOpts={['pending','approved','paid','rejected']}/>
               <DataTbl loading={loading}
@@ -489,9 +489,9 @@ export default function Admin() {
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Depósitos</h1>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-                <MCard title="Pendentes" value={deposits.filter((d:any)=>d.status==='pending').length.toString()} sub="Aguardando confirmação" icon={ArrowDownToLine} color="yellow"/>
-                <MCard title="Confirmados" value={deposits.filter((d:any)=>d.status==='completed').length.toString()} sub="Processados" icon={Check} color="green"/>
-                <MCard title="Total Depósitos" value={fmt(totalDep)} sub="Volume total" icon={DollarSign} color="green"/>
+                <MCard title="Pendentes" value={deposits.filter((d:any)=>d.status==='pending').length.toString()} sub="Aguardando confirmação" icon={ArrowDownToLine} color="yellow" tip="Depósitos via Pix gerados mas ainda não confirmados pelo banco."/>
+                <MCard title="Confirmados" value={deposits.filter((d:any)=>d.status==='completed').length.toString()} sub="Processados" icon={Check} color="green" tip="Depósitos com pagamento confirmado e saldo já creditado ao jogador."/>
+                <MCard title="Total Depósitos" value={fmt(totalDep)} sub="Volume total" icon={DollarSign} color="green" tip="Soma em reais de todos os depósitos confirmados na plataforma."/>
               </div>
               <FilterRow search={filterSearch} onSearch={setFilterSearch} status={filterStatus} onStatus={setFilterStatus} statusOpts={['pending','completed','refunded']}/>
               <DataTbl loading={loading}
@@ -540,12 +540,12 @@ export default function Admin() {
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Apostas</h1>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-                <MCard title="Total de Apostas" value={bets.length.toString()} sub="Todas as apostas" icon={DollarSign} color="blue"/>
-                <MCard title="Apostas Ativas" value={bets.filter((b:any)=>b.status==='pending').length.toString()} sub="Aguardando resolução" icon={TrendingUp} color="yellow"/>
-                <MCard title="Apostas Resolvidas" value={bets.filter((b:any)=>b.status==='won'||b.status==='lost').length.toString()} sub="Finalizadas" icon={Check} color="green"/>
+                <MCard title="Total de Apostas" value={bets.length.toString()} sub="Todas as apostas" icon={DollarSign} color="blue" tip="Número total de apostas feitas por todos os jogadores na plataforma."/>
+                <MCard title="Apostas Ativas" value={bets.filter((b:any)=>b.status==='pending').length.toString()} sub="Aguardando resolução" icon={TrendingUp} color="yellow" tip="Apostas ainda abertas em mercados não resolvidos. O jogador aguarda o resultado."/>
+                <MCard title="Apostas Resolvidas" value={bets.filter((b:any)=>b.status==='won'||b.status==='lost').length.toString()} sub="Finalizadas" icon={Check} color="green" tip="Apostas que já tiveram resultado definido (ganhou ou perdeu)."/>
               </div>
               <DataTbl loading={loading}
-                cols={['Usuário','Mercado','Opção','Escolha','Valor','Mult.','Status','Data']}
+                cols={['Usuário','Mercado','Opção','Escolha','Valor',<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Mult.<AdminTip text="Multiplicador aplicado à aposta. Ex: 2x = o jogador ganha o dobro do valor apostado se acertar."/></span>,'Status','Data']}
                 rows={bets.map((b:any)=>[
                   <div><p style={{fontWeight:500,color:'#ccc',fontSize:'13px'}}>{b.user_name||'—'}</p><p style={{color:V.muted,fontSize:'11px'}}>{b.user_email}</p></div>,
                   <span style={{color:'#aaa',fontSize:'12px',maxWidth:'200px',display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.market_question||'—'}</span>,
@@ -867,6 +867,23 @@ function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value
   )
 }
 
+function AdminTip({text,pos='top'}:{text:string,pos?:'top'|'bottom'}) {
+  const [show,setShow]=useState(false)
+  return (
+    <div style={{position:'relative',display:'inline-flex',alignItems:'center',flexShrink:0}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
+      <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid #444',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help',transition:'border-color 0.15s'}} onMouseOver={e=>(e.currentTarget.style.borderColor='#00e676')} onMouseOut={e=>(e.currentTarget.style.borderColor='#444')}>
+        <span style={{fontSize:'9px',color:'#666',fontWeight:700,lineHeight:1}}>?</span>
+      </div>
+      {show&&(
+        <div style={{position:'absolute',...(pos==='top'?{bottom:'calc(100% + 8px)'}:{top:'calc(100% + 8px)'}),left:'50%',transform:'translateX(-50%)',background:'#2a2a2a',border:'1px solid #333',borderRadius:'8px',padding:'8px 10px',width:'210px',zIndex:9999,boxShadow:'0 4px 20px rgba(0,0,0,0.6)',pointerEvents:'none'}}>
+          <p style={{fontSize:'11px',color:'#ccc',lineHeight:1.5,margin:0,whiteSpace:'normal'}}>{text}</p>
+          <div style={{position:'absolute',...(pos==='top'?{bottom:'-5px',borderTop:'none',borderLeft:'none'}:{top:'-5px',borderBottom:'none',borderRight:'none'}),left:'50%',transform:'translateX(-50%)',width:'8px',height:'8px',background:'#2a2a2a',border:'1px solid #333',rotate:'45deg'}}/>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function SBadge({status}:{status:string}) {
   const m:any = {
     open:{bg:'rgba(0,230,118,0.1)',c:'#00e676',b:'rgba(0,230,118,0.2)'},
@@ -968,8 +985,8 @@ function Modal({title,onClose,children}:{title:string,onClose:()=>void,children:
   )
 }
 
-function FField({label,children}:{label:string,children:any}) {
-  return <div><label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'5px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>{label}</label>{children}</div>
+function FField({label,children}:{label:any,children:any}) {
+  return <div><label style={{fontSize:'11px',color:'#555',display:'flex',alignItems:'center',gap:'4px',marginBottom:'5px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>{label}</label>{children}</div>
 }
 
 function FInput({style,...p}:any) {
@@ -1177,14 +1194,21 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Afiliados</h1>
       {toast2&&<div style={{padding:'10px 14px',borderRadius:'8px',background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',fontSize:'13px'}}>{toast2}</div>}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-        <MCard title="Total Afiliados" value={String(affiliates.length)} sub="Usuários com indicados" icon={UserCheck} color="green"/>
-        <MCard title="Total Indicados" value={String(totalReferred)} sub="Todos os indicados" icon={Users} color="blue"/>
-        <MCard title="Comissões Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuído" icon={Wallet} color="green"/>
+        <MCard title="Total Afiliados" value={String(affiliates.length)} sub="Usuários com indicados" icon={UserCheck} color="green" tip="Quantidade de usuários com status de afiliado que possuem pelo menos um indicado."/>
+        <MCard title="Total Indicados" value={String(totalReferred)} sub="Todos os indicados" icon={Users} color="blue" tip="Soma de todos os usuários indicados por afiliados via link de referência."/>
+        <MCard title="Comissões Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuído" icon={Wallet} color="green" tip="Total em reais já distribuído em comissões para todos os afiliados."/>
       </div>
       <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
-            {['Nome','Email','Código','Indicados','Comissões','Taxa','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            {[
+              'Nome','Email',
+              <span style={{display:'flex',alignItems:'center',gap:'4px'}}>Código<AdminTip text="Link de convite exclusivo do afiliado. Quando um novo usuário se cadastra usando esse código, é vinculado a este afiliado."/></span>,
+              <span style={{display:'flex',alignItems:'center',gap:'4px'}}>Indicados<AdminTip text="Total de usuários que se cadastraram usando o código deste afiliado."/></span>,
+              'Comissões',
+              <span style={{display:'flex',alignItems:'center',gap:'4px'}}>Taxa<AdminTip text="Percentual de comissão que este afiliado recebe sobre os depósitos dos seus indicados."/></span>,
+              'Status','Ações'
+            ].map((c,i)=><th key={i} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {safe.length===0?(
@@ -1296,9 +1320,9 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Saques Afiliados</h1>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
-        <MCard title="Pendentes" value={fmt(stats.total_pending)} sub={`${stats.count_pending||0} saques`} icon={ArrowUpFromLine} color="yellow"/>
-        <MCard title="Total Pago" value={fmt(stats.total_paid_all)} sub={`${stats.count_paid||0} pagos`} icon={ArrowUpFromLine} color="green"/>
-        <MCard title="Total Solicitações" value={String(rows.length)} sub="Todas" icon={ArrowUpFromLine} color="blue"/>
+        <MCard title="Pendentes" value={fmt(stats.total_pending)} sub={`${stats.count_pending||0} saques`} icon={ArrowUpFromLine} color="yellow" tip="Total em reais de comissões solicitadas por afiliados ainda aguardando aprovação."/>
+        <MCard title="Total Pago" value={fmt(stats.total_paid_all)} sub={`${stats.count_paid||0} pagos`} icon={ArrowUpFromLine} color="green" tip="Total acumulado em reais já pago em saques de comissões para afiliados."/>
+        <MCard title="Total Solicitações" value={String(rows.length)} sub="Todas" icon={ArrowUpFromLine} color="blue" tip="Número total de pedidos de saque de comissão feitos por todos os afiliados."/>
       </div>
       <div style={{display:'flex',gap:'8px'}}>
         {(['todos','pending','paid','rejected'] as const).map(t=>(
@@ -1565,11 +1589,11 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           {finTab==='usuario'&&(
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-                <div><label style={LabelStyle}>Depósito Mínimo (R$) *</label><input type="number" value={local.min_deposit||''} onChange={upd('min_deposit')} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" value={local.saque_minimo||''} onChange={upd('saque_minimo')} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" value={local.saque_maximo||''} onChange={upd('saque_maximo')} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Rollover Base *</label><input type="number" value={local.rollover||''} onChange={upd('rollover')} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" value={local.saque_diario||''} onChange={upd('saque_diario')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Depósito Mínimo (R$) *</label><AdminTip text="Valor mínimo que um jogador precisa depositar por transação. Depósitos abaixo disso são recusados." pos="bottom"/></div><input type="number" value={local.min_deposit||''} onChange={upd('min_deposit')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Saque Mínimo (R$) *</label><AdminTip text="Valor mínimo que um jogador pode solicitar por saque. Solicitações abaixo disso são bloqueadas." pos="bottom"/></div><input type="number" value={local.saque_minimo||''} onChange={upd('saque_minimo')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Saque Máximo (R$) *</label><AdminTip text="Valor máximo por solicitação de saque. Acima deste limite o saque é recusado automaticamente." pos="bottom"/></div><input type="number" value={local.saque_maximo||''} onChange={upd('saque_maximo')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Rollover Base *</label><AdminTip text="Multiplicador de apostas obrigatórias antes de sacar bônus. Ex: rollover 2x sobre bônus de R$10 exige R$20 em apostas." pos="bottom"/></div><input type="number" value={local.rollover||''} onChange={upd('rollover')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Limite Diário (R$) *</label><AdminTip text="Valor máximo que um jogador pode sacar por dia. Protege o caixa contra saques em massa." pos="bottom"/></div><input type="number" value={local.saque_diario||''} onChange={upd('saque_diario')} style={InputStyle}/></div>
               </div>
               <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
@@ -1577,9 +1601,9 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           {finTab==='taxas'&&(
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
-                <div><label style={LabelStyle}>Taxa Saque (%)</label><input type="number" value={local.taxa_saque||''} onChange={upd('taxa_saque')} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Taxa Depósito (%)</label><input type="number" value={local.taxa_deposito||''} onChange={upd('taxa_deposito')} style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Taxa Vitória (%)</label><input type="number" value={local.taxa_vitoria||''} onChange={upd('taxa_vitoria')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Taxa Saque (%)</label><AdminTip text="Percentual descontado sobre cada saque. Ex: taxa 2% sobre R$100 = jogador recebe R$98." pos="bottom"/></div><input type="number" value={local.taxa_saque||''} onChange={upd('taxa_saque')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Taxa Depósito (%)</label><AdminTip text="Percentual cobrado sobre cada depósito. Ex: taxa 2% sobre R$100 = R$98 creditados ao jogador." pos="bottom"/></div><input type="number" value={local.taxa_deposito||''} onChange={upd('taxa_deposito')} style={InputStyle}/></div>
+                <div><div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Taxa Vitória (%)</label><AdminTip text="Percentual retido sobre os ganhos de cada aposta vencida. Ex: taxa 5% sobre ganho de R$100 = R$95 para o jogador." pos="bottom"/></div><input type="number" value={local.taxa_vitoria||''} onChange={upd('taxa_vitoria')} style={InputStyle}/></div>
               </div>
               <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
