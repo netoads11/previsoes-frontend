@@ -38,15 +38,6 @@ const NAV_SECTIONS = [
   ]},
 ]
 
-const CHART_DATA = [
-  { date:'18/03', lucro:4200, depositos:8500, saques:4300 },
-  { date:'19/03', lucro:3800, depositos:7200, saques:3400 },
-  { date:'20/03', lucro:5100, depositos:9800, saques:4700 },
-  { date:'21/03', lucro:4600, depositos:8100, saques:3500 },
-  { date:'22/03', lucro:6200, depositos:11200, saques:5000 },
-  { date:'23/03', lucro:5800, depositos:10500, saques:4700 },
-  { date:'24/03', lucro:7100, depositos:12800, saques:5700 },
-]
 
 const CATS = ['Entretenimento','Criptomoedas','Financeiro','Esportes','Politica','Clima','Celebridades']
 
@@ -62,6 +53,7 @@ export default function Admin() {
   const [audit, setAudit] = useState<any[]>([])
   const [settings, setSettings] = useState<any>({})
   const [stats, setStats] = useState<any>(null)
+  const [chartData, setChartData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState<any>(null)
   const [confirm, setConfirm] = useState<any>(null)
@@ -91,6 +83,13 @@ export default function Admin() {
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
   }, [])
+
+  useEffect(() => {
+    if (!token) return
+    const days = chartPeriod === '7d' ? 7 : chartPeriod === '30d' ? 30 : 90
+    fetch(API+`/api/admin/chart?days=${days}`, {headers:{'Authorization':'Bearer '+token}})
+      .then(r=>r.json()).then(d=>{ if(Array.isArray(d)) setChartData(d) }).catch(()=>{})
+  }, [chartPeriod, token])
 
   async function load(t: string) {
     setLoading(true)
@@ -320,7 +319,7 @@ export default function Admin() {
                     <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,padding:'20px'}}>
                       <h3 style={{fontSize:'14px',fontWeight:600,marginBottom:'16px'}}>Lucros</h3>
                       <ResponsiveContainer width="100%" height={220}>
-                        <LineChart data={CHART_DATA}>
+                        <LineChart data={chartData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f"/>
                           <XAxis dataKey="date" tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
                           <YAxis tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
@@ -332,7 +331,7 @@ export default function Admin() {
                     <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,padding:'20px'}}>
                       <h3 style={{fontSize:'14px',fontWeight:600,marginBottom:'16px'}}>Depósitos e Saques</h3>
                       <ResponsiveContainer width="100%" height={220}>
-                        <LineChart data={CHART_DATA}>
+                        <LineChart data={chartData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f"/>
                           <XAxis dataKey="date" tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
                           <YAxis tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
