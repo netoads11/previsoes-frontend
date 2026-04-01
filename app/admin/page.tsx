@@ -71,6 +71,7 @@ export default function Admin() {
   const [filterStatus, setFilterStatus] = useState('')
   const [filterSearch, setFilterSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     const u = localStorage.getItem('user'), t = localStorage.getItem('token')
@@ -189,10 +190,25 @@ export default function Admin() {
         .skel{background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.6s ease infinite;border-radius:8px}
         .fade-in{animation:fadeIn 0.2s ease}
         .section-toggle{transition:transform 0.2s}
+        @media (max-width: 768px) {
+          .sidebar-mobile { transform: translateX(-100%) !important; transition: transform 0.25s ease !important; }
+          .sidebar-mobile.open { transform: translateX(0) !important; }
+          .main-mobile { margin-left: 0 !important; }
+          .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+          .grid-3 { grid-template-columns: repeat(2,1fr) !important; }
+          .grid-2 { grid-template-columns: 1fr !important; }
+          .header-search { display: none !important; }
+          .table-wrap { overflow-x: auto !important; }
+          .mobile-pad { padding: 16px !important; }
+          .sidebar-overlay { display: block !important; }
+          .hamburger-btn { display: flex !important; }
+        }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 39; }
       `}</style>
 
       {/* ── SIDEBAR ── */}
-      <aside style={{width:'240px',flexShrink:0,background:V.sidebar,borderRight:`1px solid ${V.border}`,display:'flex',flexDirection:'column',position:'fixed',top:0,left:0,height:'100vh',zIndex:40,overflowY:'auto'}}>
+      <div className={sidebarOpen ? 'sidebar-overlay' : ''} onClick={()=>setSidebarOpen(false)} />
+      <aside className={`sidebar-mobile${sidebarOpen?' open':''}`} style={{width:'240px',flexShrink:0,background:V.sidebar,borderRight:`1px solid ${V.border}`,display:'flex',flexDirection:'column',position:'fixed',top:0,left:0,height:'100vh',zIndex:40,overflowY:'auto'}}>
         {/* Logo */}
         <div style={{padding:'16px',borderBottom:`1px solid ${V.border}`,display:'flex',alignItems:'center',gap:'10px',height:'56px',flexShrink:0}}>
           {sidebarLogo
@@ -216,7 +232,7 @@ export default function Admin() {
               {openSections[section.title] && section.items.map(item => {
                 const active = tab === item.id
                 return (
-                  <button key={item.id} onClick={()=>{setTab(item.id);setFilterStatus('');setFilterSearch('');setPage(1)}} className="nav-item"
+                  <button key={item.id} onClick={()=>{setTab(item.id);setFilterStatus('');setFilterSearch('');setPage(1);setSidebarOpen(false)}} className="nav-item"
                     style={{width:'100%',display:'flex',alignItems:'center',gap:'10px',padding:'8px 10px',borderRadius:'6px',border:'none',cursor:'pointer',background:active?`${V.green}15`:'transparent',color:active?V.green:V.muted,fontSize:'13px',fontWeight:active?600:400,textAlign:'left',marginBottom:'2px',position:'relative',transition:'all 0.1s'}}>
                     {active && <span style={{position:'absolute',left:0,top:'50%',transform:'translateY(-50%)',width:'3px',height:'20px',background:V.green,borderRadius:'0 2px 2px 0'}}/>}
                     <item.icon size={15} strokeWidth={1.75} style={{flexShrink:0}}/>
@@ -238,12 +254,15 @@ export default function Admin() {
       </aside>
 
       {/* ── MAIN ── */}
-      <div style={{marginLeft:'240px',flex:1,display:'flex',flexDirection:'column',minWidth:0}}>
+      <div className="main-mobile" style={{marginLeft:'240px',flex:1,display:'flex',flexDirection:'column',minWidth:0}}>
 
         {/* HEADER */}
         <header style={{position:'sticky',top:0,zIndex:30,height:'56px',background:`${V.bg}cc`,backdropFilter:'blur(12px)',borderBottom:`1px solid ${V.border}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <div style={{position:'relative'}}>
+            <button className="hamburger-btn" onClick={()=>setSidebarOpen(s=>!s)} style={{display:'none',alignItems:'center',justifyContent:'center',width:'36px',height:'36px',border:`1px solid ${V.border}`,borderRadius:'8px',background:'transparent',cursor:'pointer',color:V.muted}}>
+              <GripVertical size={18}/>
+            </button>
+            <div className="header-search" style={{position:'relative'}}>
               <Search size={15} color={V.muted} style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}/>
               <input placeholder="Buscar... (Ctrl+K)" onClick={()=>setSearchOpen(true)} readOnly
                 style={{width:'240px',height:'36px',background:V.card,border:`1px solid ${V.border}`,borderRadius:'8px',padding:'0 12px 0 34px',color:V.muted,cursor:'pointer',outline:'none'}}/>
@@ -265,7 +284,7 @@ export default function Admin() {
         </header>
 
         {/* CONTENT */}
-        <main style={{flex:1,padding:'24px',overflowY:'auto'}}>
+        <main className="mobile-pad" style={{flex:1,padding:'24px',overflowY:'auto'}}>
 
           {/* ═══ DASHBOARD ═══ */}
           {tab==='dashboard' && (
@@ -273,34 +292,34 @@ export default function Admin() {
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Dashboard</h1>
 
               {loading ? (
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
+                <div className="grid-4" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
                   {Array(16).fill(0).map((_,i)=><div key={i} className="skel" style={{height:'88px'}}/>)}
                 </div>
               ) : (
                 <>
                   {/* ROW 1 */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
+                  <div className="grid-4" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
                     <MCard title="Usuários Cadastrados" value={(stats?.usuarios_total??users.length).toLocaleString()} sub={`${stats?.usuarios_ativos??0} ativos`} icon={Users} color="blue" tip="Total de contas criadas na plataforma. Ativos = contas não bloqueadas."/>
                     <MCard title="Saldo dos Jogadores" value={fmt(stats?.saldo_jogadores??0)} sub={`${stats?.usuarios_com_saldo??0} com saldo`} icon={Wallet} color="green" tip="Soma real do saldo disponível nas carteiras de todos os jogadores agora."/>
                     <MCard title="Saldo do Portfólio" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={Briefcase} color="green" tip="Lucro da plataforma: total de depósitos aprovados menos total de saques pagos."/>
                     <MCard title="Mercados Ativos" value={(stats?.mercados_ativos??markets.filter((m:any)=>m.status==='open').length).toString()} sub={`${stats?.mercados_total??markets.length} total`} icon={TrendingUp} color="green" tip="Mercados com status 'aberto' disponíveis para apostas agora."/>
                   </div>
                   {/* ROW 2 */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
+                  <div className="grid-4" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
                     <MCard title="Depósitos Hoje" value={fmt(stats?.dep_hoje_valor??0)} sub={`${stats?.dep_hoje_total??0} gerados · ${stats?.dep_hoje_pagos??0} pagos`} icon={ArrowDownToLine} color="green" tip="Valor total de depósitos confirmados (status=completed) apenas no dia de hoje."/>
                     <MCard title="Saques Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} solicitados`} icon={ArrowUpFromLine} color="red" tip="Valor total de saques aprovados/pagos solicitados hoje."/>
                     <MCard title="Pix Gerados Hoje" value={(stats?.pix_hoje_total??0).toString()} sub={stats?.pix_hoje_total?`${Math.round((stats.pix_hoje_pagos/stats.pix_hoje_total)*100)}% pagos`:'—% pagos'} icon={QrCode} color="green" tip="Quantidade de cobranças Pix geradas hoje. % pagos = quantas foram efetivamente pagas."/>
                     <MCard title="Usuários Hoje" value={(stats?.usuarios_hoje??0).toString()} sub={stats?.usuarios_hoje&&stats?.dep_hoje_pagos?`${Math.round((stats.dep_hoje_pagos/stats.usuarios_hoje)*100)}% depositaram`:'—% depositaram'} icon={UserPlus} color="blue" tip="Novos cadastros realizados hoje. % depositaram = quantos dos novos já fizeram um depósito."/>
                   </div>
                   {/* ROW 3 */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
+                  <div className="grid-4" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
                     <MCard title="Depósitos Total" value={fmt(stats?.dep_total_valor??0)} sub={`${stats?.dep_total_pagos??0} recebidos`} icon={ArrowDownToLine} color="green" tip="Soma de todos os depósitos confirmados desde o início da plataforma."/>
                     <MCard title="Saques Total" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={ArrowUpFromLine} color="red" tip="Soma de todos os saques pagos desde o início da plataforma."/>
                     <MCard title="Pix Gerados Total" value={(stats?.pix_total_total??0).toString()} sub={stats?.pix_total_total?`${Math.round((stats.pix_total_pagos/stats.pix_total_total)*100)}% conversão`:'—% conversão'} icon={QrCode} color="blue" tip="Total de cobranças Pix geradas na plataforma. % conversão = proporção que foi paga."/>
                     <MCard title="Lucro Total" value={fmt(stats?.lucro_total??0)} sub="Lucro acumulado" icon={DollarSign} color="green" tip="Lucro líquido da plataforma: depósitos totais menos saques totais pagos."/>
                   </div>
                   {/* ROW 4 */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
+                  <div className="grid-4" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'14px'}}>
                     <MCard title="Saques Usuários Geral" value={fmt(stats?.saq_total_valor??0)} sub={`${stats?.saq_total_aprovados??0} aprovados`} icon={Wallet} color="green" tip="Total sacado por jogadores comuns (excluindo afiliados) desde o início."/>
                     <MCard title="Saques Usuários Hoje" value={fmt(stats?.saq_hoje_valor??0)} sub={`${stats?.saq_hoje_total??0} hoje`} icon={Wallet} color="yellow" tip="Total sacado por jogadores comuns apenas hoje."/>
                     <MCard title="Saques Afiliados Geral" value={fmt(stats?.afiliados_total_valor??0)} sub={`${stats?.afiliados_total_aprovados??0} aprovados`} icon={Wallet} color="green" tip="Total de comissões de afiliados sacadas e aprovadas desde o início."/>
@@ -315,7 +334,7 @@ export default function Admin() {
                       </button>
                     ))}
                   </div>
-                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'}}>
+                  <div className="grid-2" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'}}>
                     <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,padding:'20px'}}>
                       <h3 style={{fontSize:'14px',fontWeight:600,marginBottom:'16px'}}>Lucros</h3>
                       <ResponsiveContainer width="100%" height={220}>
@@ -458,7 +477,7 @@ export default function Admin() {
           {tab==='withdrawals' && (
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Saques</h1>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+              <div className="grid-3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
                 <MCard title="Pendentes" value={withdrawals.filter((w:any)=>w.status==='pending').length.toString()} sub="Aguardando aprovação" icon={ArrowUpFromLine} color="yellow" tip="Saques solicitados pelos jogadores que ainda não foram aprovados ou pagos."/>
                 <MCard title="Pagos" value={withdrawals.filter((w:any)=>w.status==='paid'||w.status==='completed').length.toString()} sub="Processados" icon={Check} color="green" tip="Total de saques que já foram aprovados e pagos com sucesso."/>
                 <MCard title="Total Saques" value={fmt(totalWith)} sub="Volume total" icon={Wallet} color="red" tip="Soma em reais de todos os saques pagos e pendentes na plataforma."/>
@@ -488,7 +507,7 @@ export default function Admin() {
           {tab==='deposits' && (
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Depósitos</h1>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+              <div className="grid-3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
                 <MCard title="Pendentes" value={deposits.filter((d:any)=>d.status==='pending').length.toString()} sub="Aguardando confirmação" icon={ArrowDownToLine} color="yellow" tip="Depósitos via Pix gerados mas ainda não confirmados pelo banco."/>
                 <MCard title="Confirmados" value={deposits.filter((d:any)=>d.status==='completed').length.toString()} sub="Processados" icon={Check} color="green" tip="Depósitos com pagamento confirmado e saldo já creditado ao jogador."/>
                 <MCard title="Total Depósitos" value={fmt(totalDep)} sub="Volume total" icon={DollarSign} color="green" tip="Soma em reais de todos os depósitos confirmados na plataforma."/>
@@ -539,7 +558,7 @@ export default function Admin() {
           {tab==='apostas' && (
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Apostas</h1>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+              <div className="grid-3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
                 <MCard title="Total de Apostas" value={bets.length.toString()} sub="Todas as apostas" icon={DollarSign} color="blue" tip="Número total de apostas feitas por todos os jogadores na plataforma."/>
                 <MCard title="Apostas Ativas" value={bets.filter((b:any)=>b.status==='pending').length.toString()} sub="Aguardando resolução" icon={TrendingUp} color="yellow" tip="Apostas ainda abertas em mercados não resolvidos. O jogador aguarda o resultado."/>
                 <MCard title="Apostas Resolvidas" value={bets.filter((b:any)=>b.status==='won'||b.status==='lost').length.toString()} sub="Finalizadas" icon={Check} color="green" tip="Apostas que já tiveram resultado definido (ganhou ou perdeu)."/>
@@ -927,7 +946,7 @@ function DataTbl({cols,rows,loading,page,perPage,onPage,onPerPage}:{cols:any[],r
   if (!paged.length) return <div style={{background:'#1a1a1a',borderRadius:'10px',border:'1px solid #222',padding:'48px',textAlign:'center'}}><p style={{color:'#555',fontSize:'13px'}}>Nenhum registro encontrado</p></div>
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead>
             <tr style={{background:'#141414'}}>
@@ -1087,7 +1106,7 @@ function MetricasPage() {
           <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'#00e676':'#222'}`,background:t===activeTab?'rgba(0,230,118,0.1)':'transparent',color:t===activeTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s'}}>{t}</button>
         ))}
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead>
             <tr style={{background:'#141414'}}>
@@ -1127,7 +1146,7 @@ function AdminsPage() {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Admins</h1>
         <PrimaryBtn onClick={()=>{setSelected(null);setForm({nome:'',email:'',senha:'',cargo:'suporte',ativo:true});setEditOpen(true)}}><Plus size={14}/> Criar Admin</PrimaryBtn>
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
             {['Nome','E-mail','Cargo','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
@@ -1204,12 +1223,12 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Afiliados</h1>
       {toast2&&<div style={{padding:'10px 14px',borderRadius:'8px',background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',fontSize:'13px'}}>{toast2}</div>}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+      <div className="grid-3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
         <MCard title="Total Afiliados" value={String(affiliates.length)} sub="Usuários com indicados" icon={UserCheck} color="green" tip="Quantidade de usuários com status de afiliado que possuem pelo menos um indicado."/>
         <MCard title="Total Indicados" value={String(totalReferred)} sub="Todos os indicados" icon={Users} color="blue" tip="Soma de todos os usuários indicados por afiliados via link de referência."/>
         <MCard title="Comissões Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuído" icon={Wallet} color="green" tip="Total em reais já distribuído em comissões para todos os afiliados."/>
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
             {[
@@ -1330,7 +1349,7 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Saques Afiliados</h1>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
+      <div className="grid-3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}}>
         <MCard title="Pendentes" value={fmt(stats.total_pending)} sub={`${stats.count_pending||0} saques`} icon={ArrowUpFromLine} color="yellow" tip="Total em reais de comissões solicitadas por afiliados ainda aguardando aprovação."/>
         <MCard title="Total Pago" value={fmt(stats.total_paid_all)} sub={`${stats.count_paid||0} pagos`} icon={ArrowUpFromLine} color="green" tip="Total acumulado em reais já pago em saques de comissões para afiliados."/>
         <MCard title="Total Solicitações" value={String(rows.length)} sub="Todas" icon={ArrowUpFromLine} color="blue" tip="Número total de pedidos de saque de comissão feitos por todos os afiliados."/>
@@ -1342,7 +1361,7 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
           </button>
         ))}
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
             {['Afiliado','Valor','PIX','Data','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
@@ -1405,7 +1424,7 @@ function RelatorioPage() {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Relatório de Afiliados</h1>
         <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
             {['Afiliado','Indicados','Depositaram','Comissão','Conversão'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
@@ -1442,7 +1461,7 @@ function HistoricoPage() {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Histórico</h1>
         <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
             {['Tipo','Usuário','Descrição','Ação','Admin','Data'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
@@ -1479,7 +1498,7 @@ function EventosPage() {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Eventos</h1>
         <PrimaryBtn onClick={()=>setCreateOpen(true)}><Plus size={14}/> Criar Evento</PrimaryBtn>
       </div>
-      <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
             {['Categoria','Subcategoria','Título','Volume Total','Mercados','Status'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
