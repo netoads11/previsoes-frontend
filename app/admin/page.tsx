@@ -583,8 +583,8 @@ export default function Admin() {
               />
             </div>
           )}
-          {tab==='historico' && <div className="fade-in"><HistoricoPage/></div>}
-          {tab==='eventos' && <div className="fade-in"><EventosPage/></div>}
+          {tab==='historico' && <div className="fade-in"><HistoricoPage audit={audit}/></div>}
+          {tab==='eventos' && <div className="fade-in"><EventosPage token={token} api={API} showToast={showToast}/></div>}
           {tab==='configs' && tab==='configs' && false && null}
           {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API} onLogoChange={setSidebarLogo}/></div>}
           {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
@@ -1600,37 +1600,77 @@ function RelatorioPage() {
   )
 }
 
-function HistoricoPage() {
-  const mockData = [
-    { tipo:'Depósito', usuario:'Ricardo Alves', descricao:'Depósito PIX R$ 200', admin:'Sistema', data:'24/03/2026 14:32', acao:'creation' },
-    { tipo:'Saque', usuario:'Fernanda Lima', descricao:'Saque aprovado R$ 1.200', admin:'Admin Master', data:'24/03/2026 13:18', acao:'edition' },
-    { tipo:'Mercado', usuario:'-', descricao:'Mercado #48 encerrado', admin:'Admin Master', data:'24/03/2026 12:00', acao:'edition' },
-    { tipo:'Usuário', usuario:'Lucas Costa', descricao:'Status: ativo → bloqueado', admin:'Admin Master', data:'24/03/2026 11:45', acao:'edition' },
-    { tipo:'Admin', usuario:'Ana Suporte', descricao:'Admin removido', admin:'Admin Master', data:'24/03/2026 10:20', acao:'deletion' },
-  ]
-  const acaoBadge:any = { creation:{bg:'rgba(0,230,118,0.1)',c:'#00e676'}, edition:{bg:'rgba(255,179,0,0.1)',c:'#ffb300'}, deletion:{bg:'rgba(244,67,54,0.1)',c:'#f44336'} }
+function HistoricoPage({audit}:{audit:any[]}) {
+  const ACTION_MAP:any = {
+    CREATE_MARKET:{tipo:'Mercado',acao:'creation',desc:(a:any)=>`Mercado criado: "${a?.after_data?.question||''}"`},
+    EDIT_MARKET:{tipo:'Mercado',acao:'edition',desc:(a:any)=>`Mercado editado: "${a?.after_data?.question||''}"`},
+    RESOLVE_MARKET:{tipo:'Mercado',acao:'edition',desc:(a:any)=>`Mercado resolvido → ${a?.after_data?.result?.toUpperCase()||''}`},
+    CANCEL_MARKET:{tipo:'Mercado',acao:'deletion',desc:()=>'Mercado cancelado'},
+    UPLOAD_IMAGE:{tipo:'Mercado',acao:'edition',desc:()=>'Imagem de mercado atualizada'},
+    EDIT_USER:{tipo:'Usuário',acao:'edition',desc:(a:any)=>`Usuário editado: ${a?.before_data?.name||''}`},
+    SET_BALANCE:{tipo:'Usuário',acao:'edition',desc:(a:any)=>`Saldo definido: R$ ${Number(a?.after_data?.balance||0).toFixed(2)}`},
+    ADJUST_BALANCE:{tipo:'Usuário',acao:'edition',desc:(a:any)=>`Saldo ajustado: R$ ${Number(a?.after_data?.new_balance||0).toFixed(2)}`},
+    APPROVE_DEPOSIT:{tipo:'Depósito',acao:'creation',desc:(a:any)=>`Depósito aprovado: R$ ${Number(a?.before_data?.amount||0).toFixed(2)}`},
+    REFUND_DEPOSIT:{tipo:'Depósito',acao:'deletion',desc:(a:any)=>`Depósito estornado: R$ ${Number(a?.before_data?.amount||0).toFixed(2)}`},
+    MANUAL_DEPOSIT:{tipo:'Depósito',acao:'creation',desc:(a:any)=>`Depósito manual: R$ ${Number(a?.after_data?.amount||0).toFixed(2)}`},
+    APPROVE_WITHDRAWAL:{tipo:'Saque',acao:'edition',desc:(a:any)=>`Saque aprovado: R$ ${Number(a?.before_data?.amount||0).toFixed(2)}`},
+    REJECT_WITHDRAWAL:{tipo:'Saque',acao:'deletion',desc:(a:any)=>`Saque rejeitado: R$ ${Number(a?.before_data?.amount||0).toFixed(2)}`},
+    MARK_PAID_WITHDRAWAL:{tipo:'Saque',acao:'edition',desc:()=>'Saque marcado como pago'},
+    MANUAL_WITHDRAWAL:{tipo:'Saque',acao:'creation',desc:(a:any)=>`Saque manual: R$ ${Number(a?.after_data?.amount||0).toFixed(2)}`},
+    EDIT_AFFILIATE:{tipo:'Afiliado',acao:'edition',desc:(a:any)=>`Afiliado editado: ${a?.before_data?.name||''}`},
+    APPROVE_AFFILIATE_WITHDRAWAL:{tipo:'Afiliado',acao:'edition',desc:()=>'Saque de afiliado aprovado'},
+    REJECT_AFFILIATE_WITHDRAWAL:{tipo:'Afiliado',acao:'deletion',desc:()=>'Saque de afiliado rejeitado'},
+    EDIT_SETTINGS:{tipo:'Configurações',acao:'edition',desc:()=>'Configurações da plataforma atualizadas'},
+    MANAGER_SET_AFFILIATE_COMMISSION:{tipo:'Gerente',acao:'edition',desc:()=>'Comissão de afiliado configurada'},
+    CREATE_EVENT:{tipo:'Evento',acao:'creation',desc:(a:any)=>`Evento criado: "${a?.after_data?.titulo||''}"`},
+    EDIT_EVENT:{tipo:'Evento',acao:'edition',desc:(a:any)=>`Evento editado: "${a?.after_data?.titulo||''}"`},
+    DELETE_EVENT:{tipo:'Evento',acao:'deletion',desc:(a:any)=>`Evento removido: "${a?.before_data?.titulo||''}"`},
+  }
+  const acaoBadge:any = {
+    creation:{bg:'rgba(0,230,118,0.1)',c:'#00e676',label:'Criação'},
+    edition:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',label:'Edição'},
+    deletion:{bg:'rgba(244,67,54,0.1)',c:'#f44336',label:'Remoção'},
+  }
+  function exportCSV() {
+    const rows = [['Tipo','Ação','Descrição','Admin','Email','Data']]
+    audit.forEach(a => {
+      const m = ACTION_MAP[a.action]
+      if (!m) return
+      rows.push([m.tipo, m.acao, m.desc(a), a.name||'', a.email||'', new Date(a.created_at).toLocaleString('pt-BR')])
+    })
+    const csv = rows.map(r=>r.map((v:string)=>`"${v}"`).join(',')).join('\n')
+    const blob = new Blob([csv],{type:'text/csv'})
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a'); link.href=url; link.download='historico.csv'; link.click()
+  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Histórico</h1>
-        <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Histórico de Auditoria</h1>
+        <GhostBtn onClick={exportCSV}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
       <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
-            {['Tipo','Usuário','Descrição','Ação','Admin','Data'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            {['Tipo','Ação','Descrição','Admin','Data'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {mockData.map((item,i)=>(
-              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
-                <td style={{padding:'11px 14px',color:'#ccc'}}>{item.tipo}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.usuario}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px',maxWidth:'200px'}}>{item.descricao}</td>
-                <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,...acaoBadge[item.acao]}}>{item.acao}</span></td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.admin}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.data}</td>
-              </tr>
-            ))}
+            {audit.length===0?(
+              <tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum registro de auditoria ainda</td></tr>
+            ):audit.map((a:any,i:number)=>{
+              const m = ACTION_MAP[a.action]
+              if (!m) return null
+              const badge = acaoBadge[m.acao]
+              return (
+                <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                  <td style={{padding:'11px 14px'}}><span style={{fontSize:'12px',fontWeight:500,color:'#ccc'}}>{m.tipo}</span></td>
+                  <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:badge.bg,color:badge.c}}>{badge.label}</span></td>
+                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px',maxWidth:'240px'}}>{m.desc(a)}</td>
+                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.name||'—'}</td>
+                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px',whiteSpace:'nowrap'}}>{new Date(a.created_at).toLocaleString('pt-BR')}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -1638,56 +1678,116 @@ function HistoricoPage() {
   )
 }
 
-function EventosPage() {
+function EventosPage({token,api,showToast}:{token:string,api:string,showToast:(t:string,type?:string)=>void}) {
+  const [eventos, setEventos] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
-  const [form, setForm] = useState({titulo:'',categoria:'',subcategoria:'',descricao:'',status:'active'})
-  const mockEventos = [
-    { id:1, categoria:'Futebol', subcategoria:'Copa do Mundo', titulo:'Brasil vs Argentina', volume:'R$ 284.000', mercados:5, status:'active' },
-    { id:2, categoria:'Política', subcategoria:'Eleições', titulo:'Eleições 2026', volume:'R$ 120.000', mercados:3, status:'active' },
-    { id:3, categoria:'Entretenimento', subcategoria:'TV', titulo:'BBB 26', volume:'R$ 45.000', mercados:8, status:'inactive' },
-  ]
+  const [editEvento, setEditEvento] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
+  const emptyForm = {titulo:'',categoria:'',subcategoria:'',descricao:'',status:'active'}
+  const [form, setForm] = useState(emptyForm)
+
+  async function load() {
+    setLoading(true)
+    try {
+      const r = await fetch(api+'/api/admin/events',{headers:{'Authorization':'Bearer '+token}})
+      const d = await r.json()
+      setEventos(Array.isArray(d)?d:[])
+    } catch { setEventos([]) }
+    setLoading(false)
+  }
+  useEffect(()=>{load()},[])
+
+  async function criar() {
+    if(!form.titulo.trim()){showToast('Título obrigatório','error');return}
+    setSaving(true)
+    const r = await fetch(api+'/api/admin/events',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(form)})
+    const d = await r.json()
+    if(d.id){showToast('Evento criado!');setCreateOpen(false);setForm(emptyForm);load()}
+    else showToast(d.error||'Erro','error')
+    setSaving(false)
+  }
+
+  async function salvarEdicao() {
+    if(!editEvento?.titulo?.trim()){showToast('Título obrigatório','error');return}
+    setSaving(true)
+    const r = await fetch(api+`/api/admin/events/${editEvento.id}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(editEvento)})
+    const d = await r.json()
+    if(d.id){showToast('Evento salvo!');setEditEvento(null);load()}
+    else showToast(d.error||'Erro','error')
+    setSaving(false)
+  }
+
+  async function deletar(id:string) {
+    const r = await fetch(api+`/api/admin/events/${id}`,{method:'DELETE',headers:{'Authorization':'Bearer '+token}})
+    const d = await r.json()
+    if(d.success){showToast('Evento removido!');load()}
+    else showToast(d.error||'Erro','error')
+  }
+
+  const fmt = (n:number) => `R$ ${Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2})}`
+  const ModalForm = ({data,setData,onSave,onClose,title}:any) => (
+    <Overlay onClose={onClose}>
+      <Modal title={title} onClose={onClose}>
+        <FField label="Título *"><FInput value={data.titulo||''} onChange={(e:any)=>setData({...data,titulo:e.target.value})}/></FField>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+          <FField label="Categoria"><FInput value={data.categoria||''} onChange={(e:any)=>setData({...data,categoria:e.target.value})}/></FField>
+          <FField label="Subcategoria"><FInput value={data.subcategoria||''} onChange={(e:any)=>setData({...data,subcategoria:e.target.value})}/></FField>
+        </div>
+        <FField label="Descrição">
+          <textarea value={data.descricao||''} onChange={(e:any)=>setData({...data,descricao:e.target.value})} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',resize:'vertical',minHeight:'80px'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
+        </FField>
+        <FField label="Status">
+          <FSelect value={data.status||'active'} onChange={(e:any)=>setData({...data,status:e.target.value})}>
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+          </FSelect>
+        </FField>
+        <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+          <PrimaryBtn onClick={onSave}>{saving?'Salvando...':'Salvar'}</PrimaryBtn>
+          <GhostBtn onClick={onClose}>Cancelar</GhostBtn>
+        </div>
+      </Modal>
+    </Overlay>
+  )
+
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Eventos</h1>
-        <PrimaryBtn onClick={()=>setCreateOpen(true)}><Plus size={14}/> Criar Evento</PrimaryBtn>
+        <PrimaryBtn onClick={()=>{setForm(emptyForm);setCreateOpen(true)}}><Plus size={14}/> Criar Evento</PrimaryBtn>
       </div>
       <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
-            {['Categoria','Subcategoria','Título','Volume Total','Mercados','Status'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            {['Categoria','Subcategoria','Título','Volume Total','Mercados','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {mockEventos.map((e,i)=>(
+            {loading?(
+              <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Carregando...</td></tr>
+            ):eventos.length===0?(
+              <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum evento criado ainda</td></tr>
+            ):eventos.map((e:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.categoria}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.subcategoria}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.categoria||'—'}</td>
+                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.subcategoria||'—'}</td>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{e.titulo}</td>
-                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{e.volume}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{e.mercados}</td>
+                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{fmt(e.volume_total||0)}</td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{e.total_mercados||0}</td>
                 <td style={{padding:'11px 14px'}}><SBadge status={e.status}/></td>
+                <td style={{padding:'11px 14px'}}>
+                  <div style={{display:'flex',gap:'6px'}}>
+                    <button onClick={()=>setEditEvento({...e})} style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'11px',cursor:'pointer'}}><Pencil size={11}/></button>
+                    <button onClick={()=>deletar(e.id)} style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid rgba(244,67,54,0.3)',background:'transparent',color:'#f44336',fontSize:'11px',cursor:'pointer'}}><Trash2 size={11}/></button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {createOpen&&(
-        <Overlay onClose={()=>setCreateOpen(false)}>
-          <Modal title="Criar Evento" onClose={()=>setCreateOpen(false)}>
-            <FField label="Título *"><FInput value={form.titulo} onChange={(e:any)=>setForm({...form,titulo:e.target.value})}/></FField>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-              <FField label="Categoria *"><FInput value={form.categoria} onChange={(e:any)=>setForm({...form,categoria:e.target.value})}/></FField>
-              <FField label="Subcategoria"><FInput value={form.subcategoria} onChange={(e:any)=>setForm({...form,subcategoria:e.target.value})}/></FField>
-            </div>
-            <FField label="Descrição"><textarea value={form.descricao} onChange={(e:any)=>setForm({...form,descricao:e.target.value})} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',resize:'vertical',minHeight:'80px'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/></FField>
-            <FField label="Status"><FSelect value={form.status} onChange={(e:any)=>setForm({...form,status:e.target.value})}><option value="active">Ativo</option><option value="inactive">Inativo</option></FSelect></FField>
-            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={()=>setCreateOpen(false)}>CRIAR</PrimaryBtn>
-              <GhostBtn onClick={()=>setCreateOpen(false)}>Cancelar</GhostBtn>
-            </div>
-          </Modal>
-        </Overlay>
-      )}
+      {createOpen&&<ModalForm data={form} setData={setForm} onSave={criar} onClose={()=>setCreateOpen(false)} title="Criar Evento"/>}
+      {editEvento&&<ModalForm data={editEvento} setData={setEditEvento} onSave={salvarEdicao} onClose={()=>setEditEvento(null)} title="Editar Evento"/>}
     </div>
   )
 }
