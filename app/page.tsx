@@ -697,7 +697,7 @@ export default function Home() {
             {/* ── BANNER 192px ── */}
             <div style={{position:'relative',height:'192px',flexShrink:0,background:bannerGrad,display:'flex',alignItems:'center',justifyContent:'center'}}>
               {marketModal.image_url && (
-                <img src={marketModal.image_url} alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:0.45}}/>
+                <img src={marketModal.image_url.startsWith('http') ? marketModal.image_url : `${API}${marketModal.image_url}`} alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:0.45}}/>
               )}
               <span style={{fontSize:'64px',lineHeight:1,position:'relative',zIndex:1,userSelect:'none'}}>{bannerEmoji}</span>
               <button
@@ -1016,15 +1016,19 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
   return (
     <div className="mcard fadein" style={{animationDelay:`${i*0.03}s`,cursor:'pointer'}} onClick={()=>onCardClick&&onCardClick(m)}>
       <div style={{display:'flex',alignItems:'flex-start',gap:'10px',marginBottom:'10px'}}>
-        <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#222',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <svg width="16" height="16" fill="none" stroke="#00c853" strokeWidth="1.5" viewBox="0 0 24 24">
-            {m.category==='Esportes'&&<><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></>}
-            {m.category==='Criptomoedas'&&<path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/>}
-            {m.category==='Politica'&&<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>}
-            {m.category==='Entretenimento'&&<><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></>}
-            {m.category==='Economia'&&<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>}
-            {!['Esportes','Criptomoedas','Politica','Entretenimento','Economia'].includes(m.category||'')&&<><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>}
-          </svg>
+        <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#222',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}}>
+          {m.image_url ? (
+            <img src={m.image_url.startsWith('http') ? m.image_url : `${API}${m.image_url}`} alt="" style={{width:'36px',height:'36px',objectFit:'cover',borderRadius:'8px'}} />
+          ) : (
+            <svg width="16" height="16" fill="none" stroke="#00c853" strokeWidth="1.5" viewBox="0 0 24 24">
+              {m.category==='Esportes'&&<><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></>}
+              {m.category==='Criptomoedas'&&<path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/>}
+              {m.category==='Politica'&&<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>}
+              {m.category==='Entretenimento'&&<><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></>}
+              {m.category==='Economia'&&<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>}
+              {!['Esportes','Criptomoedas','Politica','Entretenimento','Economia'].includes(m.category||'')&&<><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>}
+            </svg>
+          )}
         </div>
         <div style={{flex:1,minWidth:0}}>
           {m.category&&<span style={{background:'rgba(0,200,83,0.1)',color:'#00c853',fontSize:'9px',fontWeight:700,padding:'1px 6px',borderRadius:'3px',textTransform:'uppercase',letterSpacing:'0.05em',display:'inline-block',marginBottom:'4px'}}>{m.category}</span>}
