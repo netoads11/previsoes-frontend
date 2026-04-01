@@ -22,6 +22,7 @@ const NAV_SECTIONS = [
     { label: 'Depósitos', icon: ArrowDownToLine, id: 'deposits' },
   ]},
   { title: 'Área de Afiliados', items: [
+    { label: 'Gerentes', icon: Briefcase, id: 'gerentes' },
     { label: 'Afiliados', icon: UserCheck, id: 'afiliados' },
     { label: 'Saques Afiliados', icon: Wallet, id: 'saques-afiliados' },
     { label: 'Relatório', icon: FileText, id: 'relatorio' },
@@ -65,6 +66,7 @@ export default function Admin() {
   const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]})
   const [bets, setBets] = useState<any[]>([])
   const [affiliates, setAffiliates] = useState<any[]>([])
+  const [managers, setManagers] = useState<any[]>([])
   const [sidebarLogo, setSidebarLogo] = useState('')
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
@@ -95,7 +97,7 @@ export default function Admin() {
   async function load(t: string) {
     setLoading(true)
     const h = {'Authorization':'Bearer '+t}
-    const [m,u,d,w,a,s,aff,bt,st] = await Promise.all([
+    const [m,u,d,w,a,s,aff,bt,st,mg] = await Promise.all([
       fetch(API+'/api/admin/markets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/deposits',{headers:h}).then(r=>r.json()).catch(()=>[]),
@@ -105,10 +107,11 @@ export default function Admin() {
       fetch(API+'/api/admin/referrals',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/bets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/stats',{headers:h}).then(r=>r.json()).catch(()=>({})),
+      fetch(API+'/api/admin/managers',{headers:h}).then(r=>r.json()).catch(()=>[]),
     ])
     setMarkets(Array.isArray(m)?m:[]);setUsers(Array.isArray(u)?u:[])
     setDeposits(Array.isArray(d)?d:[]);setWithdrawals(Array.isArray(w)?w:[])
-    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setStats(st||{});setLoading(false)
+    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setStats(st||{});setManagers(Array.isArray(mg)?mg:[]);setLoading(false)
     if(s?.logo_url) setSidebarLogo(API+s.logo_url)
   }
 
@@ -552,6 +555,7 @@ export default function Admin() {
 
           {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
           {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
+          {tab==='gerentes' && <div className="fade-in"><GerentesPage managers={managers} token={token} api={API} onRefresh={()=>load(token)}/></div>}
           {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates} token={token} api={API} onEdit={openEditUser}/></div>}
           {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage token={token} api={API}/></div>}
           {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
@@ -1207,6 +1211,156 @@ function AdminsPage() {
               <GhostBtn onClick={()=>setDeleteOpen(false)}>Cancelar</GhostBtn>
             </div>
           </div>
+        </Overlay>
+      )}
+    </div>
+  )
+}
+
+function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:string,api:string,onRefresh:()=>void}) {
+  const [selected, setSelected] = useState<any>(null)
+  const [editAff, setEditAff] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
+  const [toast, setToast] = useState('')
+  const V2 = {green:'#00e676',border:'#222',card:'#1a1a1a',muted:'#888',label:'#555',text:'#ccc'}
+  const LabelStyle = {fontSize:'11px',color:V2.label,display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
+  const InputStyle = {width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:V2.text,fontSize:'13px',outline:'none'}
+
+  async function saveCommission() {
+    if(!editAff||!selected) return
+    setSaving(true)
+    try {
+      const r = await fetch(api+`/api/admin/managers/${selected.id}/affiliates/${editAff.id}`,{
+        method:'PUT',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({cpa:Number(editAff.cpa||0),rev_share:Number(editAff.rev_share||0),baseline:Number(editAff.baseline||0)})
+      })
+      const d = await r.json()
+      if(d.success){setToast('Comissão salva!');setEditAff(null);onRefresh()}else setToast(d.error||'Erro')
+    } catch{setToast('Erro de conexão')}
+    setSaving(false)
+    setTimeout(()=>setToast(''),3000)
+  }
+
+  const totalManagers = managers.length
+  const totalAfiliados = managers.reduce((s,m)=>s+Number(m.total_affiliates||0),0)
+  const totalComissoes = managers.reduce((s,m)=>s+Number(m.total_commissions||0),0)
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Gerentes</h1>
+      {toast&&<div style={{padding:'10px 14px',borderRadius:'8px',background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:V2.green,fontSize:'13px'}}>{toast}</div>}
+
+      {/* Cards resumo */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px'}} className="grid-3">
+        <MCard title="Total Gerentes" value={String(totalManagers)} sub="Usuários com função gerente" icon={Briefcase} color="blue" tip="Total de usuários com role=manager na plataforma."/>
+        <MCard title="Afiliados Gerenciados" value={String(totalAfiliados)} sub="Afiliados com gerente" icon={UserCheck} color="green" tip="Total de afiliados que se cadastraram pelo link de um gerente."/>
+        <MCard title="Comissões Distribuídas" value={'R$ '+totalComissoes.toFixed(2)} sub="Por afiliados gerenciados" icon={Wallet} color="green" tip="Total de comissões geradas pelos afiliados dos gerentes."/>
+      </div>
+
+      {/* Lista de gerentes */}
+      {!selected ? (
+        <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+            <thead><tr style={{background:'#141414'}}>
+              {['Nome','Email','Código','Afiliados','Comissões','Status','Ações'].map(c=>(
+                <th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>
+              ))}
+            </tr></thead>
+            <tbody>
+              {managers.length===0?(
+                <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum gerente cadastrado ainda</td></tr>
+              ):managers.map((m:any,i:number)=>(
+                <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                  <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{m.name}</td>
+                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{m.email}</td>
+                  <td style={{padding:'11px 14px'}}><code style={{background:'#111',padding:'2px 7px',borderRadius:'4px',fontSize:'11px',color:V2.green}}>{m.referral_code||'—'}</code></td>
+                  <td style={{padding:'11px 14px',color:'#ccc'}}>{m.total_affiliates}</td>
+                  <td style={{padding:'11px 14px',color:V2.green,fontWeight:600}}>R$ {Number(m.total_commissions||0).toFixed(2)}</td>
+                  <td style={{padding:'11px 14px'}}><SBadge status={m.status||'active'}/></td>
+                  <td style={{padding:'11px 14px'}}>
+                    <button onClick={()=>setSelected(m)} style={{padding:'5px 12px',borderRadius:'6px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'12px',cursor:'pointer'}}>
+                      Ver afiliados ({m.total_affiliates})
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        /* Detalhe do gerente selecionado */
+        <div style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+            <button onClick={()=>setSelected(null)} style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 12px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'#888',fontSize:'12px',cursor:'pointer'}}>
+              <ChevronLeft size={13}/> Voltar
+            </button>
+            <div>
+              <p style={{fontWeight:700,fontSize:'16px',color:'#ccc'}}>{selected.name}</p>
+              <p style={{fontSize:'12px',color:'#555'}}>{selected.email} · Código: <code style={{color:V2.green}}>{selected.referral_code}</code></p>
+            </div>
+          </div>
+
+          <p style={{fontSize:'13px',color:'#888'}}>Afiliados cadastrados pelo link deste gerente. Configure a comissão de cada um.</p>
+
+          <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
+            <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+              <thead><tr style={{background:'#141414'}}>
+                {['Nome','Email','CPA (R$)','RevShare (%)','Baseline (R$)','Indicados','Comissões','Ações'].map(c=>(
+                  <th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {(!selected.affiliates||selected.affiliates.length===0)?(
+                  <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado vinculado a este gerente ainda</td></tr>
+                ):selected.affiliates.map((a:any,i:number)=>(
+                  <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                    <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
+                    <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
+                    <td style={{padding:'11px 14px',color:'#ccc'}}>R$ {Number(a.cpa||0).toFixed(2)}</td>
+                    <td style={{padding:'11px 14px',color:'#ccc'}}>{Number(a.rev_share||0).toFixed(1)}%</td>
+                    <td style={{padding:'11px 14px',color:'#ccc'}}>R$ {Number(a.baseline||0).toFixed(2)}</td>
+                    <td style={{padding:'11px 14px',color:'#ccc'}}>{a.total_referred}</td>
+                    <td style={{padding:'11px 14px',color:V2.green,fontWeight:600}}>R$ {Number(a.total_earned||0).toFixed(2)}</td>
+                    <td style={{padding:'11px 14px'}}>
+                      <button onClick={()=>setEditAff({...a})} style={{padding:'5px 12px',borderRadius:'6px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'12px',cursor:'pointer'}}>
+                        <Pencil size={12}/> Comissão
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Modal editar comissão do afiliado */}
+      {editAff&&(
+        <Overlay onClose={()=>setEditAff(null)}>
+          <Modal title={`Comissão — ${editAff.name}`} onClose={()=>setEditAff(null)}>
+            <div style={{display:'flex',flexDirection:'column',gap:'14px',minWidth:'320px'}}>
+              <p style={{fontSize:'12px',color:'#888'}}>Configure a comissão deste afiliado gerenciado por <strong style={{color:'#ccc'}}>{selected?.name}</strong>.</p>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                <div>
+                  <label style={LabelStyle}>CPA (R$)</label>
+                  <input type="number" step="0.01" min="0" style={InputStyle} value={editAff.cpa||0} onChange={(e:any)=>setEditAff({...editAff,cpa:e.target.value})}/>
+                </div>
+                <div>
+                  <label style={LabelStyle}>RevShare (%)</label>
+                  <input type="number" step="0.01" min="0" max="100" style={InputStyle} value={editAff.rev_share||0} onChange={(e:any)=>setEditAff({...editAff,rev_share:e.target.value})}/>
+                </div>
+                <div style={{gridColumn:'1/-1'}}>
+                  <label style={LabelStyle}>Baseline / Depósito mínimo (R$)</label>
+                  <input type="number" step="0.01" min="0" style={InputStyle} value={editAff.baseline||0} onChange={(e:any)=>setEditAff({...editAff,baseline:e.target.value})}/>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:'10px',justifyContent:'flex-end'}}>
+                <button onClick={()=>setEditAff(null)} style={{padding:'8px 16px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'#888',fontSize:'13px',cursor:'pointer'}}>Cancelar</button>
+                <PrimaryBtn onClick={saveCommission}>{saving?'Salvando...':'Salvar comissão'}</PrimaryBtn>
+              </div>
+            </div>
+          </Modal>
         </Overlay>
       )}
     </div>
