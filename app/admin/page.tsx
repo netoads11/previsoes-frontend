@@ -946,7 +946,7 @@ function SBadge({status}:{status:string}) {
     user:{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'},
   }
   const s = m[status]||{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'}
-  const labels:any = {open:'Aberto',active:'Ativo',inactive:'Inativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',admin:'Admin',user:'Usuário',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
+  const labels:any = {open:'Aberto',active:'Ativo',inactive:'Inativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',closed:'Fechado',archived:'Arquivado',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',approved:'Aprovado',admin:'Admin',user:'Usuário',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
   return <span style={{display:'inline-flex',alignItems:'center',padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:s.bg,color:s.c,border:`1px solid ${s.b}`}}>{labels[status]||status}</span>
 }
 
@@ -1003,7 +1003,7 @@ function FilterRow({search,onSearch,status,onStatus,statusOpts}:any) {
       </div>
       <select value={status} onChange={(e:any)=>onStatus(e.target.value)} style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'8px',padding:'7px 10px',color:status?'#ccc':'#555',fontSize:'12px',outline:'none',cursor:'pointer'}}>
         <option value="">Todos os status</option>
-        {statusOpts.map((s:string)=>{const lbl:any={active:'Ativo',blocked:'Bloqueado',suspended:'Suspenso',open:'Aberto',pending:'Pendente',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',cancelled:'Cancelado',rejected:'Recusado',won:'Ganhou',lost:'Perdeu'};return<option key={s} value={s}>{lbl[s]||s}</option>})}
+        {statusOpts.map((s:string)=>{const lbl:any={active:'Ativo',blocked:'Bloqueado',suspended:'Suspenso',open:'Aberto',closed:'Fechado',archived:'Arquivado',pending:'Pendente',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',cancelled:'Cancelado',rejected:'Recusado',won:'Ganhou',lost:'Perdeu',approved:'Aprovado'};return<option key={s} value={s}>{lbl[s]||s}</option>})}
       </select>
       {(search||status)&&<button onClick={()=>{onSearch('');onStatus('')}} style={{background:'transparent',border:'1px solid #222',borderRadius:'8px',padding:'7px 12px',color:'#555',fontSize:'12px',cursor:'pointer'}}>Limpar</button>}
     </div>
