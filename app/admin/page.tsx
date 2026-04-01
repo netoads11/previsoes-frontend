@@ -1564,29 +1564,42 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
       )}
 
       {activeTab==='cpa'&&(
-        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
-          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-            <label style={LabelStyle}>Tipo:</label>
-            <button onClick={()=>setCpaType('fixed')} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${cpaType==='fixed'?'#00e676':'#222'}`,background:cpaType==='fixed'?'rgba(0,230,118,0.1)':'transparent',color:cpaType==='fixed'?'#00e676':'#888',fontSize:'12px',cursor:'pointer'}}>Fixo (R$)</button>
-            <button onClick={()=>setCpaType('percent')} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${cpaType==='percent'?'#00e676':'#222'}`,background:cpaType==='percent'?'rgba(0,230,118,0.1)':'transparent',color:cpaType==='percent'?'#00e676':'#888',fontSize:'12px',cursor:'pointer'}}>Percentual (%)</button>
-          </div>
-          <div><label style={LabelStyle}>Valor da comissão *</label><input type="number" defaultValue="25" style={InputStyle}/></div>
+        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'20px'}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
-              <label style={{...LabelStyle,marginBottom:0}}>Chance de Comissionar (%)</label>
-              <div title="70% = de 100 indicados, 70 contabilizam comissão" style={{cursor:'help'}}><HelpCircle size={13} color="#555"/></div>
-            </div>
-            <input type="number" defaultValue="70" style={InputStyle}/>
+            <p style={{fontSize:'14px',fontWeight:700,color:'#ccc',margin:'0 0 4px'}}>Configurações de Afiliação</p>
+            <p style={{fontSize:'12px',color:'#555',margin:0}}>Configure os valores padrão para novos afiliados</p>
           </div>
-          <div>
-            <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
-              <label style={{...LabelStyle,marginBottom:0}}>Mínimo baseline (R$)</label>
-              <div title="Valor mínimo que indicado precisa depositar" style={{cursor:'help'}}><HelpCircle size={13} color="#555"/></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px'}}>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
+                <label style={{...LabelStyle,marginBottom:0}}>CPA (R$)</label>
+                <AdminTip text="Valor pago por cada primeiro depósito de usuário indicado." pos="bottom"/>
+              </div>
+              <input type="number" step="0.01" min="0" placeholder="0.00" value={local.cpa_value??''} onChange={upd('cpa_value')} style={InputStyle}/>
             </div>
-            <input type="number" defaultValue="30" style={InputStyle}/>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
+                <label style={{...LabelStyle,marginBottom:0}}>RevShare (%)</label>
+                <AdminTip text="Percentual pago sobre todos os depósitos dos usuários indicados." pos="bottom"/>
+              </div>
+              <input type="number" step="0.01" min="0" max="100" placeholder="0.00" value={local.rev_share??''} onChange={upd('rev_share')} style={InputStyle}/>
+            </div>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
+                <label style={{...LabelStyle,marginBottom:0}}>Depósito mínimo para comissão (R$)</label>
+                <AdminTip text="Valor mínimo do depósito para gerar comissão ao afiliado." pos="bottom"/>
+              </div>
+              <input type="number" step="0.01" min="0" placeholder="0.00" value={local.min_deposit_commission??''} onChange={upd('min_deposit_commission')} style={InputStyle}/>
+            </div>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'5px'}}>
+                <label style={{...LabelStyle,marginBottom:0}}>Chance raspadinha afiliados (%)</label>
+                <AdminTip text="Probabilidade de ganho nas raspadinhas para usuários afiliados (padrão: 40%)." pos="bottom"/>
+              </div>
+              <input type="number" step="1" min="0" max="100" placeholder="40" value={local.scratch_win_prob??''} onChange={upd('scratch_win_prob')} style={InputStyle}/>
+            </div>
           </div>
-          <div><label style={LabelStyle}>Sub-afiliação (%)</label><input type="number" defaultValue="5" style={InputStyle}/></div>
-          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('CPA salvo!'))}>Salvar</PrimaryBtn>
+          <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Configurações de afiliação salvas!'))}>Salvar</PrimaryBtn>
         </div>
       )}
 
