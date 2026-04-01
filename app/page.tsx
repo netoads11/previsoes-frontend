@@ -697,9 +697,11 @@ export default function Home() {
             {/* ── BANNER 192px ── */}
             <div style={{position:'relative',height:'192px',flexShrink:0,background:bannerGrad,display:'flex',alignItems:'center',justifyContent:'center'}}>
               {marketModal.image_url && (
-                <img src={marketModal.image_url.startsWith('http') ? marketModal.image_url : `${API}${marketModal.image_url}`} alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:0.45}}/>
+                <img src={marketModal.image_url.startsWith('http') ? marketModal.image_url : `${API}${marketModal.image_url}`} alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
               )}
-              <span style={{fontSize:'64px',lineHeight:1,position:'relative',zIndex:1,userSelect:'none'}}>{bannerEmoji}</span>
+              {!marketModal.image_url && (
+                <span style={{fontSize:'64px',lineHeight:1,position:'relative',zIndex:1,userSelect:'none'}}>{bannerEmoji}</span>
+              )}
               <button
                 onClick={closeModal}
                 style={{
@@ -842,9 +844,15 @@ export default function Home() {
                       const data = await res.json()
                       if (!res.ok) throw new Error(data.error||'Erro ao apostar')
                       setBalance(b => b - betNum)
-                      setMarketModal(null); setModalBetChoice(null); setBetValue('')
-                      // Atualiza odds e saldo após aposta
-                      fetch(API + '/api/markets').then(r => r.json()).then(d => { if (Array.isArray(d)) setMarkets(d) }).catch(() => {})
+                      setModalBetChoice(null); setBetValue('')
+                      // Atualiza odds, saldo e modal com dados frescos
+                      fetch(API + '/api/markets').then(r => r.json()).then(d => {
+                        if (Array.isArray(d)) {
+                          setMarkets(d)
+                          const updated = d.find((m:any) => m.id === marketModal?.id)
+                          if (updated) setMarketModal(updated)
+                        }
+                      }).catch(() => {})
                       fetch(API + '/api/wallet/balance', { headers: { 'Authorization': 'Bearer ' + token } }).then(r => r.json()).then(d => setBalance(Number(d.balance) || 0)).catch(() => {})
                     } catch(err:any){ alert(err.message) }
                   }}
