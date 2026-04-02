@@ -30,7 +30,7 @@ const NAV_SECTIONS = [
   { title: 'Operacional', items: [
     { label: 'Apostas', icon: DollarSign, id: 'apostas' },
     { label: 'Histórico', icon: History, id: 'historico' },
-    { label: 'Eventos', icon: Calendar, id: 'eventos' },
+    { label: 'Categorias', icon: Calendar, id: 'categorias' },
     { label: 'Mercados', icon: TrendingUp, id: 'markets' },
   ]},
   { title: 'Customização', items: [
@@ -40,7 +40,7 @@ const NAV_SECTIONS = [
 ]
 
 
-const CATS = ['Entretenimento','Criptomoedas','Financeiro','Esportes','Politica','Clima','Celebridades']
+const CATS_DEFAULT = ['Entretenimento','Criptomoedas','Financeiro','Esportes','Politica','Clima','Celebridades']
 
 export default function Admin() {
   const router = useRouter()
@@ -67,6 +67,7 @@ export default function Admin() {
   const [bets, setBets] = useState<any[]>([])
   const [affiliates, setAffiliates] = useState<any[]>([])
   const [managers, setManagers] = useState<any[]>([])
+  const [cats, setCats] = useState<string[]>(CATS_DEFAULT)
   const [sidebarLogo, setSidebarLogo] = useState('')
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
@@ -97,7 +98,7 @@ export default function Admin() {
   async function load(t: string) {
     setLoading(true)
     const h = {'Authorization':'Bearer '+t}
-    const [m,u,d,w,a,s,aff,bt,st,mg] = await Promise.all([
+    const [m,u,d,w,a,s,aff,bt,st,mg,ct] = await Promise.all([
       fetch(API+'/api/admin/markets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/users',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/deposits',{headers:h}).then(r=>r.json()).catch(()=>[]),
@@ -108,10 +109,13 @@ export default function Admin() {
       fetch(API+'/api/admin/bets',{headers:h}).then(r=>r.json()).catch(()=>[]),
       fetch(API+'/api/admin/stats',{headers:h}).then(r=>r.json()).catch(()=>({})),
       fetch(API+'/api/admin/managers',{headers:h}).then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/admin/categories',{headers:h}).then(r=>r.json()).catch(()=>[]),
     ])
     setMarkets(Array.isArray(m)?m:[]);setUsers(Array.isArray(u)?u:[])
     setDeposits(Array.isArray(d)?d:[]);setWithdrawals(Array.isArray(w)?w:[])
-    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setStats(st||{});setManagers(Array.isArray(mg)?mg:[]);setLoading(false)
+    setAudit(Array.isArray(a)?a:[]);setSettings(s||{}); setAffiliates(Array.isArray(aff)?aff:[]);setBets(Array.isArray(bt)?bt:[]);setStats(st||{});setManagers(Array.isArray(mg)?mg:[]);
+    if(Array.isArray(ct)&&ct.length>0) setCats(ct.map((c:any)=>c.name||c));
+    setLoading(false)
     if(s?.logo_url) setSidebarLogo(API+s.logo_url)
   }
 
@@ -423,7 +427,7 @@ export default function Admin() {
               <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,padding:'24px'}}>
                 <form onSubmit={createMarket} style={{display:'flex',flexDirection:'column',gap:'16px'}}>
                   <FField label="Pergunta *"><FInput value={newMarket.question} onChange={(e:any)=>setNewMarket({...newMarket,question:e.target.value})} placeholder="Ex: Bitcoin vai superar $100k?" required/></FField>
-                  <FField label="Categoria"><FSelect value={newMarket.category} onChange={(e:any)=>setNewMarket({...newMarket,category:e.target.value})}>{CATS.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
+                  <FField label="Categoria"><FSelect value={newMarket.category} onChange={(e:any)=>setNewMarket({...newMarket,category:e.target.value})}>{cats.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
                   <FField label="Tipo"><FSelect value={newMarket.type} onChange={(e:any)=>setNewMarket({...newMarket,type:e.target.value})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Multiplo (varias opcoes)</option></FSelect></FField>
                   {newMarket.type==='multiple'&&(
                     <FField label="Opcoes">
@@ -598,7 +602,7 @@ export default function Admin() {
             </div>
           )}
           {tab==='historico' && <div className="fade-in"><HistoricoPage audit={audit}/></div>}
-          {tab==='eventos' && <div className="fade-in"><EventosPage token={token} api={API} showToast={showToast}/></div>}
+          {tab==='categorias' && <div className="fade-in"><CategoriaPage token={token} api={API} showToast={showToast} onCatsChange={setCats}/></div>}
           {tab==='configs' && tab==='configs' && false && null}
           {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API} onLogoChange={setSidebarLogo}/></div>}
           {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
@@ -610,7 +614,7 @@ export default function Admin() {
         <Overlay onClose={()=>setEditMarket(null)}>
           <Modal title="Editar Mercado" onClose={()=>setEditMarket(null)}>
             <FField label="Pergunta"><FInput value={editMarket.question} onChange={(e:any)=>setEditMarket({...editMarket,question:e.target.value})}/></FField>
-            <FField label="Categoria"><FSelect value={editMarket.category||''} onChange={(e:any)=>setEditMarket({...editMarket,category:e.target.value})}>{CATS.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
+            <FField label="Categoria"><FSelect value={editMarket.category||''} onChange={(e:any)=>setEditMarket({...editMarket,category:e.target.value})}>{cats.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
             <FField label="Tipo"><FSelect value={editMarket.type||'single'} onChange={(e:any)=>setEditMarket({...editMarket,type:e.target.value,options:e.target.value==='multiple'?(editMarket.options?.length?editMarket.options:[{title:'',yes_odds:'50',no_odds:'50'}]):[]})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Múltiplo (várias opções)</option></FSelect></FField>
             {editMarket.type==='multiple'&&(
               <FField label="Opções">
@@ -1743,107 +1747,96 @@ function HistoricoPage({audit}:{audit:any[]}) {
   )
 }
 
-function EventosPage({token,api,showToast}:{token:string,api:string,showToast:(t:string,type?:string)=>void}) {
-  const [eventos, setEventos] = useState<any[]>([])
+function CategoriaPage({token,api,showToast,onCatsChange}:{token:string,api:string,showToast:(t:string,type?:string)=>void,onCatsChange:(cats:string[])=>void}) {
+  const [categorias, setCategorias] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [editEvento, setEditEvento] = useState<any>(null)
+  const [novaCategoria, setNovaCategoria] = useState('')
+  const [editando, setEditando] = useState<any>(null)
   const [saving, setSaving] = useState(false)
-  const emptyForm = {titulo:'',categoria:'',subcategoria:'',descricao:'',status:'active'}
-  const [form, setForm] = useState(emptyForm)
 
   async function load() {
     setLoading(true)
     try {
-      const r = await fetch(api+'/api/admin/events',{headers:{'Authorization':'Bearer '+token}})
+      const r = await fetch(api+'/api/admin/categories',{headers:{'Authorization':'Bearer '+token}})
       const d = await r.json()
-      setEventos(Array.isArray(d)?d:[])
-    } catch { setEventos([]) }
+      const list = Array.isArray(d)?d:[]
+      setCategorias(list)
+      onCatsChange(list.map((c:any)=>c.name))
+    } catch { setCategorias([]) }
     setLoading(false)
   }
   useEffect(()=>{load()},[])
 
   async function criar() {
-    if(!form.titulo.trim()){showToast('Título obrigatório','error');return}
+    if(!novaCategoria.trim()){showToast('Nome obrigatório','error');return}
     setSaving(true)
-    const r = await fetch(api+'/api/admin/events',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(form)})
+    const r = await fetch(api+'/api/admin/categories',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({name:novaCategoria.trim()})})
     const d = await r.json()
-    if(d.id){showToast('Evento criado!');setCreateOpen(false);setForm(emptyForm);load()}
+    if(d.id){showToast('Categoria criada!');setNovaCategoria('');load()}
     else showToast(d.error||'Erro','error')
     setSaving(false)
   }
 
-  async function salvarEdicao() {
-    if(!editEvento?.titulo?.trim()){showToast('Título obrigatório','error');return}
+  async function salvar() {
+    if(!editando?.name?.trim()){showToast('Nome obrigatório','error');return}
     setSaving(true)
-    const r = await fetch(api+`/api/admin/events/${editEvento.id}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(editEvento)})
+    const r = await fetch(api+`/api/admin/categories/${editando.id}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({name:editando.name.trim()})})
     const d = await r.json()
-    if(d.id){showToast('Evento salvo!');setEditEvento(null);load()}
+    if(d.id){showToast('Categoria salva!');setEditando(null);load()}
     else showToast(d.error||'Erro','error')
     setSaving(false)
   }
 
-  async function deletar(id:string) {
-    const r = await fetch(api+`/api/admin/events/${id}`,{method:'DELETE',headers:{'Authorization':'Bearer '+token}})
+  async function deletar(id:string, name:string) {
+    const r = await fetch(api+`/api/admin/categories/${id}`,{method:'DELETE',headers:{'Authorization':'Bearer '+token}})
     const d = await r.json()
-    if(d.success){showToast('Evento removido!');load()}
+    if(d.success){showToast(`"${name}" removida!`);load()}
     else showToast(d.error||'Erro','error')
   }
-
-  const fmt = (n:number) => `R$ ${Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2})}`
-  const ModalForm = ({data,setData,onSave,onClose,title}:any) => (
-    <Overlay onClose={onClose}>
-      <Modal title={title} onClose={onClose}>
-        <FField label="Título *"><FInput value={data.titulo||''} onChange={(e:any)=>setData({...data,titulo:e.target.value})}/></FField>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-          <FField label="Categoria"><FInput value={data.categoria||''} onChange={(e:any)=>setData({...data,categoria:e.target.value})}/></FField>
-          <FField label="Subcategoria"><FInput value={data.subcategoria||''} onChange={(e:any)=>setData({...data,subcategoria:e.target.value})}/></FField>
-        </div>
-        <FField label="Descrição">
-          <textarea value={data.descricao||''} onChange={(e:any)=>setData({...data,descricao:e.target.value})} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',resize:'vertical',minHeight:'80px'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
-        </FField>
-        <FField label="Status">
-          <FSelect value={data.status||'active'} onChange={(e:any)=>setData({...data,status:e.target.value})}>
-            <option value="active">Ativo</option>
-            <option value="inactive">Inativo</option>
-          </FSelect>
-        </FField>
-        <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-          <PrimaryBtn onClick={onSave}>{saving?'Salvando...':'Salvar'}</PrimaryBtn>
-          <GhostBtn onClick={onClose}>Cancelar</GhostBtn>
-        </div>
-      </Modal>
-    </Overlay>
-  )
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Eventos</h1>
-        <PrimaryBtn onClick={()=>{setForm(emptyForm);setCreateOpen(true)}}><Plus size={14}/> Criar Evento</PrimaryBtn>
+        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Categorias</h1>
+      </div>
+      <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'16px',display:'flex',gap:'10px',alignItems:'flex-end'}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:'11px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'6px'}}>Nova categoria</div>
+          <FInput value={novaCategoria} onChange={(e:any)=>setNovaCategoria(e.target.value)} placeholder="Ex: Tecnologia" onKeyDown={(e:any)=>{if(e.key==='Enter')criar()}}/>
+        </div>
+        <PrimaryBtn onClick={criar} disabled={saving}><Plus size={14}/> Adicionar</PrimaryBtn>
       </div>
       <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
           <thead><tr style={{background:'#141414'}}>
-            {['Categoria','Subcategoria','Título','Volume Total','Mercados','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            {['Nome','Mercados vinculados','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {loading?(
-              <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Carregando...</td></tr>
-            ):eventos.length===0?(
-              <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum evento criado ainda</td></tr>
-            ):eventos.map((e:any,i:number)=>(
-              <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.categoria||'—'}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{e.subcategoria||'—'}</td>
-                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{e.titulo}</td>
-                <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{fmt(e.volume_total||0)}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{e.total_mercados||0}</td>
-                <td style={{padding:'11px 14px'}}><SBadge status={e.status}/></td>
+              <tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Carregando...</td></tr>
+            ):categorias.length===0?(
+              <tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhuma categoria cadastrada</td></tr>
+            ):categorias.map((c:any)=>(
+              <tr key={c.id} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>
+                  {editando?.id===c.id?(
+                    <FInput value={editando.name} onChange={(e:any)=>setEditando({...editando,name:e.target.value})} onKeyDown={(e:any)=>{if(e.key==='Enter')salvar();if(e.key==='Escape')setEditando(null)}} style={{width:'200px'}}/>
+                  ):c.name}
+                </td>
+                <td style={{padding:'11px 14px',color:'#888'}}>{c.total_mercados||0}</td>
                 <td style={{padding:'11px 14px'}}>
                   <div style={{display:'flex',gap:'6px'}}>
-                    <button onClick={()=>setEditEvento({...e})} style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'11px',cursor:'pointer'}}><Pencil size={11}/></button>
-                    <button onClick={()=>deletar(e.id)} style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid rgba(244,67,54,0.3)',background:'transparent',color:'#f44336',fontSize:'11px',cursor:'pointer'}}><Trash2 size={11}/></button>
+                    {editando?.id===c.id?(
+                      <>
+                        <PrimaryBtn onClick={salvar} disabled={saving} style={{padding:'4px 10px',fontSize:'11px'}}>Salvar</PrimaryBtn>
+                        <GhostBtn onClick={()=>setEditando(null)}>Cancelar</GhostBtn>
+                      </>
+                    ):(
+                      <>
+                        <button onClick={()=>setEditando({...c})} style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid #333',background:'transparent',color:'#ccc',fontSize:'11px',cursor:'pointer'}}><Pencil size={11}/></button>
+                        <button onClick={()=>deletar(c.id,c.name)} style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid rgba(244,67,54,0.3)',background:'transparent',color:'#f44336',fontSize:'11px',cursor:'pointer'}}><Trash2 size={11}/></button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -1851,8 +1844,6 @@ function EventosPage({token,api,showToast}:{token:string,api:string,showToast:(t
           </tbody>
         </table>
       </div>
-      {createOpen&&<ModalForm data={form} setData={setForm} onSave={criar} onClose={()=>setCreateOpen(false)} title="Criar Evento"/>}
-      {editEvento&&<ModalForm data={editEvento} setData={setEditEvento} onSave={salvarEdicao} onClose={()=>setEditEvento(null)} title="Editar Evento"/>}
     </div>
   )
 }
