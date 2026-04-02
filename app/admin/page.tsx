@@ -628,7 +628,7 @@ export default function Admin() {
               <FField label="SIM (%)"><FInput type="number" min="1" max="99" style={{color:V.green}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></FField>
               <FField label="NAO (%)"><FInput type="number" min="1" max="99" style={{color:V.red}} value={editMarket.no_odds} onChange={(e:any)=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></FField>
             </div>
-            <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?String(editMarket.expires_at).slice(0,16):''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
+            <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?(()=>{const d=new Date(editMarket.expires_at);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)})():''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
             <FField label="Status"><FSelect value={editMarket.status} onChange={(e:any)=>setEditMarket({...editMarket,status:e.target.value})}>{['open','suspended','resolved','cancelled'].map(s=><option key={s} value={s}>{s}</option>)}</FSelect></FField>
             <FField label="Imagem (URL ou Upload)">
               <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
