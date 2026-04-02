@@ -609,55 +609,150 @@ export default function Admin() {
         </main>
       </div>
 
-      {/* ══ MODAL EDITAR MERCADO ══ */}
+      {/* ══ MODAL EDITAR MERCADO — PREMIUM ══ */}
       {editMarket && (
-        <Overlay onClose={()=>setEditMarket(null)}>
-          <Modal title="Editar Mercado" onClose={()=>setEditMarket(null)}>
-            <FField label="Pergunta"><FInput value={editMarket.question} onChange={(e:any)=>setEditMarket({...editMarket,question:e.target.value})}/></FField>
-            <FField label="Categoria"><FSelect value={editMarket.category||''} onChange={(e:any)=>setEditMarket({...editMarket,category:e.target.value})}>{cats.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
-            <FField label="Tipo"><FSelect value={editMarket.type||'single'} onChange={(e:any)=>setEditMarket({...editMarket,type:e.target.value,options:e.target.value==='multiple'?(editMarket.options?.length?editMarket.options:[{title:'',yes_odds:'50',no_odds:'50'}]):[]})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Múltiplo (várias opções)</option></FSelect></FField>
-            {editMarket.type==='multiple'&&(
-              <FField label="Opções">
-                {(editMarket.options||[]).map((opt:any,i:number)=>(
-                  <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
-                    <FInput placeholder={`Opção ${i+1}`} value={opt.title||''} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})} style={{flex:2}}/>
-                    <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds||'50'} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{flex:1,color:'#00e676'}}/>
-                    <button type="button" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'12px'}}>X</button>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.88)',backdropFilter:'blur(10px)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={(e:any)=>{if(e.target===e.currentTarget)setEditMarket(null)}}>
+          <div style={{width:'min(860px,95vw)',maxHeight:'92vh',background:'#141414',borderRadius:'16px',border:'1px solid #222',boxShadow:'0 32px 100px rgba(0,0,0,0.7)',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+
+            {/* ── HEADER ── */}
+            <div style={{flexShrink:0,padding:'20px 24px',borderBottom:'1px solid #1e1e1e',background:'#161616',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:'12px',minWidth:0}}>
+                {editMarket.image_url
+                  ? <img src={editMarket.image_url} alt="" style={{width:'42px',height:'42px',borderRadius:'10px',objectFit:'cover',flexShrink:0,border:'1px solid #2a2a2a'}} onError={(e:any)=>e.target.style.display='none'}/>
+                  : <div style={{width:'42px',height:'42px',borderRadius:'10px',background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><TrendingUp size={18} color="#00e676"/></div>
+                }
+                <div style={{minWidth:0}}>
+                  <div style={{fontSize:'15px',fontWeight:700,color:'#fff',fontFamily:"'Manrope',sans-serif",whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'500px'}}>{editMarket.question}</div>
+                  <div style={{display:'flex',alignItems:'center',gap:'8px',marginTop:'4px'}}>
+                    <span style={{fontSize:'11px',color:'#555',background:'#1e1e1e',padding:'2px 8px',borderRadius:'4px',border:'1px solid #2a2a2a'}}>{editMarket.category||'Sem categoria'}</span>
+                    <SBadge status={editMarket.status}/>
+                    <span style={{fontSize:'11px',color:'#555'}}>ID: {editMarket.id?.slice(0,8)}…</span>
                   </div>
-                ))}
-                <button type="button" onClick={()=>setEditMarket({...editMarket,options:[...(editMarket.options||[]),{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
-              </FField>
-            )}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-              <FField label="SIM (%)"><FInput type="number" min="1" max="99" style={{color:V.green}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></FField>
-              <FField label="NAO (%)"><FInput type="number" min="1" max="99" style={{color:V.red}} value={editMarket.no_odds} onChange={(e:any)=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></FField>
-            </div>
-            <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?(()=>{const d=new Date(editMarket.expires_at);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)})():''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
-            <FField label="Status"><FSelect value={editMarket.status} onChange={(e:any)=>setEditMarket({...editMarket,status:e.target.value})}>{['open','suspended','resolved','cancelled'].map(s=><option key={s} value={s}>{s}</option>)}</FSelect></FField>
-            <FField label="Imagem (URL ou Upload)">
-              <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
-                <FInput placeholder="https://... ou deixe vazio" value={editMarket.image_url||''} onChange={(e:any)=>setEditMarket({...editMarket,image_url:e.target.value})} style={{flex:1}}/>
-                <label style={{cursor:'pointer',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'8px',padding:'8px 12px',fontSize:'12px',color:'#aaa',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:'6px'}}>
-                  <Upload size={14}/>Enviar
-                  <input type="file" accept="image/*" style={{display:'none'}} onChange={async(e:any)=>{
-                    const file=e.target.files?.[0];if(!file)return;
-                    const fd=new FormData();fd.append('image',file);
-                    const r=await fetch(API+`/api/admin/markets/${editMarket.id}/image`,{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
-                    const d=await r.json();
-                    if(d.image_url){setEditMarket({...editMarket,image_url:API+d.image_url});showToast('Imagem enviada!')}
-                    else showToast(d.error||'Erro ao enviar','error')
-                  }}/>
-                </label>
+                </div>
               </div>
-              {editMarket.image_url && <img src={editMarket.image_url} alt="preview" style={{marginTop:'8px',width:'100%',height:'120px',objectFit:'cover',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.1)'}} onError={(e:any)=>e.target.style.display='none'}/>}
-            </FField>
-            <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta alteração será registrada no log de auditoria com seu IP.</p>
-            <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={saveMarket}>SALVAR</PrimaryBtn>
-              <GhostBtn onClick={()=>setEditMarket(null)}>Cancelar</GhostBtn>
+              <button onClick={()=>setEditMarket(null)} style={{background:'transparent',border:'1px solid #2a2a2a',cursor:'pointer',color:'#555',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#555'}}><X size={14}/></button>
             </div>
-          </Modal>
-        </Overlay>
+
+            {/* ── BODY SCROLL ── */}
+            <div style={{flex:1,overflowY:'auto',padding:'20px 24px',display:'flex',flexDirection:'column',gap:'20px'}}>
+
+              {/* BARRA DE ODDS VISUAL */}
+              {editMarket.type!=='multiple' && (
+                <div style={{background:'#1a1a1a',borderRadius:'10px',padding:'14px 16px',border:'1px solid #222'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}>
+                    <span style={{fontSize:'12px',fontWeight:700,color:'#00e676'}}>SIM {Number(editMarket.yes_odds)||50}%</span>
+                    <span style={{fontSize:'12px',fontWeight:700,color:'#f44336'}}>NÃO {Number(editMarket.no_odds)||50}%</span>
+                  </div>
+                  <div style={{height:'8px',borderRadius:'999px',background:'#222',overflow:'hidden',display:'flex'}}>
+                    <div style={{width:`${Number(editMarket.yes_odds)||50}%`,background:'linear-gradient(90deg,#00e676,#00c853)',transition:'width 0.3s'}}/>
+                    <div style={{flex:1,background:'linear-gradient(90deg,#f44336,#c62828)'}}/>
+                  </div>
+                </div>
+              )}
+
+              {/* SEÇÃO: INFORMAÇÕES */}
+              <div>
+                <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  Informações
+                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+                  <FField label="Pergunta"><FInput value={editMarket.question} onChange={(e:any)=>setEditMarket({...editMarket,question:e.target.value})}/></FField>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                    <FField label="Categoria"><FSelect value={editMarket.category||''} onChange={(e:any)=>setEditMarket({...editMarket,category:e.target.value})}>{cats.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
+                    <FField label="Tipo"><FSelect value={editMarket.type||'single'} onChange={(e:any)=>setEditMarket({...editMarket,type:e.target.value,options:e.target.value==='multiple'?(editMarket.options?.length?editMarket.options:[{title:'',yes_odds:'50',no_odds:'50'}]):[]})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Múltiplo (várias opções)</option></FSelect></FField>
+                  </div>
+                </div>
+              </div>
+
+              {/* SEÇÃO: ODDS */}
+              {editMarket.type==='multiple' ? (
+                <div>
+                  <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                    <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Opções<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  </div>
+                  {(editMarket.options||[]).map((opt:any,i:number)=>(
+                    <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
+                      <FInput placeholder={`Opção ${i+1}`} value={opt.title||''} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})} style={{flex:2}}/>
+                      <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds||'50'} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{flex:1,color:'#00e676'}}/>
+                      <button type="button" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'12px'}}>X</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={()=>setEditMarket({...editMarket,options:[...(editMarket.options||[]),{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.2)',color:'#00e676',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                    <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Odds<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                    <FField label="SIM (%)"><FInput type="number" min="1" max="99" style={{color:V.green,fontWeight:700}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></FField>
+                    <FField label="NÃO (%)"><FInput type="number" min="1" max="99" style={{color:V.red,fontWeight:700}} value={editMarket.no_odds} onChange={(e:any)=>setEditMarket({...editMarket,no_odds:e.target.value,yes_odds:100-Number(e.target.value)})}/></FField>
+                  </div>
+                </div>
+              )}
+
+              {/* SEÇÃO: CONFIGURAÇÕES */}
+              <div>
+                <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Configurações<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                  <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?(()=>{const d=new Date(editMarket.expires_at);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)})():''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
+                  <FField label="Status">
+                    <div style={{display:'flex',gap:'6px',flexWrap:'wrap'}}>
+                      {['open','suspended','resolved','cancelled'].map(s=>(
+                        <button key={s} type="button" onClick={()=>setEditMarket({...editMarket,status:s})} style={{padding:'6px 12px',borderRadius:'6px',border:`1px solid ${editMarket.status===s?'rgba(0,230,118,0.4)':'#2a2a2a'}`,background:editMarket.status===s?'rgba(0,230,118,0.1)':'transparent',color:editMarket.status===s?'#00e676':'#555',fontSize:'11px',fontWeight:600,cursor:'pointer',textTransform:'capitalize',transition:'all 0.15s'}}>
+                          {{open:'Aberto',suspended:'Suspenso',resolved:'Resolvido',cancelled:'Cancelado'}[s]}
+                        </button>
+                      ))}
+                    </div>
+                  </FField>
+                </div>
+              </div>
+
+              {/* SEÇÃO: IMAGEM */}
+              <div>
+                <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Imagem<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                </div>
+                <div style={{display:'flex',gap:'14px',alignItems:'flex-start'}}>
+                  <div style={{flex:1,display:'flex',flexDirection:'column',gap:'8px'}}>
+                    <div style={{display:'flex',gap:'8px'}}>
+                      <FInput placeholder="https://... ou deixe vazio" value={editMarket.image_url||''} onChange={(e:any)=>setEditMarket({...editMarket,image_url:e.target.value})} style={{flex:1}}/>
+                      <label style={{cursor:'pointer',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'8px',padding:'8px 12px',fontSize:'12px',color:'#aaa',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:'6px',flexShrink:0}}>
+                        <Upload size={14}/>Enviar
+                        <input type="file" accept="image/*" style={{display:'none'}} onChange={async(e:any)=>{
+                          const file=e.target.files?.[0];if(!file)return;
+                          const fd=new FormData();fd.append('image',file);
+                          const r=await fetch(API+`/api/admin/markets/${editMarket.id}/image`,{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
+                          const d=await r.json();
+                          if(d.image_url){setEditMarket({...editMarket,image_url:API+d.image_url});showToast('Imagem enviada!')}
+                          else showToast(d.error||'Erro ao enviar','error')
+                        }}/>
+                      </label>
+                    </div>
+                  </div>
+                  {editMarket.image_url && (
+                    <img src={editMarket.image_url} alt="preview" style={{width:'90px',height:'64px',objectFit:'cover',borderRadius:'8px',border:'1px solid #2a2a2a',flexShrink:0}} onError={(e:any)=>e.target.style.display='none'}/>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* ── FOOTER ── */}
+            <div style={{flexShrink:0,padding:'14px 24px',borderTop:'1px solid #1e1e1e',background:'#161616',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <p style={{fontSize:'11px',color:'#333',margin:0}}>Alteração registrada no log de auditoria com seu IP.</p>
+              <div style={{display:'flex',gap:'8px'}}>
+                <GhostBtn onClick={()=>setEditMarket(null)}>Cancelar</GhostBtn>
+                <PrimaryBtn onClick={saveMarket}>Salvar alterações</PrimaryBtn>
+              </div>
+            </div>
+
+          </div>
+        </div>
       )}
 
       {/* ══ EDITAR USUÁRIO — Drawer Full Width Premium ══ */}
