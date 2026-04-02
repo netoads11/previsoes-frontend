@@ -7,16 +7,7 @@ import DepositModalComp from './components/DepositModal'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
-const CATS = [
-  { name: 'Live' },
-  { name: 'Explorar' },
-  { name: 'Economia' },
-  { name: 'Entretenimento' },
-  { name: 'Esportes' },
-  { name: 'Criptomoedas' },
-  { name: 'Geopolitica' },
-  { name: 'Politica' },
-]
+const CATS_FIXED = ['Live', 'Explorar']
 
 interface MarketOption {
   id: string
@@ -66,6 +57,7 @@ export default function Home() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [banners, setBanners] = useState<any[]>([])
   const [bannerIdx, setBannerIdx] = useState(0)
+  const [cats, setCats] = useState<{name:string}[]>([{name:'Live'},{name:'Explorar'}])
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -82,6 +74,7 @@ export default function Home() {
     window.addEventListener('resize', check)
     fetch(API + '/api/settings/public').then(r=>r.json()).then(d=>{ if(d.min_deposit) setMinDeposit(d.min_deposit); if(d.logo_url) setLogoUrl(API+d.logo_url); if(d.platform_name) setPlatformName(d.platform_name) }).catch(()=>{})
     fetch(API + '/api/admin/banners/public').then(r=>r.json()).then(d=>{ if(Array.isArray(d)&&d.length) setBanners(d) }).catch(()=>{})
+    fetch(API + '/api/admin/categories/public').then(r=>r.json()).then(d=>{ if(Array.isArray(d)&&d.length) setCats([{name:'Live'},{name:'Explorar'},...d.filter((n:string)=>n!=='Explorar').map((n:string)=>({name:n}))]) }).catch(()=>{})
     fetch(API + '/api/markets')
       .then(r => r.json())
       .then(d => { setMarkets(Array.isArray(d) ? d : []); setLoading(false) })
@@ -167,7 +160,7 @@ export default function Home() {
     return m.category===cat&&(busca===''||m.question.toLowerCase().includes(busca.toLowerCase()))
   })
 
-  const byCategory = CATS.slice(2).reduce((acc:any[],c)=>{
+  const byCategory = cats.slice(2).reduce((acc:any[],c)=>{
     const mkts=markets.filter(m=>m.category===c.name)
     if(mkts.length>0) acc.push({cat:c,markets:mkts})
     return acc
@@ -370,7 +363,7 @@ export default function Home() {
 
       {/* CATEGORIAS */}
       <div className="cat-scroll" style={{display:'flex',gap:'4px',padding:'8px 16px',overflowX:'auto',background:'#111',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
-        {CATS.map(c=>{
+        {cats.map(c=>{
           const active=cat===c.name
           const isLive=c.name==='Live'
           return (
@@ -395,7 +388,7 @@ export default function Home() {
         <aside className="sidebar-d" style={{width:'190px',flexShrink:0,background:'#111',borderRight:'1px solid rgba(255,255,255,0.06)',padding:'12px 0',position:'sticky',top:'54px',height:'calc(100vh - 54px)',overflowY:'auto',flexDirection:'column'}}>
           <p style={{color:'#555',fontSize:'9px',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',padding:'0 14px 8px'}}>CATEGORIAS</p>
           <nav>
-            {CATS.map(c=>{
+            {cats.map(c=>{
               const active=cat===c.name
               const isLive=c.name==='Live'
               return (
