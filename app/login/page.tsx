@@ -33,6 +33,8 @@ export default function Login() {
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
       if (data.user.is_admin) router.push('/admin')
+      else if (data.user.role === 'manager') router.push('/dashboard/gerente')
+      else if (data.user.role === 'affiliate') router.push('/dashboard/afiliado')
       else router.push('/')
     } catch (err: any) {
       setError(err.message || 'Erro ao fazer login')
