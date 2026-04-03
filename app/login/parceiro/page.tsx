@@ -12,6 +12,7 @@ export default function LoginParceiro() {
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [logoUrl, setLogoUrl] = useState('')
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -19,10 +20,14 @@ export default function LoginParceiro() {
     if (token && user) {
       try {
         const u = JSON.parse(user)
-        if (u.role === 'manager') router.push('/dashboard/gerente')
-        else if (u.role === 'affiliate') router.push('/dashboard/afiliado')
+        if (u.role === 'manager') { router.push('/dashboard/gerente'); return }
+        if (u.role === 'affiliate') { router.push('/dashboard/afiliado'); return }
       } catch {}
     }
+    fetch(API + '/api/admin/branding')
+      .then(r => r.json())
+      .then(d => { if (d.logo_url) setLogoUrl(API + d.logo_url) })
+      .catch(() => {})
   }, [])
 
   async function handleLogin(e: any) {
@@ -52,10 +57,22 @@ export default function LoginParceiro() {
     }
   }
 
-  const accent = '#3b82f6'
-  const accentGlow = 'rgba(59,130,246,0.35)'
-  const accentBg = 'rgba(59,130,246,0.1)'
-  const accentBorder = 'rgba(59,130,246,0.2)'
+  const green = '#6ADD00'
+  const greenGlow = 'rgba(106,221,0,0.35)'
+  const greenBg = 'rgba(106,221,0,0.1)'
+  const greenBorder = 'rgba(106,221,0,0.2)'
+
+  function Logo({ size = 36 }: { size?: number }) {
+    if (logoUrl) return (
+      <img src={logoUrl} alt="logo" style={{ height: size + 'px', maxWidth: '160px', objectFit: 'contain' }}
+        onError={() => setLogoUrl('')} />
+    )
+    return (
+      <div style={{ width: size + 'px', height: size + 'px', borderRadius: '8px', background: green, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 16px ${greenGlow}`, flexShrink: 0 }}>
+        <TrendingUp size={Math.round(size * 0.45)} color="#000" strokeWidth={2.5} />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -64,13 +81,13 @@ export default function LoginParceiro() {
         *{box-sizing:border-box;margin:0;padding:0}
         body{background:#0d0d0d}
         .pc{display:flex;min-height:100vh;background:#0d0d0d;font-family:'Inter',system-ui,sans-serif}
-        .pl{flex:1;background:linear-gradient(135deg,#0a0a0a 0%,#0a0f1a 50%,#080d18 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
+        .pl{flex:1;background:linear-gradient(135deg,#0a0a0a 0%,#0d1a00 50%,#0a0f00 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
         .pr{width:480px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;padding:48px;border-left:1px solid rgba(255,255,255,0.06)}
         input{font-family:'Inter',system-ui,sans-serif}
         .inp{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:13px 13px 13px 40px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s}
-        .inp:focus{border-color:rgba(59,130,246,0.5)}
+        .inp:focus{border-color:rgba(106,221,0,0.5)}
         .inp-r{padding:13px 40px}
-        .btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:#3b82f6;color:#fff;font-weight:800;font-size:15px;font-family:'Inter',system-ui,sans-serif;box-shadow:0 0 24px rgba(59,130,246,0.35);transition:opacity 0.2s}
+        .btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:#6ADD00;color:#0a0a0a;font-weight:800;font-size:15px;font-family:'Inter',system-ui,sans-serif;box-shadow:0 0 24px rgba(106,221,0,0.35);transition:opacity 0.2s}
         .btn:disabled{opacity:0.7;cursor:not-allowed}
         .stat-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px}
         @media(max-width:768px){
@@ -82,34 +99,30 @@ export default function LoginParceiro() {
       <div className="pc">
         {/* LEFT */}
         <div className="pl">
-          {/* Glows */}
-          <div style={{position:'absolute',top:'-80px',right:'-80px',width:'320px',height:'320px',borderRadius:'50%',background:'radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%)',pointerEvents:'none'}}/>
-          <div style={{position:'absolute',bottom:'-60px',left:'-60px',width:'260px',height:'260px',borderRadius:'50%',background:'radial-gradient(circle,rgba(59,130,246,0.07) 0%,transparent 70%)',pointerEvents:'none'}}/>
+          <div style={{position:'absolute',top:'-80px',right:'-80px',width:'320px',height:'320px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.15) 0%,transparent 70%)',pointerEvents:'none'}}/>
+          <div style={{position:'absolute',bottom:'-60px',left:'-60px',width:'260px',height:'260px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.08) 0%,transparent 70%)',pointerEvents:'none'}}/>
 
           {/* Logo */}
           <div style={{display:'flex',alignItems:'center',gap:'10px',position:'relative'}}>
-            <div style={{width:'36px',height:'36px',borderRadius:'8px',background:accent,display:'flex',alignItems:'center',justifyContent:'center',boxShadow:`0 0 16px ${accentGlow}`}}>
-              <TrendingUp size={18} color="#fff" strokeWidth={2.5}/>
-            </div>
-            <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>Previmarket</span>
-            <span style={{marginLeft:'4px',padding:'2px 8px',borderRadius:'6px',background:accentBg,border:`1px solid ${accentBorder}`,color:accent,fontSize:'11px',fontWeight:600}}>Parceiros</span>
+            <Logo size={36} />
+            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>Previmarket</span>}
+            <span style={{marginLeft:'4px',padding:'2px 8px',borderRadius:'6px',background:greenBg,border:`1px solid ${greenBorder}`,color:green,fontSize:'11px',fontWeight:600}}>Parceiros</span>
           </div>
 
           {/* Hero */}
           <div style={{position:'relative'}}>
-            <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:accentBg,border:`1px solid ${accentBorder}`,borderRadius:'20px',padding:'6px 14px',marginBottom:'24px'}}>
-              <div style={{width:'6px',height:'6px',borderRadius:'50%',background:accent}}/>
-              <span style={{color:accent,fontSize:'12px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Área exclusiva</span>
+            <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:greenBg,border:`1px solid ${greenBorder}`,borderRadius:'20px',padding:'6px 14px',marginBottom:'24px'}}>
+              <div style={{width:'6px',height:'6px',borderRadius:'50%',background:green}}/>
+              <span style={{color:green,fontSize:'12px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Área exclusiva</span>
             </div>
             <h1 style={{fontSize:'40px',fontWeight:800,color:'#fff',lineHeight:1.2,marginBottom:'16px',fontFamily:"'Manrope',sans-serif"}}>
               SEU PAINEL<br/>DE PARCEIRO<br/>
-              <span style={{color:accent,textShadow:`0 0 30px ${accentGlow}`}}>PREVIMARKET</span>
+              <span style={{color:green,textShadow:`0 0 30px ${greenGlow}`}}>PREVIMARKET</span>
             </h1>
             <p style={{color:'rgba(255,255,255,0.5)',fontSize:'15px',lineHeight:1.6,maxWidth:'360px'}}>
               Acompanhe seus indicados, gerencie comissões e maximize seus ganhos em tempo real.
             </p>
 
-            {/* Stats */}
             <div style={{display:'flex',flexDirection:'column',gap:'10px',marginTop:'40px',maxWidth:'340px'}}>
               {[
                 {icon:Users,label:'Indicados',desc:'Acompanhe todos os usuários captados'},
@@ -117,8 +130,8 @@ export default function LoginParceiro() {
                 {icon:Briefcase,label:'Painel do gerente',desc:'Gerencie seus afiliados e defina comissões'},
               ].map(({icon:Icon,label,desc})=>(
                 <div key={label} className="stat-card">
-                  <div style={{width:'34px',height:'34px',borderRadius:'8px',background:accentBg,border:`1px solid ${accentBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <Icon size={16} color={accent}/>
+                  <div style={{width:'34px',height:'34px',borderRadius:'8px',background:greenBg,border:`1px solid ${greenBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <Icon size={16} color={green}/>
                   </div>
                   <div>
                     <p style={{color:'#fff',fontWeight:600,fontSize:'13px'}}>{label}</p>
@@ -134,13 +147,10 @@ export default function LoginParceiro() {
 
         {/* RIGHT */}
         <div className="pr">
-          {/* Logo mobile */}
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'32px'}}>
-            <div style={{width:'30px',height:'30px',borderRadius:'7px',background:accent,display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <TrendingUp size={14} color="#fff" strokeWidth={2.5}/>
-            </div>
-            <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>Previmarket</span>
-            <span style={{padding:'2px 7px',borderRadius:'5px',background:accentBg,border:`1px solid ${accentBorder}`,color:accent,fontSize:'10px',fontWeight:600}}>Parceiros</span>
+            <Logo size={30} />
+            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>Previmarket</span>}
+            <span style={{padding:'2px 7px',borderRadius:'5px',background:greenBg,border:`1px solid ${greenBorder}`,color:green,fontSize:'10px',fontWeight:600}}>Parceiros</span>
           </div>
 
           <div style={{marginBottom:'28px'}}>
@@ -159,29 +169,19 @@ export default function LoginParceiro() {
               <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Email</label>
               <div style={{position:'relative'}}>
                 <Mail style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
-                <input
-                  type="email" value={email} onChange={e=>setEmail(e.target.value)}
-                  required placeholder="seu@email.com"
-                  className="inp"
-                />
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="seu@email.com" className="inp"/>
               </div>
             </div>
-
             <div>
               <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Senha</label>
               <div style={{position:'relative'}}>
                 <Lock style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
-                <input
-                  type={showPass?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)}
-                  required placeholder="Sua senha"
-                  className="inp inp-r"
-                />
+                <input type={showPass?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} required placeholder="Sua senha" className="inp inp-r"/>
                 <button type="button" onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:'13px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,0.3)',padding:0}}>
                   {showPass?<EyeOff style={{width:'15px',height:'15px'}}/>:<Eye style={{width:'15px',height:'15px'}}/>}
                 </button>
               </div>
             </div>
-
             <button type="submit" disabled={loading} className="btn" style={{marginTop:'6px'}}>
               {loading ? 'Entrando...' : 'ENTRAR NO PAINEL'}
             </button>
@@ -190,7 +190,7 @@ export default function LoginParceiro() {
           <div style={{marginTop:'28px',padding:'16px',background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'10px'}}>
             <p style={{color:'rgba(255,255,255,0.35)',fontSize:'12px',lineHeight:1.6,textAlign:'center'}}>
               Esta área é exclusiva para <strong style={{color:'rgba(255,255,255,0.6)'}}>gerentes e afiliados</strong> cadastrados.<br/>
-              Jogador? <a href="/login" style={{color:accent,fontWeight:600,textDecoration:'none'}}>Acesse aqui</a>
+              Jogador? <a href="/login" style={{color:green,fontWeight:600,textDecoration:'none'}}>Acesse aqui</a>
             </p>
           </div>
         </div>
