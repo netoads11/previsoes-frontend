@@ -316,15 +316,16 @@ export default function GerenteDashboard() {
 
 function StatCard({ icon: Icon, color, label, value, sub }: any) {
   return (
-    <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
-        <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(128,128,128,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={15} color='var(--muted-foreground)' strokeWidth={2} />
+    <div style={{ background: 'var(--card)', borderRadius: '14px', border: '1px solid var(--border)', padding: '20px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)' }}/>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
+        <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.14em' }}>{label}</span>
+        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={16} color='rgba(255,255,255,0.3)' strokeWidth={1.75} />
         </div>
       </div>
-      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: '#ffffff' }}>{value}</p>
-      <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{sub}</p>
+      <p style={{ fontSize: '28px', fontWeight: 800, fontFamily: "'Manrope',sans-serif", color: '#ffffff', letterSpacing: '-1px', lineHeight: 1, marginBottom: '8px' }}>{value}</p>
+      <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>{sub}</p>
     </div>
   )
 }

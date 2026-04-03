@@ -192,7 +192,8 @@ export default function Admin() {
         ::-webkit-scrollbar-thumb:hover{background:#333}
         .nav-item:hover{background:var(--card)!important;color:#fff!important}
         .trow:hover td{background:var(--card)!important}
-        .metric-card:hover{background:#1f1f1f!important}
+        .metric-card{transition:border-color 0.2s,box-shadow 0.2s}
+        .metric-card:hover{border-color:rgba(255,255,255,0.12)!important;box-shadow:0 4px 24px rgba(0,0,0,0.3)!important}
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
         @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
         .skel{background:linear-gradient(90deg,var(--card) 25%,var(--muted) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.6s ease infinite;border-radius:8px}
@@ -974,30 +975,35 @@ export default function Admin() {
 function MCard({title,value,sub,icon:Icon,color,tip}:{title:string,value:string,sub:string,icon:any,color?:string,tip?:string}) {
   const [show,setShow] = useState(false)
   return (
-    <div className="metric-card" style={{background:'var(--card)',borderRadius:'10px',border:'1px solid var(--border)',padding:'16px',transition:'all 0.2s',cursor:'default',position:'relative'}}>
-      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'10px'}}>
+    <div className="metric-card" style={{background:'var(--card)',borderRadius:'14px',border:'1px solid var(--border)',padding:'20px',cursor:'default',position:'relative',overflow:'hidden'}}>
+      {/* top accent line */}
+      <div style={{position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)'}}/>
+      {/* header */}
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'18px'}}>
         <div style={{display:'flex',alignItems:'center',gap:'5px',flex:1,minWidth:0}}>
-          <p style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',lineHeight:1.3}}>{title}</p>
+          <p style={{fontSize:'10px',color:'var(--muted-foreground)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.14em',lineHeight:1.3}}>{title}</p>
           {tip&&(
             <div style={{position:'relative',flexShrink:0}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
-              <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help'}}>
-                <span style={{fontSize:'9px',color:'var(--muted-foreground)',fontWeight:700,lineHeight:1}}>?</span>
+              <div style={{width:'13px',height:'13px',borderRadius:'50%',border:'1px solid rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help'}}>
+                <span style={{fontSize:'8px',color:'var(--muted-foreground)',fontWeight:700,lineHeight:1}}>?</span>
               </div>
               {show&&(
-                <div style={{position:'absolute',bottom:'calc(100% + 6px)',left:'50%',transform:'translateX(-50%)',background:'var(--muted)',border:'1px solid var(--border)',borderRadius:'8px',padding:'8px 10px',width:'200px',zIndex:100,boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
-                  <p style={{fontSize:'11px',color:'var(--muted-foreground)',lineHeight:1.5,margin:0}}>{tip}</p>
-                  <div style={{position:'absolute',bottom:'-5px',left:'50%',transform:'translateX(-50%)',width:'8px',height:'8px',background:'var(--muted)',border:'1px solid var(--border)',borderTop:'none',borderLeft:'none',rotate:'45deg'}}/>
+                <div style={{position:'absolute',bottom:'calc(100% + 8px)',left:'50%',transform:'translateX(-50%)',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'10px 12px',width:'210px',zIndex:100,boxShadow:'0 8px 32px rgba(0,0,0,0.6)'}}>
+                  <p style={{fontSize:'11px',color:'#aaa',lineHeight:1.6,margin:0}}>{tip}</p>
+                  <div style={{position:'absolute',bottom:'-4px',left:'50%',transform:'translateX(-50%)',width:'7px',height:'7px',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',borderTop:'none',borderLeft:'none',rotate:'45deg'}}/>
                 </div>
               )}
             </div>
           )}
         </div>
-        <div style={{width:'28px',height:'28px',borderRadius:'7px',background:'rgba(128,128,128,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <Icon size={14} color='var(--muted-foreground)' strokeWidth={1.75}/>
+        <div style={{width:'36px',height:'36px',borderRadius:'10px',background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.07)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <Icon size={16} color='rgba(255,255,255,0.3)' strokeWidth={1.75}/>
         </div>
       </div>
-      <p style={{fontSize:'22px',fontWeight:700,color:'#ffffff',fontFamily:"'Manrope',sans-serif",letterSpacing:'-0.5px',marginBottom:'4px'}}>{value}</p>
-      <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>{sub}</p>
+      {/* value */}
+      <p style={{fontSize:'28px',fontWeight:800,color:'#ffffff',fontFamily:"'Manrope',sans-serif",letterSpacing:'-1px',lineHeight:1,marginBottom:'8px'}}>{value}</p>
+      {/* sub */}
+      <p style={{fontSize:'12px',color:'var(--muted-foreground)',lineHeight:1.4}}>{sub}</p>
     </div>
   )
 }
