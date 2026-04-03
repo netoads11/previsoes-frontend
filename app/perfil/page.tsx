@@ -180,7 +180,7 @@ export default function Perfil() {
 
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '16px' }}>
           <button className={'tab-btn' + (tab === 'apostas' ? ' active' : '')} onClick={() => setTab('apostas')}>Minhas Apostas</button>
-          <button className={'tab-btn' + (tab === 'afiliados' ? ' active' : '')} onClick={() => setTab('afiliados')}>Afiliados</button>
+          <button className={'tab-btn' + (tab === 'afiliados' ? ' active' : '')} onClick={() => setTab('afiliados')}>Indique e Ganhe</button>
         </div>
 
         {tab === 'apostas' && (
@@ -212,42 +212,53 @@ export default function Perfil() {
         )}
 
         {tab === 'afiliados' && referrals && (
-          <div>
-            <div style={{ background: 'var(--card)', border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-              <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Seu codigo de indicacao</p>
-              <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--primary)', marginBottom: '12px' }}>{referrals.referral_code || '...'}</p>
-              {referrals.referral_code && (
-                <button className="copy-btn" onClick={copyRef}>
-                  {copied ? 'Copiado!' : 'Copiar link de indicacao'}
-                </button>
-              )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Hero */}
+            <div style={{ background: 'linear-gradient(135deg,rgba(var(--primary-rgb,0,230,118),0.12),rgba(var(--primary-rgb,0,230,118),0.04))', border: '1px solid rgba(var(--primary-rgb,0,230,118),0.2)', borderRadius: '16px', padding: '24px 16px', textAlign: 'center' }}>
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🎁</div>
+              <p style={{ fontSize: '20px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>Indique e Ganhe!</p>
+              <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.5, marginBottom: '16px' }}>Compartilhe seu link e ganhe comissão automática sobre cada depósito dos seus indicados.</p>
+              <button className="copy-btn" style={{ width: '100%', padding: '12px', fontSize: '14px', fontWeight: 700, borderRadius: '10px' }} onClick={copyRef}>
+                {copied ? '✓ Link copiado!' : '📋 Copiar meu link de indicação'}
+              </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '16px' }}>
+            {/* Stats rápidas */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px' }}>
               <div className="stat-card">
-                <p style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>{referrals.total_referred || 0}</p>
+                <p style={{ fontSize: '24px', fontWeight: 800, color: '#fff' }}>{referrals.total_referred || 0}</p>
                 <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Indicados</p>
               </div>
               <div className="stat-card">
-                <p style={{ fontSize: '16px', fontWeight: 800, color: 'var(--primary)' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
+                <p style={{ fontSize: '15px', fontWeight: 800, color: '#fff' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
                 <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Total ganho</p>
               </div>
-              <div className="stat-card">
-                <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffb300' }}>R$ {Number(referrals.balance_affiliate || 0).toFixed(2)}</p>
+              <div className="stat-card" style={{ position: 'relative', overflow: 'hidden' }}>
+                {Number(referrals.balance_affiliate || 0) > 0 && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'var(--primary)' }}/>}
+                <p style={{ fontSize: '15px', fontWeight: 800, color: Number(referrals.balance_affiliate||0)>0?'var(--primary)':'#fff' }}>R$ {Number(referrals.balance_affiliate || 0).toFixed(2)}</p>
                 <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Disponível</p>
               </div>
             </div>
 
+            {/* Código */}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '10px', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Seu código</p>
+                <p style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.15em', color: '#fff' }}>{referrals.referral_code || '...'}</p>
+              </div>
+              <button className="copy-btn" style={{ padding: '8px 14px', fontSize: '12px' }} onClick={copyRef}>{copied ? '✓' : 'Copiar'}</button>
+            </div>
+
+            {/* CTA painel completo */}
+            <button onClick={() => router.push('/dashboard/afiliado')} style={{ width: '100%', padding: '14px', background: 'var(--primary)', border: 'none', borderRadius: '12px', color: '#000', fontWeight: 800, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Ver painel completo →
+            </button>
+
             {Number(referrals.balance_affiliate || 0) > 0 && (
-              <button className="saque-btn" style={{ width: '100%', marginBottom: '16px', padding: '12px' }} onClick={() => setSaqueModal(true)}>
-                Solicitar Saque de Comissão
+              <button className="saque-btn" style={{ width: '100%', padding: '12px' }} onClick={() => setSaqueModal(true)}>
+                💰 Solicitar Saque de Comissão
               </button>
             )}
-
-            <div style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.05)', border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.1)', borderRadius: '10px', padding: '14px', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.6 }}>
-              <p style={{ color: 'var(--primary)', fontWeight: 600, marginBottom: '6px' }}>Como funciona?</p>
-              <p>Compartilhe seu link de indicacao. Quando alguem se cadastrar usando seu codigo, voce ganha comissao automatica sobre os depositos deles.</p>
-            </div>
           </div>
         )}
       </div>
