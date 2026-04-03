@@ -13,6 +13,7 @@ export default function LoginParceiro() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [logoUrl, setLogoUrl] = useState('')
+  const [siteName, setSiteName] = useState('Previmarket')
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -26,7 +27,10 @@ export default function LoginParceiro() {
     }
     fetch(API + '/api/admin/branding')
       .then(r => r.json())
-      .then(d => { if (d.logo_url) setLogoUrl(API + d.logo_url) })
+      .then(d => {
+        if (d.logo_url) setLogoUrl(API + d.logo_url)
+        if (d.platform_name || d.site_name) setSiteName(d.platform_name || d.site_name)
+      })
       .catch(() => {})
   }, [])
 
@@ -105,7 +109,7 @@ export default function LoginParceiro() {
           {/* Logo */}
           <div style={{display:'flex',alignItems:'center',gap:'10px',position:'relative'}}>
             <Logo size={36} />
-            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>Previmarket</span>}
+            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>{siteName}</span>}
             <span style={{marginLeft:'4px',padding:'2px 8px',borderRadius:'6px',background:greenBg,border:`1px solid ${greenBorder}`,color:green,fontSize:'11px',fontWeight:600}}>Parceiros</span>
           </div>
 
@@ -117,7 +121,7 @@ export default function LoginParceiro() {
             </div>
             <h1 style={{fontSize:'40px',fontWeight:800,color:'#fff',lineHeight:1.2,marginBottom:'16px',fontFamily:"'Manrope',sans-serif"}}>
               SEU PAINEL<br/>DE PARCEIRO<br/>
-              <span style={{color:green,textShadow:`0 0 30px ${greenGlow}`}}>PREVIMARKET</span>
+              <span style={{color:green,textShadow:`0 0 30px ${greenGlow}`}}>{siteName.toUpperCase()}</span>
             </h1>
             <p style={{color:'rgba(255,255,255,0.5)',fontSize:'15px',lineHeight:1.6,maxWidth:'360px'}}>
               Acompanhe seus indicados, gerencie comissões e maximize seus ganhos em tempo real.
@@ -142,14 +146,14 @@ export default function LoginParceiro() {
             </div>
           </div>
 
-          <p style={{color:'rgba(255,255,255,0.2)',fontSize:'12px',position:'relative'}}>© 2026 Previmarket — Área de Parceiros</p>
+          <p style={{color:'rgba(255,255,255,0.2)',fontSize:'12px',position:'relative'}}>© 2026 {siteName} — Área de Parceiros</p>
         </div>
 
         {/* RIGHT */}
         <div className="pr">
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'32px'}}>
             <Logo size={30} />
-            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>Previmarket</span>}
+            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'15px'}}>{siteName}</span>}
             <span style={{padding:'2px 7px',borderRadius:'5px',background:greenBg,border:`1px solid ${greenBorder}`,color:green,fontSize:'10px',fontWeight:600}}>Parceiros</span>
           </div>
 
