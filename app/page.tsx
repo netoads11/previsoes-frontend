@@ -210,8 +210,8 @@ export default function Home() {
         *{box-sizing:border-box;margin:0;padding:0}
         input,button,select{font-family:Inter,Kanit,sans-serif}
         .cat-scroll::-webkit-scrollbar{display:none}
-        .btn-sim{background:rgba(var(--primary-rgb, 0,200,83),0.12);color:var(--primary);border:1px solid rgba(var(--primary-rgb, 0,200,83),0.3);border-radius:8px;padding:9px 0;cursor:pointer;font-weight:700;font-size:13px;flex:1;transition:all 0.15s}
-        .btn-sim:hover{background:var(--primary);color:#000;box-shadow:0 0 14px rgba(var(--primary-rgb, 0,200,83),0.4)}
+        .btn-sim{background:rgba(0,230,118,0.12);color:var(--sim);border:1px solid rgba(0,230,118,0.3);border-radius:8px;padding:9px 0;cursor:pointer;font-weight:700;font-size:13px;flex:1;transition:all 0.15s}
+        .btn-sim:hover{background:var(--sim);color:#000;box-shadow:0 0 14px rgba(0,230,118,0.4)}
         .btn-sim:active{transform:scale(0.97)}
         .btn-nao{background:rgba(198,40,40,0.12);color:#ef5350;border:1px solid rgba(198,40,40,0.3);border-radius:8px;padding:9px 0;cursor:pointer;font-weight:700;font-size:13px;flex:1;transition:all 0.15s}
         .btn-nao:hover{background:#c62828;color:#fff;box-shadow:0 0 14px rgba(198,40,40,0.4)}
@@ -460,7 +460,7 @@ export default function Home() {
               </div>
               <div style={{background:'var(--card)',borderRadius:'10px',padding:'10px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
                 <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'6px',lineHeight:1.4}}>{betMarket?.question}</p>
-                <span style={{display:'inline-flex',alignItems:'center',gap:'5px',padding:'4px 10px',borderRadius:'5px',fontSize:'12px',fontWeight:700,background:betChoice==='yes'?'rgba(var(--primary-rgb, 0,200,83),0.12)':'rgba(198,40,40,0.12)',color:betChoice==='yes'?'var(--primary)':'#ef5350',border:`1px solid ${betChoice==='yes'?'rgba(var(--primary-rgb, 0,200,83),0.25)':'rgba(198,40,40,0.25)'}`}}>
+                <span style={{display:'inline-flex',alignItems:'center',gap:'5px',padding:'4px 10px',borderRadius:'5px',fontSize:'12px',fontWeight:700,background:betChoice==='yes'?'rgba(0,230,118,0.12)':'rgba(198,40,40,0.12)',color:betChoice==='yes'?'var(--sim)':'#ef5350',border:`1px solid ${betChoice==='yes'?'rgba(0,230,118,0.25)':'rgba(198,40,40,0.25)'}`}}>
                   {betChoice==='yes'?'✓ SIM':'✗ NÃO'} · {mult}x
                 </span>
               </div>
@@ -514,7 +514,7 @@ export default function Home() {
                 <svg width="18" height="18" fill="none" stroke="#555" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
               <p style={{fontWeight:600,marginBottom:'5px',fontSize:'14px'}}>Faça sua previsão</p>
-              <p style={{color:'var(--muted-foreground)',fontSize:'12px',lineHeight:1.5}}>Clique em <span style={{color:'var(--primary)',fontWeight:700}}>SIM</span> ou <span style={{color:'#ef5350',fontWeight:700}}>NÃO</span> em qualquer mercado</p>
+              <p style={{color:'var(--muted-foreground)',fontSize:'12px',lineHeight:1.5}}>Clique em <span style={{color:'var(--sim)',fontWeight:700}}>SIM</span> ou <span style={{color:'#ef5350',fontWeight:700}}>NÃO</span> em qualquer mercado</p>
             </div>
           )}
         </aside>
@@ -553,9 +553,9 @@ export default function Home() {
                 <span style={{
                   display:'inline-flex',alignItems:'center',gap:'5px',
                   padding:'3px 10px',borderRadius:'5px',fontSize:'12px',fontWeight:700,
-                  background:betChoice==='yes'?'rgba(var(--primary-rgb, 0,200,83),0.12)':'rgba(198,40,40,0.12)',
-                  color:betChoice==='yes'?'var(--primary)':'#ef5350',
-                  border:`1px solid ${betChoice==='yes'?'rgba(var(--primary-rgb, 0,200,83),0.25)':'rgba(198,40,40,0.25)'}`
+                  background:betChoice==='yes'?'rgba(0,230,118,0.12)':'rgba(198,40,40,0.12)',
+                  color:betChoice==='yes'?'var(--sim)':'#ef5350',
+                  border:`1px solid ${betChoice==='yes'?'rgba(0,230,118,0.25)':'rgba(198,40,40,0.25)'}`
                 }}>
                   {betChoice==='yes'?'✓ SIM':'✗ NÃO'} · {mult}x
                 </span>
@@ -739,11 +739,11 @@ export default function Home() {
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}}>
                         <button onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
                           style={{padding:'8px 0',borderRadius:'8px',cursor:'pointer',border:'none',
-                            background: isSelected && modalBetChoice==='yes' ? 'rgba(var(--primary-rgb, 34,197,94),0.18)' : 'rgba(var(--primary-rgb, 34,197,94),0.06)',
-                            outline: isSelected && modalBetChoice==='yes' ? '1.5px solid var(--primary)' : '1px solid rgba(var(--primary-rgb, 34,197,94),0.25)',
+                            background: isSelected && modalBetChoice==='yes' ? 'rgba(0,230,118,0.18)' : 'rgba(0,230,118,0.06)',
+                            outline: isSelected && modalBetChoice==='yes' ? '1.5px solid var(--sim)' : '1px solid rgba(0,230,118,0.25)',
                             transition:'all 0.15s'}}>
-                          <div style={{fontSize:'10px',fontWeight:700,color:'var(--primary)',letterSpacing:'0.04em'}}>SIM</div>
-                          <div style={{fontSize:'15px',fontWeight:800,color:'var(--primary)',lineHeight:1.2}}>{yOdd}x</div>
+                          <div style={{fontSize:'10px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.04em'}}>SIM</div>
+                          <div style={{fontSize:'15px',fontWeight:800,color:'var(--sim)',lineHeight:1.2}}>{yOdd}x</div>
                         </button>
                         <button onClick={() => { setModalOption(opt); setModalBetChoice('no') }}
                           style={{padding:'8px 0',borderRadius:'8px',cursor:'pointer',border:'none',
@@ -762,13 +762,13 @@ export default function Home() {
             <div style={{margin:'20px 20px 0',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
               {/* Row: SIM% | PROBABILIDADE | NÃO% */}
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
-                <span style={{fontSize:'15px',fontWeight:700,color:'var(--primary)'}}>{mYes}% SIM</span>
+                <span style={{fontSize:'15px',fontWeight:700,color:'var(--sim)'}}>{mYes}% SIM</span>
                 <span style={{fontSize:'9px',fontWeight:600,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase'}}>PROBABILIDADE</span>
                 <span style={{fontSize:'15px',fontWeight:700,color:'#ef4444'}}>{mNo}% NÃO</span>
               </div>
               {/* Bar */}
               <div style={{height:'10px',borderRadius:'5px',overflow:'hidden',display:'flex',marginBottom:'14px'}}>
-                <div style={{width:`${mYes}%`,background:'var(--primary)',transition:'width 0.5s ease'}}/>
+                <div style={{width:`${mYes}%`,background:'var(--sim)',transition:'width 0.5s ease'}}/>
                 <div style={{flex:1,background:'#ef4444'}}/>
               </div>
               {/* SIM / NÃO buttons */}
@@ -777,14 +777,14 @@ export default function Home() {
                   onClick={() => setModalBetChoice('yes')}
                   style={{
                     padding:'14px 0',borderRadius:'12px',cursor:'pointer',
-                    background: modalBetChoice==='yes' ? 'rgba(var(--primary-rgb, 34,197,94),0.15)' : 'rgba(var(--primary-rgb, 34,197,94),0.06)',
-                    border: `2px solid ${modalBetChoice==='yes' ? 'var(--primary)' : 'rgba(var(--primary-rgb, 34,197,94),0.25)'}`,
-                    boxShadow: modalBetChoice==='yes' ? '0 0 16px rgba(var(--primary-rgb, 34,197,94),0.25)' : 'none',
+                    background: modalBetChoice==='yes' ? 'rgba(0,230,118,0.15)' : 'rgba(0,230,118,0.06)',
+                    border: `2px solid ${modalBetChoice==='yes' ? 'var(--sim)' : 'rgba(0,230,118,0.25)'}`,
+                    boxShadow: modalBetChoice==='yes' ? '0 0 16px rgba(0,230,118,0.25)' : 'none',
                     transition:'all 0.15s',
                   }}
                 >
-                  <div style={{fontSize:'11px',fontWeight:700,color:'var(--primary)',letterSpacing:'0.06em',textTransform:'uppercase'}}>SIM</div>
-                  <div style={{fontSize:'20px',fontWeight:900,color:'var(--primary)',lineHeight:1.2}}>{mYM}x</div>
+                  <div style={{fontSize:'11px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.06em',textTransform:'uppercase'}}>SIM</div>
+                  <div style={{fontSize:'20px',fontWeight:900,color:'var(--sim)',lineHeight:1.2}}>{mYM}x</div>
                 </button>
                 <button
                   onClick={() => setModalBetChoice('no')}
@@ -1072,12 +1072,12 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
           {/* BARRA */}
           <div style={{marginBottom:'10px'}}>
             <div style={{display:'flex',justifyContent:'space-between',marginBottom:'3px'}}>
-              <span style={{fontSize:'10px',color:'var(--primary)',fontWeight:700}}>{yes}% SIM</span>
+              <span style={{fontSize:'10px',color:'var(--sim)',fontWeight:700}}>{yes}% SIM</span>
               <span style={{fontSize:'10px',color:'var(--muted-foreground)'}}>chance</span>
               <span style={{fontSize:'10px',color:'#ef5350',fontWeight:700}}>{no}% NÃO</span>
             </div>
             <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
-              <div style={{width:`${yes}%`,background:'var(--primary)',transition:'width 0.5s ease'}}/>
+              <div style={{width:`${yes}%`,background:'var(--sim)',transition:'width 0.5s ease'}}/>
               <div style={{flex:1,background:'#c62828'}}/>
             </div>
           </div>
