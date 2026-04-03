@@ -2092,9 +2092,9 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
 
 // ══════ TEMA ══════
 const THEME_DEFAULTS: Record<string,string> = {
-  '--background':'#282422','--foreground':'#f5f5f5','--card':'#1e1c1c','--surface':'#242020',
-  '--muted':'#373331','--muted-foreground':'#888888','--border':'#2a2727',
-  '--primary':'#6add00','--destructive':'#ef4444',
+  '--background':'#0f0f0f','--foreground':'#f0f0f0','--card':'#1a1a1a','--surface':'#111111',
+  '--muted':'#2a2a2a','--muted-foreground':'#888888','--border':'#222222',
+  '--primary':'#00e676','--destructive':'#ef4444',
 }
 const THEME_GROUPS = [
   { id:'basicas', label:'Básicas', desc:'Cores fundamentais da interface', vars:[
@@ -2120,10 +2120,23 @@ const THEME_GROUPS = [
   ]},
 ]
 const PRESETS = [
-  { label:'Dark (Padrão)', colors:{'--background':'#282422','--foreground':'#f5f5f5','--card':'#1e1c1c','--surface':'#242020','--muted':'#373331','--muted-foreground':'#888888','--border':'#2a2727','--primary':'#6add00','--destructive':'#ef4444'} },
-  { label:'Dark Blue',    colors:{'--background':'#0a0f1a','--foreground':'#e8eeff','--card':'#0d1526','--surface':'#111f38','--muted':'#111827','--muted-foreground':'#6b7e9f','--border':'#1e2a3d','--primary':'#3b82f6','--destructive':'#ef4444'} },
-  { label:'Dark Purple',  colors:{'--background':'#0d0a1a','--foreground':'#eeeaff','--card':'#130b24','--surface':'#1a1038','--muted':'#160e2e','--muted-foreground':'#7c6e9f','--border':'#2a1e3d','--primary':'#8b5cf6','--destructive':'#ef4444'} },
-  { label:'Dark Red',     colors:{'--background':'#0f0a0a','--foreground':'#fff0f0','--card':'#1a0f0f','--surface':'#221414','--muted':'#1a0d0d','--muted-foreground':'#9f6e6e','--border':'#2a1515','--primary':'#e53e3e','--destructive':'#fc8181'} },
+  { label:'Padrão Escuro',      desc:'Tema de cor referência com tons de azul',                colors:{'--background':'#0f0f0f','--foreground':'#f0f0f0','--card':'#1a1a1a','--surface':'#111111','--muted':'#2a2a2a','--muted-foreground':'#888888','--border':'#222222','--primary':'#00e676','--destructive':'#ef4444'} },
+  { label:'Azul Profundo',      desc:'Tons de azul intenso para um visual moderno',            colors:{'--background':'#0a0e1a','--foreground':'#e8f0ff','--card':'#0d1422','--surface':'#07090f','--muted':'#162040','--muted-foreground':'#6b88b8','--border':'#1a2d4a','--primary':'#3b82f6','--destructive':'#ef4444'} },
+  { label:'Verde Militar',      desc:'Paleta verde sóbria e profissional',                    colors:{'--background':'#0d1208','--foreground':'#e8f0d8','--card':'#131a0c','--surface':'#090e06','--muted':'#243318','--muted-foreground':'#7a9060','--border':'#2a3d18','--primary':'#6b8a3c','--destructive':'#ef4444'} },
+  { label:'Roxo Noturno',       desc:'Tons roxos elegantes para um visual sofisticado',       colors:{'--background':'#0f0b1a','--foreground':'#eee8ff','--card':'#130e22','--surface':'#08060f','--muted':'#231b40','--muted-foreground':'#8a70c0','--border':'#2a2050','--primary':'#9b5de5','--destructive':'#ef4444'} },
+  { label:'Laranja Queimado',   desc:'Paleta quente com tons terrosos',                       colors:{'--background':'#1a0f08','--foreground':'#f8ede0','--card':'#221508','--surface':'#0f0905','--muted':'#38240f','--muted-foreground':'#a07050','--border':'#3d2a10','--primary':'#e27b30','--destructive':'#ef4444'} },
+  { label:'Rosa Elegante',      desc:'Tons rosados sofisticados e femininos',                 colors:{'--background':'#1a0a12','--foreground':'#ffe8f4','--card':'#22101a','--surface':'#0f060a','--muted':'#381825','--muted-foreground':'#c07090','--border':'#3d2030','--primary':'#e54d8a','--destructive':'#ef4444'} },
+  { label:'Ciano Tecnológico',  desc:'Visual futurista com tons de ciano',                   colors:{'--background':'#050e10','--foreground':'#e0f8ff','--card':'#08161a','--surface':'#030709','--muted':'#0d2a35','--muted-foreground':'#50a0b0','--border':'#10384a','--primary':'#00d4e8','--destructive':'#ef4444'} },
+  { label:'Âmbar Dourado',      desc:'Tons dourados e âmbar para um visual premium',          colors:{'--background':'#18120a','--foreground':'#fff4d0','--card':'#22180a','--surface':'#0e0c06','--muted':'#382c10','--muted-foreground':'#b09040','--border':'#40320f','--primary':'#f0a800','--destructive':'#ef4444'} },
+  { label:'Vermelho Borgonha',  desc:'Tons profundos de vermelho e bordô',                   colors:{'--background':'#180808','--foreground':'#ffe8e8','--card':'#220c0c','--surface':'#0e0505','--muted':'#381515','--muted-foreground':'#c06060','--border':'#401515','--primary':'#c0233c','--destructive':'#ff6b6b'} },
+  { label:'Verde Floresta',     desc:'Tons naturais de verde escuro',                        colors:{'--background':'#0a120c','--foreground':'#e0f0e4','--card':'#0e1a10','--surface':'#060a07','--muted':'#182e1c','--muted-foreground':'#5a8865','--border':'#20381f','--primary':'#2d9e4a','--destructive':'#ef4444'} },
+  { label:'Cinza Neutro',       desc:'Tema minimalista em tons de cinza',                    colors:{'--background':'#111112','--foreground':'#f0f0f2','--card':'#1a1a1c','--surface':'#080809','--muted':'#2a2a2e','--muted-foreground':'#888890','--border':'#303038','--primary':'#8080ff','--destructive':'#ef4444'} },
+  { label:'Violeta Místico',    desc:'Tons profundos de violeta e púrpura',                  colors:{'--background':'#0e0818','--foreground':'#f4eaff','--card':'#130d22','--surface':'#07040e','--muted':'#221840','--muted-foreground':'#9870c8','--border':'#2a1e48','--primary':'#b56aff','--destructive':'#ef4444'} },
+  { label:'Índigo Profundo',    desc:'Azul índigo sofisticado e moderno',                    colors:{'--background':'#090a1a','--foreground':'#e8eaff','--card':'#0c0e26','--surface':'#05060f','--muted':'#141a48','--muted-foreground':'#6870b8','--border':'#182250','--primary':'#5c6fff','--destructive':'#ef4444'} },
+  { label:'Marrom Chocolate',   desc:'Tons terrosos e acolhedores de marrom',                colors:{'--background':'#160e08','--foreground':'#f5ece0','--card':'#201408','--surface':'#0b0704','--muted':'#382618','--muted-foreground':'#a08060','--border':'#3d2c18','--primary':'#c07820','--destructive':'#ef4444'} },
+  { label:'Esmeralda Luxo',     desc:'Verde esmeralda rico e elegante',                      colors:{'--background':'#061412','--foreground':'#e0fff6','--card':'#081e1c','--surface':'#030a09','--muted':'#0c3834','--muted-foreground':'#40c8a8','--border':'#104438','--primary':'#00c896','--destructive':'#ef4444'} },
+  { label:'Safira Real',        desc:'Azul safira nobre e majestoso',                        colors:{'--background':'#070d1e','--foreground':'#e0ecff','--card':'#0a1228','--surface':'#040710','--muted':'#122248','--muted-foreground':'#5888c8','--border':'#162c58','--primary':'#2060e8','--destructive':'#ef4444'} },
+  { label:'Coral Tropical',     desc:'Tons vibrantes de coral e salmão',                     colors:{'--background':'#1a0e0c','--foreground':'#fff0ec','--card':'#22130e','--surface':'#0e0706','--muted':'#3c2218','--muted-foreground':'#e08070','--border':'#402820','--primary':'#ff6040','--destructive':'#ef4444'} },
 ]
 
 function TemaPage({token,api}:{token:string,api:string}) {
@@ -2131,6 +2144,7 @@ function TemaPage({token,api}:{token:string,api:string}) {
   const [activeGroup,setActiveGroup]=useState('basicas')
   const [saving,setSaving]=useState(false)
   const [msg,setMsg]=useState('')
+  const [presetsOpen,setPresetsOpen]=useState(false)
 
   useEffect(()=>{
     fetch(api+'/api/admin/settings',{headers:{Authorization:'Bearer '+token}})
@@ -2185,10 +2199,30 @@ function TemaPage({token,api}:{token:string,api:string}) {
           <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px'}}>
             <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Settings size={12}/> Presets Predefinidos</p>
             <p style={{fontSize:'12px',color:'#444',marginBottom:'12px'}}>Escolha um preset de cores para começar</p>
-            <select onChange={e=>{const p=PRESETS.find(x=>x.label===e.target.value);if(p)handlePreset(p)}} defaultValue="" style={{width:'100%',background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer'}}>
-              <option value="" disabled>Escolha um preset de cores para começar</option>
-              {PRESETS.map(p=><option key={p.label} value={p.label}>{p.label}</option>)}
-            </select>
+            {/* Custom preset picker */}
+            <div style={{position:'relative'}}>
+              <button onClick={()=>setPresetsOpen(o=>!o)} style={{width:'100%',background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',fontFamily:"'Manrope',sans-serif"}}>
+                <span>Escolha um preset de cores para começar</span>
+                <ChevronDown size={14} style={{transition:'transform 0.2s',transform:presetsOpen?'rotate(180deg)':'rotate(0deg)'}}/>
+              </button>
+              {presetsOpen&&(
+                <div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',marginTop:'4px',maxHeight:'320px',overflowY:'auto'}}>
+                  {PRESETS.map(p=>(
+                    <div key={p.label} onClick={()=>{handlePreset(p);setPresetsOpen(false)}} style={{padding:'10px 14px',cursor:'pointer',display:'flex',alignItems:'center',gap:'10px',borderBottom:'1px solid #1a1a1a',transition:'background 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.background='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.background='transparent'}>
+                      <div style={{display:'flex',gap:'3px',flexShrink:0}}>
+                        <div style={{width:'10px',height:'10px',borderRadius:'50%',background:p.colors['--background'],border:'1px solid #333'}}/>
+                        <div style={{width:'10px',height:'10px',borderRadius:'50%',background:p.colors['--card'],border:'1px solid #333'}}/>
+                        <div style={{width:'10px',height:'10px',borderRadius:'50%',background:p.colors['--primary'],border:'1px solid #333'}}/>
+                      </div>
+                      <div style={{minWidth:0}}>
+                        <p style={{fontSize:'13px',fontWeight:600,color:'#ddd',fontFamily:"'Manrope',sans-serif"}}>{p.label}</p>
+                        <p style={{fontSize:'11px',color:'#555',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Personalizar Cores */}

@@ -205,7 +205,7 @@ export default function Home() {
   }
 
   return (
-    <div style={{background:'#111',minHeight:'100vh',color:'#fff',fontFamily:'Inter,Kanit,sans-serif'}}>
+    <div style={{background:'var(--surface)',minHeight:'100vh',color:'#fff',fontFamily:'Inter,Kanit,sans-serif'}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         input,button,select{font-family:Inter,Kanit,sans-serif}
@@ -239,7 +239,7 @@ export default function Home() {
       `}</style>
 
       {/* HEADER */}
-      <header style={{background:'#111',borderBottom:'1px solid rgba(255,255,255,0.07)',position:'sticky',top:0,zIndex:50,height:'54px',display:'flex',alignItems:'center'}}>
+      <header style={{background:'var(--surface)',borderBottom:'1px solid rgba(255,255,255,0.07)',position:'sticky',top:0,zIndex:50,height:'54px',display:'flex',alignItems:'center'}}>
         {/* DESKTOP header */}
         <div className="header-inner hide-mob" style={{width:'100%',display:'flex',alignItems:'center',gap:'12px',padding:'0 20px'}}>
           <Link href="/" style={{display:'flex',alignItems:'center',gap:'7px',textDecoration:'none',flexShrink:0}}>
@@ -252,9 +252,9 @@ export default function Home() {
             }
           </Link>
           <div style={{flex:1,position:'relative',margin:'0 12px'}}>
-            <svg style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',width:'14px',height:'14px',color:'#666'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <svg style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',width:'14px',height:'14px',color:'var(--muted-foreground)'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" placeholder="Buscar mercado..." value={busca} onChange={e=>setBusca(e.target.value)}
-              style={{width:'100%',background:'#2a2a2a',border:'1px solid #333',borderRadius:'20px',padding:'0 12px 0 30px',color:'#fff',fontSize:'13px',outline:'none',height:'36px'}}
+              style={{width:'100%',background:'var(--muted)',border:'1px solid var(--border)',borderRadius:'20px',padding:'0 12px 0 30px',color:'#fff',fontSize:'13px',outline:'none',height:'36px'}}
               onFocus={e=>e.target.style.borderColor='#00c853'}
               onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.08)'}/>
           </div>
@@ -262,7 +262,7 @@ export default function Home() {
             {user ? (
               <>
                 <div style={{textAlign:'right'}}>
-                  <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.08em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
+                  <div style={{fontSize:'9px',color:'var(--muted-foreground)',letterSpacing:'0.08em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
                   <div style={{fontSize:'14px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
                 </div>
                 <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'8px',padding:'8px 16px',fontWeight:700,fontSize:'12px',cursor:'pointer',boxShadow:'0 0 12px rgba(0,230,118,0.3)',transition:'opacity 0.15s'}}
@@ -285,13 +285,13 @@ export default function Home() {
                   {userMenuOpen && (
                     <div style={{
                       position:'absolute',top:'42px',right:0,zIndex:999,
-                      background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',
+                      background:'var(--card)',border:'1px solid rgba(255,255,255,0.1)',
                       borderRadius:'12px',padding:'12px',minWidth:'200px',
                       boxShadow:'0 8px 32px rgba(0,0,0,0.6)',
                     }}>
                       <div style={{marginBottom:'10px',paddingBottom:'10px',borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
                         <div style={{fontSize:'13px',fontWeight:700,color:'#fff'}}>{user.name||'Usuário'}</div>
-                        <div style={{fontSize:'11px',color:'#666',marginTop:'2px'}}>{user.email}</div>
+                        <div style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'2px'}}>{user.email}</div>
                         <div style={{fontSize:'12px',color:'#00c853',fontWeight:700,marginTop:'4px'}}>R$ {balance.toFixed(2)}</div>
                       </div>
                       <button onClick={()=>{setUserMenuOpen(false);router.push('/perfil')}} style={{
@@ -338,7 +338,7 @@ export default function Home() {
             {user ? (
               <>
                 <div style={{textAlign:'right'}}>
-                  <div style={{fontSize:'9px',color:'#888',letterSpacing:'0.06em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
+                  <div style={{fontSize:'9px',color:'var(--muted-foreground)',letterSpacing:'0.06em',textTransform:'uppercase',lineHeight:1}}>SALDO</div>
                   <div style={{fontSize:'13px',fontWeight:700,color:'#00c853'}}>R$ {balance.toFixed(2)}</div>
                 </div>
                 <button onClick={()=>setDepositModal(true)} style={{background:'#00e676',color:'#000',border:'none',borderRadius:'7px',padding:'7px 12px',fontWeight:700,fontSize:'11px',cursor:'pointer',boxShadow:'0 0 10px rgba(0,230,118,0.3)',whiteSpace:'nowrap'}}>
@@ -362,7 +362,7 @@ export default function Home() {
       </header>
 
       {/* CATEGORIAS */}
-      <div className="cat-scroll" style={{display:'flex',gap:'4px',padding:'8px 16px',overflowX:'auto',background:'#111',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
+      <div className="cat-scroll" style={{display:'flex',gap:'4px',padding:'8px 16px',overflowX:'auto',background:'var(--surface)',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
         {cats.map(c=>{
           const active=cat===c.name
           const isLive=c.name==='Live'
@@ -385,8 +385,8 @@ export default function Home() {
 
       <div style={{display:'flex'}}>
         {/* SIDEBAR ESQUERDA */}
-        <aside className="sidebar-d" style={{width:'190px',flexShrink:0,background:'#111',borderRight:'1px solid rgba(255,255,255,0.06)',padding:'12px 0',position:'sticky',top:'54px',height:'calc(100vh - 54px)',overflowY:'auto',flexDirection:'column'}}>
-          <p style={{color:'#555',fontSize:'9px',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',padding:'0 14px 8px'}}>CATEGORIAS</p>
+        <aside className="sidebar-d" style={{width:'190px',flexShrink:0,background:'var(--surface)',borderRight:'1px solid rgba(255,255,255,0.06)',padding:'12px 0',position:'sticky',top:'54px',height:'calc(100vh - 54px)',overflowY:'auto',flexDirection:'column'}}>
+          <p style={{color:'var(--muted-foreground)',fontSize:'9px',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',padding:'0 14px 8px'}}>CATEGORIAS</p>
           <nav>
             {cats.map(c=>{
               const active=cat===c.name
@@ -409,7 +409,7 @@ export default function Home() {
           {banners.length > 0 ? (
             <div style={{position:'relative',borderRadius:'12px',overflow:'hidden',marginBottom:'14px',cursor:banners[bannerIdx]?.link?'pointer':'default'}}
               onClick={()=>{ const l=banners[bannerIdx]?.link; if(l) window.open(l,'_blank') }}>
-              <div style={{position:'relative',width:'100%',aspectRatio:'16/5',minHeight:'100px',maxHeight:'200px',overflow:'hidden',background:'#111'}}>
+              <div style={{position:'relative',width:'100%',aspectRatio:'16/5',minHeight:'100px',maxHeight:'200px',overflow:'hidden',background:'var(--surface)'}}>
                 {banners.map((b,i)=>(
                   <img key={b.id} src={API+b.url} alt={b.name}
                     style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:i===bannerIdx?1:0,transition:'opacity 0.5s ease'}}/>
@@ -451,15 +451,15 @@ export default function Home() {
         </main>
 
         {/* PAINEL APOSTA DESKTOP */}
-        <aside className="sidebar-r" style={{width:'290px',flexShrink:0,background:'#111',borderLeft:'1px solid rgba(255,255,255,0.06)',padding:'16px',position:'sticky',top:'54px',height:'calc(100vh - 54px)',overflowY:'auto',flexDirection:'column'}}>
+        <aside className="sidebar-r" style={{width:'290px',flexShrink:0,background:'var(--surface)',borderLeft:'1px solid rgba(255,255,255,0.06)',padding:'16px',position:'sticky',top:'54px',height:'calc(100vh - 54px)',overflowY:'auto',flexDirection:'column'}}>
           {betPanel ? (
             <div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
                 <h3 style={{fontSize:'14px',fontWeight:700}}>Sua Previsão</h3>
-                <button onClick={()=>setBetPanel(null)} style={{background:'#1e1e1e',border:'none',cursor:'pointer',color:'#888',width:'26px',height:'26px',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px'}}>×</button>
+                <button onClick={()=>setBetPanel(null)} style={{background:'var(--card)',border:'none',cursor:'pointer',color:'var(--muted-foreground)',width:'26px',height:'26px',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px'}}>×</button>
               </div>
-              <div style={{background:'#1a1a1a',borderRadius:'10px',padding:'10px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
-                <p style={{fontSize:'11px',color:'#888',marginBottom:'6px',lineHeight:1.4}}>{betMarket?.question}</p>
+              <div style={{background:'var(--card)',borderRadius:'10px',padding:'10px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
+                <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'6px',lineHeight:1.4}}>{betMarket?.question}</p>
                 <span style={{display:'inline-flex',alignItems:'center',gap:'5px',padding:'4px 10px',borderRadius:'5px',fontSize:'12px',fontWeight:700,background:betChoice==='yes'?'rgba(0,200,83,0.12)':'rgba(198,40,40,0.12)',color:betChoice==='yes'?'#00c853':'#ef5350',border:`1px solid ${betChoice==='yes'?'rgba(0,200,83,0.25)':'rgba(198,40,40,0.25)'}`}}>
                   {betChoice==='yes'?'✓ SIM':'✗ NÃO'} · {mult}x
                 </span>
@@ -469,7 +469,7 @@ export default function Home() {
                 <div style={{fontSize:'36px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em'}}>
                   R$ {betNum.toFixed(2)}
                 </div>
-                <div style={{fontSize:'11px',color:'#666'}}>Saldo: R$ {balance.toFixed(2)}</div>
+                <div style={{fontSize:'11px',color:'var(--muted-foreground)'}}>Saldo: R$ {balance.toFixed(2)}</div>
               </div>
 
               <div style={{display:'flex',gap:'5px',marginBottom:'10px',flexWrap:'wrap'}}>
@@ -481,11 +481,11 @@ export default function Home() {
                 <button onClick={()=>setBetValue(String(balance))} className="val-btn">MAX</button>
               </div>
 
-              <div style={{background:'#1a1a1a',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
+              <div style={{background:'var(--card)',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
                   <div>
                     <p style={{fontSize:'12px',fontWeight:600,marginBottom:'3px'}}>Se acertar ganha</p>
-                    <p style={{fontSize:'11px',color:'#666'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {mult}x</p>
+                    <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {mult}x</p>
                   </div>
                   <span style={{fontSize:'20px',fontWeight:900,color:'#00c853'}}>R$ {gain}</span>
                 </div>
@@ -510,11 +510,11 @@ export default function Home() {
             </div>
           ) : (
             <div style={{textAlign:'center',padding:'48px 12px'}}>
-              <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'#1e1e1e',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}>
+              <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'var(--card)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}>
                 <svg width="18" height="18" fill="none" stroke="#555" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
               <p style={{fontWeight:600,marginBottom:'5px',fontSize:'14px'}}>Faça sua previsão</p>
-              <p style={{color:'#555',fontSize:'12px',lineHeight:1.5}}>Clique em <span style={{color:'#00c853',fontWeight:700}}>SIM</span> ou <span style={{color:'#ef5350',fontWeight:700}}>NÃO</span> em qualquer mercado</p>
+              <p style={{color:'var(--muted-foreground)',fontSize:'12px',lineHeight:1.5}}>Clique em <span style={{color:'#00c853',fontWeight:700}}>SIM</span> ou <span style={{color:'#ef5350',fontWeight:700}}>NÃO</span> em qualquer mercado</p>
             </div>
           )}
         </aside>
@@ -562,7 +562,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => { setBetPanel(null); setBetValue('') }}
-                style={{background:'#2a2a2a',border:'none',cursor:'pointer',color:'#888',width:'28px',height:'28px',borderRadius:'7px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',flexShrink:0}}
+                style={{background:'var(--muted)',border:'none',cursor:'pointer',color:'var(--muted-foreground)',width:'28px',height:'28px',borderRadius:'7px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',flexShrink:0}}
               >×</button>
             </div>
 
@@ -571,7 +571,7 @@ export default function Home() {
               <div style={{fontSize:'42px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1}}>
                 R$ {betNum.toFixed(2)}
               </div>
-              <div style={{fontSize:'11px',color:'#666',marginTop:'4px'}}>Saldo: R$ {balance.toFixed(2)}</div>
+              <div style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'4px'}}>Saldo: R$ {balance.toFixed(2)}</div>
             </div>
 
             {/* Botões de valor */}
@@ -602,11 +602,11 @@ export default function Home() {
             </div>
 
             {/* Se acertar ganha */}
-            <div style={{background:'#1e1e1e',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
+            <div style={{background:'var(--card)',borderRadius:'10px',padding:'12px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div>
                   <p style={{fontSize:'12px',fontWeight:600,marginBottom:'2px'}}>Se acertar ganha</p>
-                  <p style={{fontSize:'11px',color:'#666'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {mult}x</p>
+                  <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>Custo: R$ {betNum.toFixed(2)} · Odd: {mult}x</p>
                 </div>
                 <span style={{fontSize:'22px',fontWeight:900,color:'#00c853'}}>R$ {gain}</span>
               </div>
@@ -716,8 +716,8 @@ export default function Home() {
 
             {/* ── PROBABILITY CARD ── */}
             {marketModal.type === 'multiple' && marketModal.options && marketModal.options.length > 0 ? (
-              <div style={{margin:'20px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
-                <div style={{fontSize:'10px',fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'12px'}}>ESCOLHA UMA OPCAO</div>
+              <div style={{margin:'20px 20px 0',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
+                <div style={{fontSize:'10px',fontWeight:700,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'12px'}}>ESCOLHA UMA OPCAO</div>
                 {marketModal.options.map((opt: any) => {
                   const isSelected = modalOption?.id === opt.id
                   const yp = Number(opt.yes_percent) || 50
@@ -734,7 +734,7 @@ export default function Home() {
                           <div style={{width:`${yp}%`,background:'#22c55e'}}/>
                           <div style={{flex:1,background:'#444'}}/>
                         </div>
-                        <div style={{fontSize:'10px',color:'#555',marginTop:'3px'}}>{yp}% SIM</div>
+                        <div style={{fontSize:'10px',color:'var(--muted-foreground)',marginTop:'3px'}}>{yp}% SIM</div>
                       </div>
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}}>
                         <button onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
@@ -759,11 +759,11 @@ export default function Home() {
                 })}
               </div>
             ) : (
-            <div style={{margin:'20px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
+            <div style={{margin:'20px 20px 0',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
               {/* Row: SIM% | PROBABILIDADE | NÃO% */}
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
                 <span style={{fontSize:'15px',fontWeight:700,color:'#22c55e'}}>{mYes}% SIM</span>
-                <span style={{fontSize:'9px',fontWeight:600,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase'}}>PROBABILIDADE</span>
+                <span style={{fontSize:'9px',fontWeight:600,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase'}}>PROBABILIDADE</span>
                 <span style={{fontSize:'15px',fontWeight:700,color:'#ef4444'}}>{mNo}% NÃO</span>
               </div>
               {/* Bar */}
@@ -804,7 +804,7 @@ export default function Home() {
             )}
 
             {/* ── BET CARD ── */}
-            <div style={{margin:'16px 20px 0',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
+            <div style={{margin:'16px 20px 0',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
               {/* Row: label + value | APOSTAR button */}
               {modalOption && marketModal.type === 'multiple' && (
                 <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
@@ -812,14 +812,14 @@ export default function Home() {
                     📌 {modalOption.title} · {modalBetChoice === 'yes' ? 'SIM' : 'NÃO'}
                   </span>
                   <button onClick={() => { setModalOption(null); setModalBetChoice(null) }}
-                    style={{padding:'7px 12px',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.05)',color:'#888',fontSize:'11px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
+                    style={{padding:'7px 12px',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.05)',color:'var(--muted-foreground)',fontSize:'11px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
                     Trocar
                   </button>
                 </div>
               )}
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
                 <div>
-                  <div style={{fontSize:'10px',fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'2px'}}>VALOR DA APOSTA</div>
+                  <div style={{fontSize:'10px',fontWeight:700,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'2px'}}>VALOR DA APOSTA</div>
                   <div style={{fontSize:'30px',fontWeight:900,color:'#fff',letterSpacing:'-0.02em',lineHeight:1}}>R$ {betNum.toFixed(2)}</div>
                 </div>
                 <button
@@ -870,7 +870,7 @@ export default function Home() {
                 onChange={e => setBetValue(e.target.value)}
                 style={{
                   width:'100%',padding:'12px',
-                  background:'#111',border:'1px solid #333',borderRadius:'10px',
+                  background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'10px',
                   color:'#fff',fontSize:'20px',fontWeight:700,
                   textAlign:'center',outline:'none',
                   appearance:'none' as any, MozAppearance:'textfield' as any,
@@ -908,15 +908,15 @@ export default function Home() {
             {/* ── RETORNO POTENCIAL ── */}
             {betNum > 0 && modalBetChoice && (
               <div style={{margin:'12px 20px 0',textAlign:'center'}}>
-                <span style={{fontSize:'12px',color:'#555'}}>Retorno potencial: </span>
+                <span style={{fontSize:'12px',color:'var(--muted-foreground)'}}>Retorno potencial: </span>
                 <span style={{fontSize:'14px',fontWeight:700,color:'#22c55e'}}>R$ {mGain}</span>
                 <span style={{fontSize:'11px',color:'#444'}}> (odd {mOdd.toFixed(2)}x)</span>
               </div>
             )}
 
             {/* ── COUNTDOWN CARD ── */}
-            <div style={{margin:'16px 20px 96px',background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
-              <div style={{fontSize:'10px',fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',textAlign:'center',marginBottom:'12px'}}>
+            <div style={{margin:'16px 20px 96px',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
+              <div style={{fontSize:'10px',fontWeight:700,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase',textAlign:'center',marginBottom:'12px'}}>
                 {marketModal.expires_at ? 'O MERCADO FECHARÁ EM' : 'MERCADO ABERTO'}
               </div>
               {cd ? (
@@ -924,7 +924,7 @@ export default function Home() {
                   {([{v:cd.d,l:'DIAS'},{v:cd.h,l:'HORAS'},{v:cd.m,l:'MIN'},{v:cd.s,l:'SEG'}] as {v:number,l:string}[]).map(({v,l},i)=>(
                     <div key={l} style={{display:'flex',alignItems:'center',gap:'4px'}}>
                       <div style={{
-                        width:'56px',background:'#111',
+                        width:'56px',background:'var(--surface)',
                         border:'1px solid rgba(34,197,94,0.3)',
                         borderRadius:'10px',padding:'10px 4px',textAlign:'center',
                       }}>
@@ -952,12 +952,12 @@ export default function Home() {
           onClick={()=>setAuthModal(false)}>
           <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.7)',backdropFilter:'blur(4px)'}}/>
           <div onClick={e=>e.stopPropagation()} style={{
-            position:'relative',zIndex:1,background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',
+            position:'relative',zIndex:1,background:'var(--card)',border:'1px solid rgba(255,255,255,0.1)',
             borderRadius:'16px',padding:'28px 24px',maxWidth:'340px',width:'100%',textAlign:'center',
           }}>
             <div style={{fontSize:'40px',marginBottom:'12px'}}>🔐</div>
             <h3 style={{fontSize:'17px',fontWeight:800,color:'#fff',marginBottom:'8px'}}>Crie sua conta para apostar</h3>
-            <p style={{fontSize:'13px',color:'#666',marginBottom:'24px',lineHeight:1.5}}>Para apostar você precisa ter uma conta. É grátis e leva menos de 1 minuto.</p>
+            <p style={{fontSize:'13px',color:'var(--muted-foreground)',marginBottom:'24px',lineHeight:1.5}}>Para apostar você precisa ter uma conta. É grátis e leva menos de 1 minuto.</p>
             <button onClick={()=>{setAuthModal(false);router.push('/cadastrar')}} style={{
               width:'100%',padding:'14px',borderRadius:'10px',border:'none',
               background:'#00e676',color:'#000',fontWeight:900,fontSize:'14px',cursor:'pointer',
@@ -986,20 +986,20 @@ function SHead({title,count,onMore}:{title:string,count:number,onMore:()=>void})
         <svg width="13" height="13" fill="#ff6b35" viewBox="0 0 24 24"><path d="M12 2c0 0-5 6-5 11a5 5 0 0 0 10 0c0-5-5-11-5-11z"/></svg>
         <h2 style={{fontSize:'12px',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em',color:'#fff'}}>{title}</h2>
       </div>
-      {count>0&&<button onClick={onMore} style={{background:'none',border:'none',cursor:'pointer',color:'#666',fontSize:'11px'}}>Ver mais {count} →</button>}
+      {count>0&&<button onClick={onMore} style={{background:'none',border:'none',cursor:'pointer',color:'var(--muted-foreground)',fontSize:'11px'}}>Ver mais {count} →</button>}
     </div>
   )
 }
 
 function Skel() {
-  return <div style={{display:'grid',gap:'8px'}}>{[1,2,3].map(i=><div key={i} style={{height:'110px',borderRadius:'12px',background:'#1a1a1a'}}/>)}</div>
+  return <div style={{display:'grid',gap:'8px'}}>{[1,2,3].map(i=><div key={i} style={{height:'110px',borderRadius:'12px',background:'var(--card)'}}/>)}</div>
 }
 
 function Empty() {
   return (
-    <div style={{textAlign:'center',padding:'40px 20px',background:'#1a1a1a',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.05)'}}>
+    <div style={{textAlign:'center',padding:'40px 20px',background:'var(--card)',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.05)'}}>
       <svg width="28" height="28" fill="none" stroke="#444" strokeWidth="2" viewBox="0 0 24 24" style={{margin:'0 auto 8px',display:'block'}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <p style={{color:'#555',fontSize:'12px'}}>Nenhum mercado encontrado</p>
+      <p style={{color:'var(--muted-foreground)',fontSize:'12px'}}>Nenhum mercado encontrado</p>
     </div>
   )
 }
@@ -1017,7 +1017,7 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
   return (
     <div className="mcard fadein" style={{animationDelay:`${i*0.03}s`,cursor:'pointer'}} onClick={()=>onCardClick&&onCardClick(m)}>
       <div style={{display:'flex',alignItems:'flex-start',gap:'10px',marginBottom:'10px'}}>
-        <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#222',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}}>
+        <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'var(--muted)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}}>
           {m.image_url ? (
             <img src={m.image_url.startsWith('http') ? m.image_url : `${API}${m.image_url}`} alt="" style={{width:'36px',height:'36px',objectFit:'cover',borderRadius:'8px'}} />
           ) : (
@@ -1051,7 +1051,7 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
             const nOdd = ((1-margin)*100/Number(opt.no_odds||50)).toFixed(2)
             return (
               <div key={opt.id} style={{display:'flex',alignItems:'center',gap:'7px',marginBottom:'6px'}}>
-                <div style={{width:'26px',height:'26px',borderRadius:'6px',background:'#2a2a2a',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'9px',fontWeight:700,color:'#888'}}>
+                <div style={{width:'26px',height:'26px',borderRadius:'6px',background:'var(--muted)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'9px',fontWeight:700,color:'var(--muted-foreground)'}}>
                   {initials}
                 </div>
                 <span style={{flex:1,fontSize:'12px',color:'#ccc',overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{opt.title}</span>
@@ -1073,7 +1073,7 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
           <div style={{marginBottom:'10px'}}>
             <div style={{display:'flex',justifyContent:'space-between',marginBottom:'3px'}}>
               <span style={{fontSize:'10px',color:'#00c853',fontWeight:700}}>{yes}% SIM</span>
-              <span style={{fontSize:'10px',color:'#666'}}>chance</span>
+              <span style={{fontSize:'10px',color:'var(--muted-foreground)'}}>chance</span>
               <span style={{fontSize:'10px',color:'#ef5350',fontWeight:700}}>{no}% NÃO</span>
             </div>
             <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>

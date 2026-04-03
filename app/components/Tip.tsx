@@ -12,7 +12,7 @@ export default function Tip({ text, pos = 'top' }: { text: string; pos?: 'top' |
         style={{
           width: '15px', height: '15px', borderRadius: '50%',
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-          color: '#888', fontSize: '9px', fontWeight: 800,
+          color: 'var(--muted-foreground)', fontSize: '9px', fontWeight: 800,
           cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           padding: 0, fontFamily: 'inherit', flexShrink: 0, lineHeight: 1,
           transition: 'border-color 0.15s, color 0.15s',

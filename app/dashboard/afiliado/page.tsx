@@ -137,18 +137,18 @@ export default function AffiliateDashboard() {
           <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, padding: '20px', marginBottom: '24px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '14px' }}>Sua negociação</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }} className="g4">
-              <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+              <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>CPA</p>
                 <p style={{ fontSize: '20px', fontWeight: 700, color: V.blue }}>{fmt(data.my_commission.cpa)}</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Valor fixo por 1º depósito</p>
               </div>
-              <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+              <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>RevShare</p>
                 <p style={{ fontSize: '20px', fontWeight: 700, color: V.green }}>{data.my_commission.rev_share}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>% sobre depósitos dos indicados</p>
               </div>
               {data.my_commission.baseline > 0 && (
-                <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+                <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                   <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Depósito mínimo</p>
                   <p style={{ fontSize: '20px', fontWeight: 700, color: V.yellow }}>{fmt(data.my_commission.baseline)}</p>
                   <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Para contabilizar comissão</p>
@@ -163,7 +163,7 @@ export default function AffiliateDashboard() {
         <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, padding: '20px', marginBottom: '24px' }}>
           <p style={{ fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Seu link de indicação</p>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <code style={{ flex: 1, background: '#111', border: `1px solid ${V.border}`, borderRadius: '8px', padding: '10px 14px', color: V.green, fontSize: '13px', wordBreak: 'break-all' }}>
+            <code style={{ flex: 1, background: 'var(--surface)', border: `1px solid ${V.border}`, borderRadius: '8px', padding: '10px 14px', color: V.green, fontSize: '13px', wordBreak: 'break-all' }}>
               {typeof window !== 'undefined' ? `${window.location.origin}/cadastrar?ref=${data?.referral_code}` : `/cadastrar?ref=${data?.referral_code}`}
             </code>
             <button onClick={copyLink} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: `1px solid ${copied ? V.green : V.border}`, background: copied ? 'rgba(0,230,118,0.1)' : 'transparent', color: copied ? V.green : V.muted, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
@@ -235,15 +235,15 @@ export default function AffiliateDashboard() {
 
 function StatCard({ icon: Icon, color, label, value, sub }: any) {
   return (
-    <div style={{ background: '#1a1a1a', borderRadius: '12px', border: '1px solid #222', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '11px', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
+        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
         <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={15} color={color} strokeWidth={2} />
         </div>
       </div>
       <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: '#fff' }}>{value}</p>
-      <p style={{ fontSize: '11px', color: '#666' }}>{sub}</p>
+      <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{sub}</p>
     </div>
   )
 }

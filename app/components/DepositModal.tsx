@@ -61,17 +61,17 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
           <div style={{width:'3px',height:'22px',background:'#00e676',borderRadius:'2px',flexShrink:0}}/>
           <span style={{fontSize:'18px',fontWeight:800,color:'#fff',letterSpacing:'-0.01em'}}>Depositar</span>
         </div>
-        <button onClick={onClose} style={{width:'32px',height:'32px',borderRadius:'50%',background:'#1e1e1e',border:'1px solid rgba(255,255,255,0.1)',color:'#888',fontSize:'18px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>×</button>
+        <button onClick={onClose} style={{width:'32px',height:'32px',borderRadius:'50%',background:'var(--card)',border:'1px solid rgba(255,255,255,0.1)',color:'var(--muted-foreground)',fontSize:'18px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>×</button>
       </div>
 
-      <p style={{margin:'10px 20px 0',fontSize:'12px',color:'#888'}}>
+      <p style={{margin:'10px 20px 0',fontSize:'12px',color:'var(--muted-foreground)'}}>
         Saldo atual: <span style={{color:'#fff',fontWeight:600}}>R$ {balance.toFixed(2).replace('.',',')}</span>
       </p>
 
       {step === 'amount' && (
         <div style={{padding:'0 20px'}}>
-          <div style={{marginTop:'20px',display:'flex',alignItems:'center',gap:'14px',background:'#161616',border:'1px solid #2a2a2a',borderRadius:'14px',padding:'14px 16px'}}>
-            <div style={{width:'44px',height:'44px',borderRadius:'10px',background:'#222',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <div style={{marginTop:'20px',display:'flex',alignItems:'center',gap:'14px',background:'#161616',border:'1px solid var(--border)',borderRadius:'14px',padding:'14px 16px'}}>
+            <div style={{width:'44px',height:'44px',borderRadius:'10px',background:'var(--muted)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path d="M6.5 17.5L2 13l4.5-4.5 1.06 1.06L4.12 13l3.44 3.44L6.5 17.5z" fill="#00e676"/>
                 <path d="M17.5 17.5l4.5-4.5-4.5-4.5-1.06 1.06L19.88 13l-3.44 3.44L17.5 17.5z" fill="#00e676"/>
@@ -81,15 +81,15 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
             </div>
             <div style={{flex:1}}>
               <div style={{fontSize:'15px',fontWeight:700,color:'#fff',lineHeight:1.2}}>Pix</div>
-              <div style={{fontSize:'11px',color:'#666',marginTop:'2px'}}>Depósito Real brasileiro</div>
+              <div style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'2px'}}>Depósito Real brasileiro</div>
             </div>
-            <div style={{background:'#1e1e1e',border:'1px solid #2a2a2a',borderRadius:'20px',padding:'4px 10px',fontSize:'11px',fontWeight:600,color:'#888',flexShrink:0}}>5 minutos</div>
+            <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'20px',padding:'4px 10px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',flexShrink:0}}>5 minutos</div>
           </div>
 
-          <p style={{fontSize:'11px',color:'#888',margin:'18px 0 8px',fontWeight:500}}>Valor a ser depositado:</p>
+          <p style={{fontSize:'11px',color:'var(--muted-foreground)',margin:'18px 0 8px',fontWeight:500}}>Valor a ser depositado:</p>
 
-          <div style={{display:'flex',alignItems:'center',background:'#1e1e1e',border:'1px solid #333',borderRadius:'10px',overflow:'hidden',transition:'border-color 0.15s, box-shadow 0.15s'}}>
-            <span style={{padding:'0 14px',fontSize:'15px',fontWeight:700,color:'#666',borderRight:'1px solid #333',height:'48px',display:'flex',alignItems:'center',flexShrink:0}}>R$</span>
+          <div style={{display:'flex',alignItems:'center',background:'var(--card)',border:'1px solid var(--border)',borderRadius:'10px',overflow:'hidden',transition:'border-color 0.15s, box-shadow 0.15s'}}>
+            <span style={{padding:'0 14px',fontSize:'15px',fontWeight:700,color:'var(--muted-foreground)',borderRight:'1px solid var(--border)',height:'48px',display:'flex',alignItems:'center',flexShrink:0}}>R$</span>
             <input
               type="number" min={min} step="1" placeholder="0,00" value={amount}
               onChange={e=>{setAmount(e.target.value);setError('')}}
@@ -109,7 +109,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
             ))}
           </div>
 
-          <p style={{fontSize:'11px',color:'#666',margin:'10px 0 0'}}>Depósito mínimo: R$ {Number(min).toFixed(2).replace('.',',')}</p>
+          <p style={{fontSize:'11px',color:'var(--muted-foreground)',margin:'10px 0 0'}}>Depósito mínimo: R$ {Number(min).toFixed(2).replace('.',',')}</p>
 
           {error && (
             <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:'10px',padding:'10px 14px',marginTop:'12px',textAlign:'center'}}>
@@ -145,17 +145,17 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
             <div style={{width:'180px',height:'180px',borderRadius:'16px',margin:'0 auto 16px',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 40px rgba(0,230,118,0.15)'}}>
               <div style={{textAlign:'center'}}><div style={{fontSize:'48px'}}>📱</div><div style={{fontSize:'10px',color:'#333',fontWeight:700,marginTop:'4px'}}>QR CODE PIX</div></div>
             </div>
-            <p style={{fontSize:'13px',color:'#555',marginBottom:'6px'}}>Valor: <span style={{color:'#fff',fontWeight:700}}>R$ {num.toFixed(2).replace('.',',')}</span></p>
+            <p style={{fontSize:'13px',color:'var(--muted-foreground)',marginBottom:'6px'}}>Valor: <span style={{color:'#fff',fontWeight:700}}>R$ {num.toFixed(2).replace('.',',')}</span></p>
             <p style={{fontSize:'11px',color:'#444',marginBottom:'16px'}}>Escaneie o QR ou copie o código abaixo</p>
           </div>
-          <div style={{background:'#161616',borderRadius:'12px',padding:'14px 16px',border:'1px solid #2a2a2a',marginBottom:'12px'}}>
-            <p style={{fontSize:'9px',color:'#555',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'6px'}}>CÓDIGO PIX COPIA E COLA</p>
+          <div style={{background:'#161616',borderRadius:'12px',padding:'14px 16px',border:'1px solid var(--border)',marginBottom:'12px'}}>
+            <p style={{fontSize:'9px',color:'var(--muted-foreground)',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'6px'}}>CÓDIGO PIX COPIA E COLA</p>
             <p style={{fontSize:'12px',color:'#ccc',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.5}}>{pixCode}</p>
           </div>
           <button onClick={copyPix} style={{width:'100%',padding:'15px',borderRadius:'12px',border:'none',background:copied?'rgba(0,230,118,0.15)':'#00e676',color:copied?'#00e676':'#000',fontWeight:900,fontSize:'15px',cursor:'pointer',marginBottom:'10px',outline:copied?'1px solid rgba(0,230,118,0.4)':'none',transition:'all 0.2s'}}>
             {copied ? '✓ CÓDIGO COPIADO!' : '📋 COPIAR CÓDIGO PIX'}
           </button>
-          <button onClick={simulateConfirm} style={{width:'100%',padding:'13px',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.1)',background:'transparent',color:'#666',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>
+          <button onClick={simulateConfirm} style={{width:'100%',padding:'13px',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.1)',background:'transparent',color:'var(--muted-foreground)',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>
             Já paguei — confirmar depósito
           </button>
           <p style={{fontSize:'10px',color:'#333',textAlign:'center',marginTop:'12px'}}>O saldo será creditado automaticamente após confirmação do pagamento</p>
@@ -166,7 +166,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
         <div style={{padding:'40px 20px',textAlign:'center'}}>
           <div style={{fontSize:'72px',marginBottom:'16px'}}>🎉</div>
           <h3 style={{fontSize:'22px',fontWeight:900,color:'#fff',marginBottom:'8px'}}>Depósito adicionado!</h3>
-          <p style={{fontSize:'14px',color:'#555',marginBottom:'8px'}}>R$ <span style={{color:'#00e676',fontWeight:700}}>{num.toFixed(2).replace('.',',')}</span> creditados na sua conta</p>
+          <p style={{fontSize:'14px',color:'var(--muted-foreground)',marginBottom:'8px'}}>R$ <span style={{color:'#00e676',fontWeight:700}}>{num.toFixed(2).replace('.',',')}</span> creditados na sua conta</p>
           <p style={{fontSize:'13px',color:'#444',marginBottom:'32px'}}>Novo saldo: <span style={{color:'#00e676',fontWeight:700}}>R$ {balance.toFixed(2).replace('.',',')}</span></p>
           <button onClick={onClose} style={{width:'100%',padding:'17px',borderRadius:'14px',border:'none',background:'#00e676',color:'#000',fontWeight:900,fontSize:'16px',cursor:'pointer',boxShadow:'0 0 28px rgba(0,230,118,0.3)'}}>
             APOSTAR AGORA

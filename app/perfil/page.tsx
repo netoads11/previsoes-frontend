@@ -114,13 +114,13 @@ export default function Perfil() {
   }
 
   if (loading) return (
-    <div style={{ background: '#111', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: '#555', fontSize: '14px' }}>Carregando...</div>
+    <div style={{ background: 'var(--surface)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ color: 'var(--muted-foreground)', fontSize: '14px' }}>Carregando...</div>
     </div>
   )
 
   return (
-    <div style={{ background: '#111', minHeight: '100vh', color: '#fff', fontFamily: 'Inter, Kanit, sans-serif', paddingBottom: '80px' }}>
+    <div style={{ background: 'var(--surface)', minHeight: '100vh', color: '#fff', fontFamily: 'Inter, Kanit, sans-serif', paddingBottom: '80px' }}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         .tab-btn{background:none;border:none;cursor:pointer;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:600;color:#555;border-bottom:2px solid transparent;transition:all 0.2s}
@@ -145,7 +145,7 @@ export default function Perfil() {
             </div>
             <div>
               <p style={{ fontWeight: 700, fontSize: '16px' }}>{user?.name}</p>
-              <p style={{ color: '#555', fontSize: '12px' }}>{user?.email}</p>
+              <p style={{ color: 'var(--muted-foreground)', fontSize: '12px' }}>{user?.email}</p>
             </div>
           </div>
           <button onClick={handleLogout} style={{ background: 'rgba(239,83,80,0.1)', border: '1px solid rgba(239,83,80,0.3)', color: '#ef5350', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit' }}>
@@ -154,7 +154,7 @@ export default function Perfil() {
         </div>
 
         <div style={{ background: 'linear-gradient(135deg,#1a2a1a,#0d1a0d)', border: '1px solid rgba(0,230,118,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '16px' }}>
-          <p style={{ color: '#555', fontSize: '12px', marginBottom: '4px' }}>Saldo disponivel</p>
+          <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginBottom: '4px' }}>Saldo disponivel</p>
           <p style={{ fontSize: '32px', fontWeight: 800, color: '#00e676' }}>R$ {balance.toFixed(2)}</p>
           <button onClick={() => setDepositModal(true)} style={{ marginTop: '14px', background: '#00e676', border: 'none', borderRadius: '8px', padding: '10px 20px', color: '#000', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
             + Depositar
@@ -165,15 +165,15 @@ export default function Perfil() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '20px' }}>
             <div className="stat-card">
               <p style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>{stats.total_bets || 0}</p>
-              <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Apostas</p>
+              <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Apostas</p>
             </div>
             <div className="stat-card">
               <p style={{ fontSize: '22px', fontWeight: 800, color: '#00e676' }}>{stats.win_rate || 0}%</p>
-              <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Taxa Vitoria</p>
+              <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Taxa Vitoria</p>
             </div>
             <div className="stat-card">
               <p style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>R${Number(stats.total_amount || 0).toFixed(0)}</p>
-              <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Total Apostado</p>
+              <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Total Apostado</p>
             </div>
           </div>
         )}
@@ -186,7 +186,7 @@ export default function Perfil() {
         {tab === 'apostas' && (
           <div>
             {bets.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#555', padding: '40px 0', fontSize: '14px' }}>
+              <div style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: '40px 0', fontSize: '14px' }}>
                 Nenhuma aposta ainda
               </div>
             ) : bets.map((b: any) => (
@@ -204,7 +204,7 @@ export default function Perfil() {
                   <span style={{ fontSize: '12px', color: b.choice === 'yes' ? '#00c853' : '#ef5350', fontWeight: 600 }}>
                     {b.choice === 'yes' ? 'SIM' : 'NAO'}
                   </span>
-                  <span style={{ fontSize: '12px', color: '#888' }}>R$ {Number(b.amount).toFixed(2)}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>R$ {Number(b.amount).toFixed(2)}</span>
                 </div>
               </div>
             ))}
@@ -213,8 +213,8 @@ export default function Perfil() {
 
         {tab === 'afiliados' && referrals && (
           <div>
-            <div style={{ background: '#1a1a1a', border: '1px solid rgba(0,230,118,0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-              <p style={{ fontSize: '12px', color: '#555', marginBottom: '8px' }}>Seu codigo de indicacao</p>
+            <div style={{ background: 'var(--card)', border: '1px solid rgba(0,230,118,0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Seu codigo de indicacao</p>
               <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '0.1em', color: '#00e676', marginBottom: '12px' }}>{referrals.referral_code || '...'}</p>
               {referrals.referral_code && (
                 <button className="copy-btn" onClick={copyRef}>
@@ -226,15 +226,15 @@ export default function Perfil() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '16px' }}>
               <div className="stat-card">
                 <p style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>{referrals.total_referred || 0}</p>
-                <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Indicados</p>
+                <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Indicados</p>
               </div>
               <div className="stat-card">
                 <p style={{ fontSize: '16px', fontWeight: 800, color: '#00e676' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
-                <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Total ganho</p>
+                <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Total ganho</p>
               </div>
               <div className="stat-card">
                 <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffb300' }}>R$ {Number(referrals.balance_affiliate || 0).toFixed(2)}</p>
-                <p style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Disponível</p>
+                <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Disponível</p>
               </div>
             </div>
 
@@ -244,7 +244,7 @@ export default function Perfil() {
               </button>
             )}
 
-            <div style={{ background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.1)', borderRadius: '10px', padding: '14px', fontSize: '13px', color: '#888', lineHeight: 1.6 }}>
+            <div style={{ background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.1)', borderRadius: '10px', padding: '14px', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.6 }}>
               <p style={{ color: '#00e676', fontWeight: 600, marginBottom: '6px' }}>Como funciona?</p>
               <p>Compartilhe seu link de indicacao. Quando alguem se cadastrar usando seu codigo, voce ganha comissao automatica sobre os depositos deles.</p>
             </div>
@@ -256,16 +256,16 @@ export default function Perfil() {
         <div className="modal-overlay" onClick={() => setSaqueModal(false)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <p style={{ fontWeight: 700, fontSize: '16px', marginBottom: '6px' }}>Saque de Comissão</p>
-            <p style={{ fontSize: '12px', color: '#555', marginBottom: '20px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginBottom: '20px' }}>
               Disponível: <span style={{ color: '#ffb300', fontWeight: 700 }}>R$ {Number(referrals?.balance_affiliate || 0).toFixed(2)}</span>
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <p style={{ fontSize: '11px', color: '#666', marginBottom: '6px' }}>Valor (R$)</p>
+                <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Valor (R$)</p>
                 <input className="modal-input" type="number" min="1" step="0.01" placeholder="0,00" value={saqueValor} onChange={e => setSaqueValor(e.target.value)} />
               </div>
               <div>
-                <p style={{ fontSize: '11px', color: '#666', marginBottom: '6px' }}>Chave PIX</p>
+                <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Chave PIX</p>
                 <input className="modal-input" type="text" placeholder="CPF, email, celular ou chave aleatória" value={saquePix} onChange={e => setSaquePix(e.target.value)} />
               </div>
               {saqueMsg && <p style={{ fontSize: '13px', color: saqueMsg.includes('solicitado') ? '#00e676' : '#ef5350' }}>{saqueMsg}</p>}
@@ -273,7 +273,7 @@ export default function Perfil() {
                 <button onClick={handleSaqueAfiliado} disabled={saqueLoading} style={{ flex: 1, background: '#ffb300', border: 'none', borderRadius: '8px', padding: '12px', color: '#000', fontWeight: 700, fontSize: '14px', cursor: saqueLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: saqueLoading ? 0.6 : 1 }}>
                   {saqueLoading ? 'Enviando...' : 'Solicitar'}
                 </button>
-                <button onClick={() => { setSaqueModal(false); setSaqueMsg('') }} style={{ padding: '12px 16px', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', cursor: 'pointer', fontFamily: 'inherit' }}>
+                <button onClick={() => { setSaqueModal(false); setSaqueMsg('') }} style={{ padding: '12px 16px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--muted-foreground)', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Cancelar
                 </button>
               </div>

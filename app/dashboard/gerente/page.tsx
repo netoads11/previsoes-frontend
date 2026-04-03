@@ -84,7 +84,7 @@ export default function GerenteDashboard() {
     red: '#f44336', yellow: '#ffb300', blue: '#3b82f6', text: '#fff', muted: '#888', label: '#555',
   }
   const fmt = (n: number) => `R$ ${Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-  const InputStyle = { width: '100%', background: '#141414', border: '1px solid #222', borderRadius: '8px', padding: '9px 12px', color: '#ccc', fontSize: '13px', outline: 'none' }
+  const InputStyle = { width: '100%', background: '#141414', border: '1px solid var(--border)', borderRadius: '8px', padding: '9px 12px', color: '#ccc', fontSize: '13px', outline: 'none' }
   const LabelStyle = { fontSize: '11px', color: V.label, display: 'block' as any, marginBottom: '5px', textTransform: 'uppercase' as any, letterSpacing: '0.1em', fontWeight: 600 }
 
   if (loading) return (
@@ -160,14 +160,14 @@ export default function GerenteDashboard() {
             <p style={{ fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '14px' }}>Sua comissão</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }} className="g3">
               {/* Teto */}
-              <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+              <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Seu teto (admin)</p>
                 <p style={{ fontSize: '20px', fontWeight: 700, color: V.blue }}>CPA: {fmt(data.my_commission.cpa)}</p>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: V.blue, marginTop: '2px' }}>RevShare: {data.my_commission.rev_share}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Máximo que pode distribuir</p>
               </div>
               {/* Distribuído */}
-              <div style={{ background: '#111', borderRadius: '10px', padding: '14px', border: '1px solid #2a2a2a' }}>
+              <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Distribuído (média)</p>
                 <p style={{ fontSize: '20px', fontWeight: 700, color: V.yellow }}>RevShare: {data.stats.avg_affiliate_rev_share}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Média dos seus afiliados</p>
@@ -186,7 +186,7 @@ export default function GerenteDashboard() {
         <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, padding: '20px', marginBottom: '24px' }}>
           <p style={{ fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Seu link de recrutamento de afiliados</p>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <code style={{ flex: 1, background: '#111', border: `1px solid ${V.border}`, borderRadius: '8px', padding: '10px 14px', color: V.green, fontSize: '13px', wordBreak: 'break-all' }}>
+            <code style={{ flex: 1, background: 'var(--surface)', border: `1px solid ${V.border}`, borderRadius: '8px', padding: '10px 14px', color: V.green, fontSize: '13px', wordBreak: 'break-all' }}>
               {typeof window !== 'undefined' ? `${window.location.origin}/cadastrar?ref=${data?.referral_code}` : `/cadastrar?ref=${data?.referral_code}`}
             </code>
             <button onClick={copyLink} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: `1px solid ${copied ? V.green : V.border}`, background: copied ? 'rgba(0,230,118,0.1)' : 'transparent', color: copied ? V.green : V.muted, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
@@ -255,7 +255,7 @@ export default function GerenteDashboard() {
       {/* Modal editar comissão */}
       {editAff && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#1a1a1a', borderRadius: '14px', border: `1px solid ${V.border}`, padding: '24px', width: '100%', maxWidth: '420px' }}>
+          <div style={{ background: 'var(--card)', borderRadius: '14px', border: `1px solid ${V.border}`, padding: '24px', width: '100%', maxWidth: '420px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
               <div>
                 <p style={{ fontWeight: 700, fontSize: '15px' }}>Configurar comissão</p>
@@ -265,7 +265,7 @@ export default function GerenteDashboard() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Resumo teto + margem em tempo real */}
-              <div style={{ background: '#111', borderRadius: '8px', padding: '12px 14px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ background: 'var(--surface)', borderRadius: '8px', padding: '12px 14px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                 <div>
                   <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Seu teto RevShare</p>
                   <p style={{ fontSize: '14px', fontWeight: 700, color: V.blue }}>{data?.my_commission?.rev_share || 0}%</p>
@@ -316,15 +316,15 @@ export default function GerenteDashboard() {
 
 function StatCard({ icon: Icon, color, label, value, sub }: any) {
   return (
-    <div style={{ background: '#1a1a1a', borderRadius: '12px', border: '1px solid #222', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '11px', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
+        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
         <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={15} color={color} strokeWidth={2} />
         </div>
       </div>
       <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: '#fff' }}>{value}</p>
-      <p style={{ fontSize: '11px', color: '#666' }}>{sub}</p>
+      <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{sub}</p>
     </div>
   )
 }

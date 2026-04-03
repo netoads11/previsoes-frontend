@@ -25,7 +25,7 @@ export default function BottomNav({ activePage, onDeposit }: { activePage: 'home
 
   return (
     <>
-      <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',borderTop:'1px solid #222222',display:'flex',justifyContent:'space-around',alignItems:'center',height:'60px',zIndex:1000,paddingBottom:'env(safe-area-inset-bottom)'}}>
+      <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'var(--surface)',borderTop:'1px solid #222222',display:'flex',justifyContent:'space-around',alignItems:'center',height:'60px',zIndex:1000,paddingBottom:'env(safe-area-inset-bottom)'}}>
         {items.map(item => {
           const active = activePage === item.id
           return (
@@ -70,15 +70,15 @@ export default function BottomNav({ activePage, onDeposit }: { activePage: 'home
         <div style={{position:'fixed',inset:0,zIndex:10001,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}
           onClick={()=>setDuvidaModal(false)}>
           <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.7)',backdropFilter:'blur(4px)'}}/>
-          <div onClick={e=>e.stopPropagation()} style={{position:'relative',zIndex:1,background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'16px',padding:'28px 24px',maxWidth:'320px',width:'100%',textAlign:'center'}}>
+          <div onClick={e=>e.stopPropagation()} style={{position:'relative',zIndex:1,background:'var(--card)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'16px',padding:'28px 24px',maxWidth:'320px',width:'100%',textAlign:'center'}}>
             <div style={{fontSize:'40px',marginBottom:'12px'}}>💬</div>
             <h3 style={{fontSize:'17px',fontWeight:800,color:'#fff',marginBottom:'8px'}}>Dúvidas?</h3>
-            <p style={{fontSize:'13px',color:'#666',marginBottom:'24px',lineHeight:1.5}}>Entre em contato pelo WhatsApp — respondemos em minutos!</p>
+            <p style={{fontSize:'13px',color:'var(--muted-foreground)',marginBottom:'24px',lineHeight:1.5}}>Entre em contato pelo WhatsApp — respondemos em minutos!</p>
             <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer"
               style={{display:'block',width:'100%',padding:'14px',borderRadius:'10px',border:'none',background:'#25d366',color:'#fff',fontWeight:900,fontSize:'14px',cursor:'pointer',marginBottom:'10px',textDecoration:'none',boxSizing:'border-box' as any}}>
               💬 Abrir WhatsApp
             </a>
-            <button onClick={()=>setDuvidaModal(false)} style={{width:'100%',padding:'12px',borderRadius:'10px',border:'1px solid rgba(255,255,255,0.15)',background:'transparent',color:'#888',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>
+            <button onClick={()=>setDuvidaModal(false)} style={{width:'100%',padding:'12px',borderRadius:'10px',border:'1px solid rgba(255,255,255,0.15)',background:'transparent',color:'var(--muted-foreground)',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>
               Fechar
             </button>
           </div>

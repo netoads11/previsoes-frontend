@@ -110,7 +110,7 @@ export default function ComoFunciona() {
           {[...Array(2)].map((_,rep)=>(
             <span key={rep} style={{display:'flex',gap:'40px'}}>
               {[{l:'BTC/BRL',v:'R$ 87.420',c:true},{l:'ETH/BRL',v:'R$ 2.024',c:true},{l:'USD/BRL',v:'R$ 5,24',c:false},{l:'EUR/BRL',v:'R$ 6,03',c:false},{l:'Mercados',v:'12',c:true}].map(t=>(
-                <span key={t.l+rep} style={{fontSize:'11px',color:'#555'}}>
+                <span key={t.l+rep} style={{fontSize:'11px',color:'var(--muted-foreground)'}}>
                   <span style={{color:'#444',marginRight:'6px'}}>{t.l}</span>
                   <span style={{color:t.c?'#6ADD00':'#f87171',fontWeight:600}}>{t.v}</span>
                 </span>
@@ -133,7 +133,7 @@ export default function ComoFunciona() {
           <span style={{color:'#fff',fontWeight:700,fontSize:p?'14px':'16px'}}>{platformName}</span>
         </button>
         <div style={{display:'flex',gap:'6px'}}>
-          {!p && <Link href="/" style={{padding:'7px 16px',borderRadius:'8px',border:'1px solid #222',color:'#aaa',fontSize:'13px',textDecoration:'none',fontWeight:500}}>Mercados</Link>}
+          {!p && <Link href="/" style={{padding:'7px 16px',borderRadius:'8px',border:'1px solid var(--border)',color:'#aaa',fontSize:'13px',textDecoration:'none',fontWeight:500}}>Mercados</Link>}
           <Link href="/cadastrar" style={{padding:p?'7px 14px':'7px 16px',borderRadius:'8px',background:'#6ADD00',color:'#000',fontSize:p?'12px':'13px',textDecoration:'none',fontWeight:700}}>Criar conta</Link>
         </div>
       </nav>
@@ -177,10 +177,10 @@ export default function ComoFunciona() {
               </div>
             </div>
             <div>
-              <p style={{fontSize:'11px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'12px'}}>EXEMPLOS DE PREVISÕES:</p>
+              <p style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'12px'}}>EXEMPLOS DE PREVISÕES:</p>
               <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
                 {['🍼  Neymar vai ter outro filho em 2026?','⚽  Qual time terá o maior público em 2026?','💍  Virgínia e Vini Jr vão anunciar casamento?','🗳️  Quem irá ganhar a eleição no Brasil?'].map((ex,i)=>(
-                  <div key={i} style={{background:'#111',border:'1px solid #1a1a1a',borderRadius:'10px',padding:'12px 14px',fontSize:'13px',color:'rgba(255,255,255,0.7)'}}>
+                  <div key={i} style={{background:'var(--surface)',border:'1px solid #1a1a1a',borderRadius:'10px',padding:'12px 14px',fontSize:'13px',color:'rgba(255,255,255,0.7)'}}>
                     {ex}
                   </div>
                 ))}
@@ -197,7 +197,7 @@ export default function ComoFunciona() {
                 {q:'Quem irá ganhar a eleição no Brasil?',yes:69,rot:5,left:60,anim:'float3'},
                 {q:'Virgínia e Vini Jr vão anunciar casamento?',yes:31,rot:12,left:180,anim:'float'},
               ].map((c,i)=>(
-                <div key={i} style={{position:'absolute',width:'190px',background:'#111',borderRadius:'14px',border:'1px solid #222',padding:'12px',transform:`rotate(${c.rot}deg) translateX(${c.left}px)`,boxShadow:'0 8px 32px rgba(0,0,0,0.6)',animation:`${c.anim} ${3+i*0.5}s ease-in-out infinite ${i*0.5}s`}}>
+                <div key={i} style={{position:'absolute',width:'190px',background:'var(--surface)',borderRadius:'14px',border:'1px solid var(--border)',padding:'12px',transform:`rotate(${c.rot}deg) translateX(${c.left}px)`,boxShadow:'0 8px 32px rgba(0,0,0,0.6)',animation:`${c.anim} ${3+i*0.5}s ease-in-out infinite ${i*0.5}s`}}>
                   <div style={{height:'70px',background:'linear-gradient(135deg,#1a1a1a,#0a0a0a)',borderRadius:'8px',marginBottom:'8px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'26px'}}>
                     {['⚽','👶','🗳️','💍'][i]}
                   </div>
@@ -226,7 +226,7 @@ export default function ComoFunciona() {
           </div>
           <div style={{display:'grid',gridTemplateColumns:p?'1fr':steps.length<=4?'repeat(2,1fr)':'repeat(3,1fr)',gap:'14px'}}>
             {steps.map((s,i)=>(
-              <div key={s.n} ref={reg('s'+i)} style={{...anim('s'+i, i*80), background:'#111',border:'1px solid #1a1a1a',borderRadius:'14px',padding:p?'18px':'24px',transition:'border-color 0.2s, transform 0.2s'}} className="step-card">
+              <div key={s.n} ref={reg('s'+i)} style={{...anim('s'+i, i*80), background:'var(--surface)',border:'1px solid #1a1a1a',borderRadius:'14px',padding:p?'18px':'24px',transition:'border-color 0.2s, transform 0.2s'}} className="step-card">
                 <div style={{width:'34px',height:'34px',borderRadius:'50%',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'15px',color:'#000',marginBottom:'14px'}}>{s.n}</div>
                 <h3 style={{fontSize:'15px',fontWeight:700,color:'#fff',marginBottom:'8px'}}>{s.title}</h3>
                 <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',lineHeight:1.6,marginBottom:'14px'}}>{s.desc}</p>
@@ -293,7 +293,7 @@ export default function ComoFunciona() {
               {l:'Taxa de Vitória',v:`${settings.taxa_vitoria ?? '0.36'}%`},
               {l:'Taxa de Saque',v:`${settings.taxa_saque ?? '2'}%`},
             ].map(t=>(
-              <div key={t.l} style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'#111',border:'1px solid #1a1a1a',borderRadius:'10px',padding:'14px 16px'}}>
+              <div key={t.l} style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'var(--surface)',border:'1px solid #1a1a1a',borderRadius:'10px',padding:'14px 16px'}}>
                 <span style={{fontWeight:600,fontSize:'14px',color:'#fff'}}>{t.l}</span>
                 <span style={{background:'rgba(106,221,0,0.1)',border:'1px solid rgba(106,221,0,0.2)',color:'#6ADD00',fontWeight:700,fontSize:'14px',padding:'4px 12px',borderRadius:'8px'}}>{t.v}</span>
               </div>
@@ -361,7 +361,7 @@ export default function ComoFunciona() {
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
             {faqs.map((f,i)=>(
-              <div key={i} style={{background:'#111',border:`1px solid ${faq===i?'rgba(106,221,0,0.3)':'#1a1a1a'}`,borderRadius:'12px',overflow:'hidden',transition:'border-color 0.2s'}}>
+              <div key={i} style={{background:'var(--surface)',border:`1px solid ${faq===i?'rgba(106,221,0,0.3)':'#1a1a1a'}`,borderRadius:'12px',overflow:'hidden',transition:'border-color 0.2s'}}>
                 <button onClick={()=>setFaq(faq===i?null:i)} className="faq-row" style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:p?'16px':'18px 20px',background:'transparent',border:'none',cursor:'pointer',textAlign:'left',gap:'12px',transition:'background 0.15s'}}>
                   <span style={{fontSize:p?'13px':'15px',fontWeight:600,color:'#fff',lineHeight:1.5}}>{f.q}</span>
                   <span style={{color:'#6ADD00',fontSize:'20px',flexShrink:0,transition:'transform 0.2s',display:'block',transform:faq===i?'rotate(45deg)':'rotate(0deg)'}}>+</span>
@@ -383,11 +383,11 @@ export default function ComoFunciona() {
           <div style={{textAlign:'center',marginBottom:p?'32px':'50px'}}>
             <h2 style={{fontSize:p?'22px':'clamp(24px,4vw,40px)',fontWeight:900,color:'#fff'}}>Resumo Rápido</h2>
           </div>
-          <div style={{background:'#111',border:'1px solid #1a1a1a',borderRadius:'14px',overflow:'hidden'}}>
+          <div style={{background:'var(--surface)',border:'1px solid #1a1a1a',borderRadius:'14px',overflow:'hidden'}}>
             {!p && (
               <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',background:'#0a0a0a',padding:'12px 20px',borderBottom:'1px solid #1a1a1a'}}>
-                <span style={{fontSize:'11px',fontWeight:700,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em'}}>ASPECTO</span>
-                <span style={{fontSize:'11px',fontWeight:700,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em'}}>DESCRIÇÃO</span>
+                <span style={{fontSize:'11px',fontWeight:700,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em'}}>ASPECTO</span>
+                <span style={{fontSize:'11px',fontWeight:700,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em'}}>DESCRIÇÃO</span>
               </div>
             )}
             {resumo.map(([a,d],i)=>(
