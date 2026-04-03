@@ -216,7 +216,7 @@ export default function Home() {
         .btn-nao{background:rgba(198,40,40,0.12);color:#ef5350;border:1px solid rgba(198,40,40,0.3);border-radius:8px;padding:9px 0;cursor:pointer;font-weight:700;font-size:13px;flex:1;transition:all 0.15s}
         .btn-nao:hover{background:#c62828;color:#fff;box-shadow:0 0 14px rgba(198,40,40,0.4)}
         .btn-nao:active{transform:scale(0.97)}
-        .mcard{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;transition:all 0.2s;margin-bottom:8px}
+        .mcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all 0.2s;margin-bottom:8px}
         .mcard:hover{border-color:rgba(var(--primary-rgb, 0,200,83),0.3);box-shadow:0 2px 16px rgba(0,0,0,0.5)}
         .sidebar-d{display:flex}
         .sidebar-r{display:flex}
