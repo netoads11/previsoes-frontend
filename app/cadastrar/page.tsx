@@ -96,19 +96,19 @@ export default function Cadastrar() {
           <div style={{position:'absolute',top:'-80px',right:'-80px',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.15) 0%,transparent 70%)'}}/>
           <div style={{position:'absolute',bottom:'-60px',left:'-60px',width:'250px',height:'250px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.08) 0%,transparent 70%)'}}/>
           <div style={{display:'flex',alignItems:'center',gap:'10px',position:'relative'}}>
-            <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 16px rgba(106,221,0,0.5)'}}>
+            <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 16px rgba(106,221,0,0.5)'}}>
               <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'16px'}}>P</span>
             </div>
             <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>Previmarket</span>
           </div>
           <div style={{position:'relative'}}>
             <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(106,221,0,0.1)',border:'1px solid rgba(106,221,0,0.2)',borderRadius:'20px',padding:'6px 14px',marginBottom:'24px'}}>
-              <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#6ADD00'}}/>
-              <span style={{color:'#6ADD00',fontSize:'12px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Plataforma ao vivo</span>
+              <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'var(--primary)'}}/>
+              <span style={{color:'var(--primary)',fontSize:'12px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Plataforma ao vivo</span>
             </div>
             <h1 style={{fontSize:'40px',fontWeight:800,color:'#fff',lineHeight:1.2,marginBottom:'16px',textTransform:'uppercase'}}>
               PREVEJA O<br/>
-              <span style={{color:'#6ADD00',textShadow:'0 0 30px rgba(106,221,0,0.4)'}}>FUTURO</span><br/>
+              <span style={{color:'var(--primary)',textShadow:'0 0 30px rgba(106,221,0,0.4)'}}>FUTURO</span><br/>
               E GANHE
             </h1>
             <p style={{color:'rgba(255,255,255,0.5)',fontSize:'16px',lineHeight:1.6,maxWidth:'360px'}}>
@@ -129,7 +129,7 @@ export default function Cadastrar() {
         <div className="auth-right">
           <div style={{marginBottom:'32px'}}>
             <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'24px'}}>
-              <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center'}}>
                 <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'13px'}}>P</span>
               </div>
               <span style={{color:'#fff',fontWeight:700,fontSize:'16px'}}>Previmarket</span>
@@ -140,7 +140,7 @@ export default function Cadastrar() {
 
           {refCode && (
             <div style={{background:'rgba(106,221,0,0.08)',border:'1px solid rgba(106,221,0,0.2)',borderRadius:'8px',padding:'10px 14px',marginBottom:'16px',display:'flex',alignItems:'center',gap:'8px'}}>
-              <span style={{color:'#6ADD00',fontSize:'13px'}}>Indicado por: <strong>{refCode}</strong></span>
+              <span style={{color:'var(--primary)',fontSize:'13px'}}>Indicado por: <strong>{refCode}</strong></span>
             </div>
           )}
 
@@ -185,7 +185,7 @@ export default function Cadastrar() {
               </div>
             </div>
             <button type="submit" disabled={loading}
-              style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:loading?'not-allowed':'pointer',background:'#6ADD00',color:'#0a0a0a',fontWeight:800,fontSize:'15px',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 24px rgba(106,221,0,0.35)',opacity:loading?0.7:1,marginTop:'6px',letterSpacing:'0.02em'}}>
+              style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:loading?'not-allowed':'pointer',background:'var(--primary)',color:'#0a0a0a',fontWeight:800,fontSize:'15px',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 24px rgba(106,221,0,0.35)',opacity:loading?0.7:1,marginTop:'6px',letterSpacing:'0.02em'}}>
               {loading?'Criando conta...':'CRIAR CONTA'}
             </button>
           </form>
@@ -198,7 +198,7 @@ export default function Cadastrar() {
 
           <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>
             Ja tem uma conta?{' '}
-            <Link href="/login" style={{color:'#6ADD00',fontWeight:600,textDecoration:'none'}}>Entrar</Link>
+            <Link href="/login" style={{color:'var(--primary)',fontWeight:600,textDecoration:'none'}}>Entrar</Link>
           </p>
         </div>
       </div>

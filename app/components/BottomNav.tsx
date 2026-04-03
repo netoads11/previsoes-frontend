@@ -36,14 +36,14 @@ export default function BottomNav({ activePage, onDeposit }: { activePage: 'home
                 if (item.id === 'home') { router.push('/'); return }
                 if (item.id === 'perfil') { router.push('/perfil'); return }
               }}
-              style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:active?'#00e676':'#666666',fontSize:'11px',transition:'color 0.15s',flex:1,height:'100%',justifyContent:'center'}}
+              style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',border:'none',background:'transparent',cursor:'pointer',color:active?'var(--primary)':'#666666',fontSize:'11px',transition:'color 0.15s',flex:1,height:'100%',justifyContent:'center'}}
             >
               {item.id === 'home' && (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
               )}
               {item.id === 'perfil' && (
                 user ? (
-                  <div style={{width:'22px',height:'22px',borderRadius:'50%',background:'#00c853',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontWeight:900,color:'#000'}}>
+                  <div style={{width:'22px',height:'22px',borderRadius:'50%',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontWeight:900,color:'#000'}}>
                     {getInitials(user.name || user.email || 'U')}
                   </div>
                 ) : (

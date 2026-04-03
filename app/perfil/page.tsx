@@ -102,7 +102,7 @@ export default function Perfil() {
   }
 
   function getBetStatusColor(status: string) {
-    if (status === 'won') return '#00e676'
+    if (status === 'won') return 'var(--primary)'
     if (status === 'lost') return '#ef5350'
     return '#888'
   }
@@ -124,23 +124,23 @@ export default function Perfil() {
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         .tab-btn{background:none;border:none;cursor:pointer;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:600;color:#555;border-bottom:2px solid transparent;transition:all 0.2s}
-        .tab-btn.active{color:#00e676;border-bottom-color:#00e676}
+        .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
         .stat-card{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
         .bet-row{background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;margin-bottom:8px}
-        .copy-btn{background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all 0.2s}
-        .copy-btn:hover{background:rgba(0,230,118,0.2)}
+        .copy-btn{background:rgba(var(--primary-rgb, 0,230,118),0.1);border:1px solid rgba(var(--primary-rgb, 0,230,118),0.3);color:var(--primary);border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all 0.2s}
+        .copy-btn:hover{background:rgba(var(--primary-rgb, 0,230,118),0.2)}
         .saque-btn{background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.3);color:#ffb300;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all 0.2s}
         .saque-btn:hover{background:rgba(255,179,0,0.2)}
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
         .modal-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:24px;width:100%;max-width:360px}
         .modal-input{width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box}
-        .modal-input:focus{border-color:#00e676}
+        .modal-input:focus{border-color:var(--primary)}
       `}</style>
 
       <div style={{ padding: '20px 16px 0', maxWidth: '480px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg,#00e676,#00b248)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '16px', color: '#000' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--primary),#00b248)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '16px', color: '#000' }}>
               {getInitials(user?.name || '')}
             </div>
             <div>
@@ -153,10 +153,10 @@ export default function Perfil() {
           </button>
         </div>
 
-        <div style={{ background: 'linear-gradient(135deg,#1a2a1a,#0d1a0d)', border: '1px solid rgba(0,230,118,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '16px' }}>
+        <div style={{ background: 'linear-gradient(135deg,#1a2a1a,#0d1a0d)', border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.2)', borderRadius: '14px', padding: '20px', marginBottom: '16px' }}>
           <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginBottom: '4px' }}>Saldo disponivel</p>
-          <p style={{ fontSize: '32px', fontWeight: 800, color: '#00e676' }}>R$ {balance.toFixed(2)}</p>
-          <button onClick={() => setDepositModal(true)} style={{ marginTop: '14px', background: '#00e676', border: 'none', borderRadius: '8px', padding: '10px 20px', color: '#000', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
+          <p style={{ fontSize: '32px', fontWeight: 800, color: 'var(--primary)' }}>R$ {balance.toFixed(2)}</p>
+          <button onClick={() => setDepositModal(true)} style={{ marginTop: '14px', background: 'var(--primary)', border: 'none', borderRadius: '8px', padding: '10px 20px', color: '#000', fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
             + Depositar
           </button>
         </div>
@@ -168,7 +168,7 @@ export default function Perfil() {
               <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Apostas</p>
             </div>
             <div className="stat-card">
-              <p style={{ fontSize: '22px', fontWeight: 800, color: '#00e676' }}>{stats.win_rate || 0}%</p>
+              <p style={{ fontSize: '22px', fontWeight: 800, color: 'var(--primary)' }}>{stats.win_rate || 0}%</p>
               <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Taxa Vitoria</p>
             </div>
             <div className="stat-card">
@@ -194,14 +194,14 @@ export default function Perfil() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                   <p style={{ fontSize: '13px', fontWeight: 600, flex: 1, marginRight: '8px', lineHeight: 1.4 }}>
                     {b.question}
-                    {b.option_title && <span style={{ color: '#00e676', fontSize: '11px', display: 'block', marginTop: '2px' }}>{b.option_title}</span>}
+                    {b.option_title && <span style={{ color: 'var(--primary)', fontSize: '11px', display: 'block', marginTop: '2px' }}>{b.option_title}</span>}
                   </p>
                   <span style={{ fontSize: '11px', fontWeight: 700, color: getBetStatusColor(b.status), background: getBetStatusColor(b.status) + '22', padding: '2px 8px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
                     {getBetStatusLabel(b.status)}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '12px', color: b.choice === 'yes' ? '#00c853' : '#ef5350', fontWeight: 600 }}>
+                  <span style={{ fontSize: '12px', color: b.choice === 'yes' ? 'var(--primary)' : '#ef5350', fontWeight: 600 }}>
                     {b.choice === 'yes' ? 'SIM' : 'NAO'}
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>R$ {Number(b.amount).toFixed(2)}</span>
@@ -213,9 +213,9 @@ export default function Perfil() {
 
         {tab === 'afiliados' && referrals && (
           <div>
-            <div style={{ background: 'var(--card)', border: '1px solid rgba(0,230,118,0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
               <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Seu codigo de indicacao</p>
-              <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '0.1em', color: '#00e676', marginBottom: '12px' }}>{referrals.referral_code || '...'}</p>
+              <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--primary)', marginBottom: '12px' }}>{referrals.referral_code || '...'}</p>
               {referrals.referral_code && (
                 <button className="copy-btn" onClick={copyRef}>
                   {copied ? 'Copiado!' : 'Copiar link de indicacao'}
@@ -229,7 +229,7 @@ export default function Perfil() {
                 <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Indicados</p>
               </div>
               <div className="stat-card">
-                <p style={{ fontSize: '16px', fontWeight: 800, color: '#00e676' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: 'var(--primary)' }}>R$ {Number(referrals.total_earned || 0).toFixed(2)}</p>
                 <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '4px' }}>Total ganho</p>
               </div>
               <div className="stat-card">
@@ -244,8 +244,8 @@ export default function Perfil() {
               </button>
             )}
 
-            <div style={{ background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.1)', borderRadius: '10px', padding: '14px', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.6 }}>
-              <p style={{ color: '#00e676', fontWeight: 600, marginBottom: '6px' }}>Como funciona?</p>
+            <div style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.05)', border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.1)', borderRadius: '10px', padding: '14px', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.6 }}>
+              <p style={{ color: 'var(--primary)', fontWeight: 600, marginBottom: '6px' }}>Como funciona?</p>
               <p>Compartilhe seu link de indicacao. Quando alguem se cadastrar usando seu codigo, voce ganha comissao automatica sobre os depositos deles.</p>
             </div>
           </div>
@@ -268,7 +268,7 @@ export default function Perfil() {
                 <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Chave PIX</p>
                 <input className="modal-input" type="text" placeholder="CPF, email, celular ou chave aleatória" value={saquePix} onChange={e => setSaquePix(e.target.value)} />
               </div>
-              {saqueMsg && <p style={{ fontSize: '13px', color: saqueMsg.includes('solicitado') ? '#00e676' : '#ef5350' }}>{saqueMsg}</p>}
+              {saqueMsg && <p style={{ fontSize: '13px', color: saqueMsg.includes('solicitado') ? 'var(--primary)' : '#ef5350' }}>{saqueMsg}</p>}
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button onClick={handleSaqueAfiliado} disabled={saqueLoading} style={{ flex: 1, background: '#ffb300', border: 'none', borderRadius: '8px', padding: '12px', color: '#000', fontWeight: 700, fontSize: '14px', cursor: saqueLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: saqueLoading ? 0.6 : 1 }}>
                   {saqueLoading ? 'Enviando...' : 'Solicitar'}

@@ -71,7 +71,7 @@ export default function ComoFunciona() {
     { name:'Política', desc:'Preveja sobre eleições e decisões políticas!', tags:['Eleições','Governadores','Senadores'], bg:'linear-gradient(135deg,#0a001a,#1a0028)', emoji:'🏛️', accent:'#a855f7' },
     { name:'E-Sports', desc:'Preveja sobre competições de videogames!', tags:['CBLOL','League of Legends','CS:GO'], bg:'linear-gradient(135deg,#00111a,#00202e)', emoji:'🎮', accent:'#06b6d4' },
     { name:'Social', desc:'Preveja sobre programas de TV, celebridades e internet!', tags:['BBB','Celebridades','Eventos'], bg:'linear-gradient(135deg,#1a001a,#2d0028)', emoji:'📱', accent:'#ec4899' },
-    { name:'Fast Markets', desc:'Mercados que fecham rápido! Previsões em horas ou dias.', tags:['Curto prazo','Diários','Rápidos'], bg:'linear-gradient(135deg,#001a0a,#002d14)', emoji:'⚡', accent:'#6ADD00' },
+    { name:'Fast Markets', desc:'Mercados que fecham rápido! Previsões em horas ou dias.', tags:['Curto prazo','Diários','Rápidos'], bg:'linear-gradient(135deg,#001a0a,#002d14)', emoji:'⚡', accent:'var(--primary)' },
   ]
 
   const resumo = [
@@ -98,7 +98,7 @@ export default function ComoFunciona() {
         @keyframes float { 0%,100%{transform:translateY(0) rotate(-6deg)} 50%{transform:translateY(-10px) rotate(-6deg)} }
         @keyframes float2 { 0%,100%{transform:translateY(0) rotate(3deg)} 50%{transform:translateY(-14px) rotate(3deg)} }
         @keyframes float3 { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-8px) rotate(-2deg)} }
-        .step-card:hover { border-color: rgba(106,221,0,0.4) !important; transform: translateY(-4px); }
+        .step-card:hover { border-color: rgba(var(--primary-rgb, 106,221,0),0.4) !important; transform: translateY(-4px); }
         .cat-card:hover { transform: translateY(-4px); }
         .faq-row:hover { background: rgba(255,255,255,0.04) !important; }
         * { box-sizing: border-box; }
@@ -112,7 +112,7 @@ export default function ComoFunciona() {
               {[{l:'BTC/BRL',v:'R$ 87.420',c:true},{l:'ETH/BRL',v:'R$ 2.024',c:true},{l:'USD/BRL',v:'R$ 5,24',c:false},{l:'EUR/BRL',v:'R$ 6,03',c:false},{l:'Mercados',v:'12',c:true}].map(t=>(
                 <span key={t.l+rep} style={{fontSize:'11px',color:'var(--muted-foreground)'}}>
                   <span style={{color:'#444',marginRight:'6px'}}>{t.l}</span>
-                  <span style={{color:t.c?'#6ADD00':'#f87171',fontWeight:600}}>{t.v}</span>
+                  <span style={{color:t.c?'var(--primary)':'#f87171',fontWeight:600}}>{t.v}</span>
                 </span>
               ))}
             </span>
@@ -126,7 +126,7 @@ export default function ComoFunciona() {
           {logoUrl ? (
             <img src={logoUrl} alt={platformName} style={{height:'32px',width:'32px',objectFit:'contain',borderRadius:'8px'}} />
           ) : (
-            <div style={{width:'32px',height:'32px',borderRadius:'8px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <div style={{width:'32px',height:'32px',borderRadius:'8px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
               <span style={{color:'#000',fontWeight:800,fontSize:'14px'}}>{platformName.charAt(0)}</span>
             </div>
           )}
@@ -134,24 +134,24 @@ export default function ComoFunciona() {
         </button>
         <div style={{display:'flex',gap:'6px'}}>
           {!p && <Link href="/" style={{padding:'7px 16px',borderRadius:'8px',border:'1px solid var(--border)',color:'#aaa',fontSize:'13px',textDecoration:'none',fontWeight:500}}>Mercados</Link>}
-          <Link href="/cadastrar" style={{padding:p?'7px 14px':'7px 16px',borderRadius:'8px',background:'#6ADD00',color:'#000',fontSize:p?'12px':'13px',textDecoration:'none',fontWeight:700}}>Criar conta</Link>
+          <Link href="/cadastrar" style={{padding:p?'7px 14px':'7px 16px',borderRadius:'8px',background:'var(--primary)',color:'#000',fontSize:p?'12px':'13px',textDecoration:'none',fontWeight:700}}>Criar conta</Link>
         </div>
       </nav>
 
       {/* HERO */}
-      <section style={{textAlign:'center',padding:p?'60px 16px 50px':'100px 24px 80px',background:'radial-gradient(ellipse 80% 50% at 50% 0%,rgba(106,221,0,0.08) 0%,transparent 70%)'}}>
-        <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(106,221,0,0.1)',border:'1px solid rgba(106,221,0,0.3)',borderRadius:'20px',padding:'5px 16px',marginBottom:'24px',animation:'fadeUp 0.6s ease'}}>
-          <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#6ADD00',animation:'pulse 2s infinite'}}/>
-          <span style={{color:'#6ADD00',fontSize:'11px',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase'}}>GUIA COMPLETO</span>
+      <section style={{textAlign:'center',padding:p?'60px 16px 50px':'100px 24px 80px',background:'radial-gradient(ellipse 80% 50% at 50% 0%,rgba(var(--primary-rgb, 106,221,0),0.08) 0%,transparent 70%)'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(var(--primary-rgb, 106,221,0),0.1)',border:'1px solid rgba(var(--primary-rgb, 106,221,0),0.3)',borderRadius:'20px',padding:'5px 16px',marginBottom:'24px',animation:'fadeUp 0.6s ease'}}>
+          <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'var(--primary)',animation:'pulse 2s infinite'}}/>
+          <span style={{color:'var(--primary)',fontSize:'11px',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase'}}>GUIA COMPLETO</span>
         </div>
         <h1 style={{fontSize:p?'28px':'clamp(28px,5vw,56px)',fontWeight:900,color:'#fff',lineHeight:1.15,marginBottom:'20px',animation:'fadeUp 0.6s ease 100ms both'}}>
           Aprenda Tudo Sobre o<br/>
-          <span style={{color:'#6ADD00'}}>Mercado de Previsões</span>
+          <span style={{color:'var(--primary)'}}>Mercado de Previsões</span>
         </h1>
         <p style={{color:'rgba(255,255,255,0.5)',fontSize:p?'14px':'16px',maxWidth:'500px',margin:'0 auto 36px',lineHeight:1.7,animation:'fadeUp 0.6s ease 200ms both',padding:p?'0 8px':0}}>
           Um guia fácil de entender sobre previsões de mercado. Aprenda como funcionam as odds, as categorias, as taxas e comece a fazer suas primeiras previsões!
         </p>
-        <a href="#como-funciona" style={{display:'inline-flex',alignItems:'center',gap:'8px',background:'#6ADD00',color:'#000',fontWeight:800,fontSize:'15px',padding:'14px 28px',borderRadius:'12px',textDecoration:'none',animation:'fadeUp 0.6s ease 300ms both',boxShadow:'0 0 32px rgba(106,221,0,0.4)'}}>
+        <a href="#como-funciona" style={{display:'inline-flex',alignItems:'center',gap:'8px',background:'var(--primary)',color:'#000',fontWeight:800,fontSize:'15px',padding:'14px 28px',borderRadius:'12px',textDecoration:'none',animation:'fadeUp 0.6s ease 300ms both',boxShadow:'0 0 32px rgba(var(--primary-rgb, 106,221,0),0.4)'}}>
           Começar a Aprender →
         </a>
       </section>
@@ -160,7 +160,7 @@ export default function ComoFunciona() {
       <section style={{maxWidth:'1100px',margin:'0 auto',padding:p?'50px 16px':'80px 24px'}}>
         <div ref={reg('oq')} style={anim('oq')}>
           <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'28px'}}>
-            <div style={{width:'36px',height:'36px',borderRadius:'50%',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <div style={{width:'36px',height:'36px',borderRadius:'50%',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
               <span style={{color:'#000',fontWeight:900,fontSize:'16px'}}>?</span>
             </div>
             <h2 style={{fontSize:p?'24px':'32px',fontWeight:900,color:'#fff'}}>O que é?</h2>
@@ -168,9 +168,9 @@ export default function ComoFunciona() {
           <div style={{display:'grid',gridTemplateColumns:p?'1fr':'1fr 1fr',gap:p?'28px':'60px',alignItems:'start'}}>
             <div>
               <p style={{color:'rgba(255,255,255,0.7)',fontSize:'15px',lineHeight:1.8,marginBottom:'20px'}}>
-                Imagina você dentro de uma plataforma onde <strong style={{color:'#6ADD00'}}>tudo é possível</strong>, onde você pode prever qualquer tipo de acontecimento. Bom, você acabou de achar.
+                Imagina você dentro de uma plataforma onde <strong style={{color:'var(--primary)'}}>tudo é possível</strong>, onde você pode prever qualquer tipo de acontecimento. Bom, você acabou de achar.
               </p>
-              <div style={{borderLeft:'3px solid #6ADD00',paddingLeft:'16px'}}>
+              <div style={{borderLeft:'3px solid var(--primary)',paddingLeft:'16px'}}>
                 <p style={{color:'rgba(255,255,255,0.6)',fontSize:'14px',lineHeight:1.8}}>
                   É um lugar na internet onde você pode fazer previsões sobre coisas que vão acontecer no futuro e ganhar dinheiro se acertar. De modo binário, apenas dizendo <strong style={{color:'#fff'}}>SIM ou NÃO</strong>.
                 </p>
@@ -227,7 +227,7 @@ export default function ComoFunciona() {
           <div style={{display:'grid',gridTemplateColumns:p?'1fr':steps.length<=4?'repeat(2,1fr)':'repeat(3,1fr)',gap:'14px'}}>
             {steps.map((s,i)=>(
               <div key={s.n} ref={reg('s'+i)} style={{...anim('s'+i, i*80), background:'var(--surface)',border:'1px solid #1a1a1a',borderRadius:'14px',padding:p?'18px':'24px',transition:'border-color 0.2s, transform 0.2s'}} className="step-card">
-                <div style={{width:'34px',height:'34px',borderRadius:'50%',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'15px',color:'#000',marginBottom:'14px'}}>{s.n}</div>
+                <div style={{width:'34px',height:'34px',borderRadius:'50%',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'15px',color:'#000',marginBottom:'14px'}}>{s.n}</div>
                 <h3 style={{fontSize:'15px',fontWeight:700,color:'#fff',marginBottom:'8px'}}>{s.title}</h3>
                 <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',lineHeight:1.6,marginBottom:'14px'}}>{s.desc}</p>
                 <div style={{height:'80px',background:'linear-gradient(135deg,#0a0a0a,#111)',borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'36px',border:'1px solid #1a1a1a'}}>
@@ -235,10 +235,10 @@ export default function ComoFunciona() {
                 </div>
               </div>
             ))}
-            <div style={{background:'linear-gradient(135deg,rgba(106,221,0,0.08),rgba(106,221,0,0.03))',border:'1px solid rgba(106,221,0,0.2)',borderRadius:'14px',padding:'24px',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',textAlign:'center',gap:'12px'}}>
+            <div style={{background:'linear-gradient(135deg,rgba(var(--primary-rgb, 106,221,0),0.08),rgba(var(--primary-rgb, 106,221,0),0.03))',border:'1px solid rgba(var(--primary-rgb, 106,221,0),0.2)',borderRadius:'14px',padding:'24px',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',textAlign:'center',gap:'12px'}}>
               <div style={{fontSize:'36px'}}>🎯</div>
               <p style={{color:'rgba(255,255,255,0.6)',fontSize:'14px',lineHeight:1.6}}>Simples assim! Você prevê, investe e torce pelo seu palpite.</p>
-              <Link href="/cadastrar" style={{background:'#6ADD00',color:'#000',fontWeight:800,fontSize:'13px',padding:'10px 20px',borderRadius:'8px',textDecoration:'none'}}>Começar agora →</Link>
+              <Link href="/cadastrar" style={{background:'var(--primary)',color:'#000',fontWeight:800,fontSize:'13px',padding:'10px 20px',borderRadius:'8px',textDecoration:'none'}}>Começar agora →</Link>
             </div>
           </div>
         </div>
@@ -276,9 +276,9 @@ export default function ComoFunciona() {
       <section style={{background:'#050505',padding:p?'50px 16px':'80px 24px'}}>
         <div ref={reg('tax')} style={{...anim('tax'),maxWidth:'700px',margin:'0 auto'}}>
           <h2 style={{fontSize:p?'20px':'clamp(22px,3vw,36px)',fontWeight:900,color:'#fff',marginBottom:'8px'}}>Informações Importantes sobre seu Dinheiro</h2>
-          <div style={{height:'2px',width:'60px',background:'#6ADD00',marginBottom:'28px'}}/>
+          <div style={{height:'2px',width:'60px',background:'var(--primary)',marginBottom:'28px'}}/>
           <h3 style={{fontSize:'17px',fontWeight:700,color:'#fff',marginBottom:'8px'}}>Somos uma corretora, não uma casa de apostas</h3>
-          <div style={{height:'2px',width:'40px',background:'#6ADD00',marginBottom:'16px'}}/>
+          <div style={{height:'2px',width:'40px',background:'var(--primary)',marginBottom:'16px'}}/>
           <p style={{color:'rgba(255,255,255,0.6)',fontSize:'14px',lineHeight:1.8,marginBottom:'12px'}}>
             Antes de falar sobre taxas, é importante você entender: <strong style={{color:'#fff'}}>a nossa plataforma não lucra quando você perde</strong>.
           </p>
@@ -286,7 +286,7 @@ export default function ComoFunciona() {
             Nós operamos como uma <strong style={{color:'#fff'}}>corretora de mercados preditivos</strong>. Nosso papel é ser o intermediário que garante que tudo funcione de forma justa.
           </p>
           <h3 style={{fontSize:'17px',fontWeight:700,color:'#fff',marginBottom:'8px'}}>Quais são as taxas?</h3>
-          <div style={{height:'2px',width:'40px',background:'#6ADD00',marginBottom:'16px'}}/>
+          <div style={{height:'2px',width:'40px',background:'var(--primary)',marginBottom:'16px'}}/>
           <div style={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'32px'}}>
             {[
               {l:'Taxa de Depósito',v:`${settings.taxa_deposito ?? '2'}%`},
@@ -295,12 +295,12 @@ export default function ComoFunciona() {
             ].map(t=>(
               <div key={t.l} style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'var(--surface)',border:'1px solid #1a1a1a',borderRadius:'10px',padding:'14px 16px'}}>
                 <span style={{fontWeight:600,fontSize:'14px',color:'#fff'}}>{t.l}</span>
-                <span style={{background:'rgba(106,221,0,0.1)',border:'1px solid rgba(106,221,0,0.2)',color:'#6ADD00',fontWeight:700,fontSize:'14px',padding:'4px 12px',borderRadius:'8px'}}>{t.v}</span>
+                <span style={{background:'rgba(var(--primary-rgb, 106,221,0),0.1)',border:'1px solid rgba(var(--primary-rgb, 106,221,0),0.2)',color:'var(--primary)',fontWeight:700,fontSize:'14px',padding:'4px 12px',borderRadius:'8px'}}>{t.v}</span>
               </div>
             ))}
           </div>
           <h3 style={{fontSize:'17px',fontWeight:700,color:'#fff',marginBottom:'8px'}}>Valores mínimos para começar</h3>
-          <div style={{height:'2px',width:'40px',background:'#6ADD00',marginBottom:'14px'}}/>
+          <div style={{height:'2px',width:'40px',background:'var(--primary)',marginBottom:'14px'}}/>
           <p style={{color:'rgba(255,255,255,0.6)',fontSize:'14px',marginBottom:'8px'}}>Depósito mínimo: <strong style={{color:'#fff'}}>R$ {settings.min_deposit ?? '1,00'}</strong></p>
           <p style={{color:'rgba(255,255,255,0.6)',fontSize:'14px'}}>Previsão mínima: <strong style={{color:'#fff'}}>R$ {settings.previsao_minima ?? '1,00'}</strong></p>
         </div>
@@ -361,10 +361,10 @@ export default function ComoFunciona() {
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
             {faqs.map((f,i)=>(
-              <div key={i} style={{background:'var(--surface)',border:`1px solid ${faq===i?'rgba(106,221,0,0.3)':'#1a1a1a'}`,borderRadius:'12px',overflow:'hidden',transition:'border-color 0.2s'}}>
+              <div key={i} style={{background:'var(--surface)',border:`1px solid ${faq===i?'rgba(var(--primary-rgb, 106,221,0),0.3)':'#1a1a1a'}`,borderRadius:'12px',overflow:'hidden',transition:'border-color 0.2s'}}>
                 <button onClick={()=>setFaq(faq===i?null:i)} className="faq-row" style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:p?'16px':'18px 20px',background:'transparent',border:'none',cursor:'pointer',textAlign:'left',gap:'12px',transition:'background 0.15s'}}>
                   <span style={{fontSize:p?'13px':'15px',fontWeight:600,color:'#fff',lineHeight:1.5}}>{f.q}</span>
-                  <span style={{color:'#6ADD00',fontSize:'20px',flexShrink:0,transition:'transform 0.2s',display:'block',transform:faq===i?'rotate(45deg)':'rotate(0deg)'}}>+</span>
+                  <span style={{color:'var(--primary)',fontSize:'20px',flexShrink:0,transition:'transform 0.2s',display:'block',transform:faq===i?'rotate(45deg)':'rotate(0deg)'}}>+</span>
                 </button>
                 {faq===i&&(
                   <div style={{padding:p?'0 16px 16px':'0 20px 18px',borderTop:'1px solid #1a1a1a'}}>
@@ -393,7 +393,7 @@ export default function ComoFunciona() {
             {resumo.map(([a,d],i)=>(
               p ? (
                 <div key={a} style={{padding:'14px 16px',borderBottom:i<resumo.length-1?'1px solid #1a1a1a':'none',background:i%2===0?'transparent':'rgba(255,255,255,0.01)'}}>
-                  <span style={{fontSize:'11px',fontWeight:700,color:'#6ADD00',textTransform:'uppercase',letterSpacing:'0.05em',display:'block',marginBottom:'4px'}}>{a}</span>
+                  <span style={{fontSize:'11px',fontWeight:700,color:'var(--primary)',textTransform:'uppercase',letterSpacing:'0.05em',display:'block',marginBottom:'4px'}}>{a}</span>
                   <span style={{fontSize:'13px',color:'rgba(255,255,255,0.6)'}}>{d}</span>
                 </div>
               ) : (
@@ -408,14 +408,14 @@ export default function ComoFunciona() {
       </section>
 
       {/* CTA FINAL */}
-      <section style={{padding:p?'50px 16px 60px':'80px 24px',textAlign:'center',background:'radial-gradient(ellipse 60% 60% at 50% 50%,rgba(106,221,0,0.06) 0%,transparent 70%)'}}>
+      <section style={{padding:p?'50px 16px 60px':'80px 24px',textAlign:'center',background:'radial-gradient(ellipse 60% 60% at 50% 50%,rgba(var(--primary-rgb, 106,221,0),0.06) 0%,transparent 70%)'}}>
         <div ref={reg('cta')} style={anim('cta')}>
           <h2 style={{fontSize:p?'24px':'clamp(24px,4vw,44px)',fontWeight:900,color:'#fff',marginBottom:'16px'}}>Pronto para Começar?</h2>
           <p style={{color:'rgba(255,255,255,0.5)',fontSize:p?'14px':'16px',maxWidth:'440px',margin:'0 auto 36px',lineHeight:1.7}}>
             Agora que você entendeu como funciona a nossa plataforma, é hora de começar a fazer suas primeiras previsões!
           </p>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'12px',flexDirection:p?'column':'row',flexWrap:'wrap'}}>
-            <Link href="/cadastrar" style={{display:'inline-flex',alignItems:'center',gap:'8px',background:'#6ADD00',color:'#000',fontWeight:800,fontSize:'15px',padding:'14px 32px',borderRadius:'12px',textDecoration:'none',boxShadow:'0 0 32px rgba(106,221,0,0.35)',width:p?'100%':'auto',justifyContent:'center'}}>
+            <Link href="/cadastrar" style={{display:'inline-flex',alignItems:'center',gap:'8px',background:'var(--primary)',color:'#000',fontWeight:800,fontSize:'15px',padding:'14px 32px',borderRadius:'12px',textDecoration:'none',boxShadow:'0 0 32px rgba(var(--primary-rgb, 106,221,0),0.35)',width:p?'100%':'auto',justifyContent:'center'}}>
               Criar conta grátis →
             </Link>
             <div style={{background:'rgba(255,179,0,0.08)',border:'1px solid rgba(255,179,0,0.2)',borderRadius:'10px',padding:'12px 16px',maxWidth:p?'100%':'360px',width:p?'100%':'auto'}}>

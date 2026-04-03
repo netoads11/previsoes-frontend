@@ -80,7 +80,7 @@ export default function GerenteDashboard() {
   }
 
   const V = {
-    bg: '#0f0f0f', card: '#1a1a1a', border: '#222', green: '#00e676',
+    bg: '#0f0f0f', card: '#1a1a1a', border: '#222', green: 'var(--primary)',
     red: '#f44336', yellow: '#ffb300', blue: '#3b82f6', text: '#fff', muted: '#888', label: '#555',
   }
   const fmt = (n: number) => `R$ ${Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
@@ -134,7 +134,7 @@ export default function GerenteDashboard() {
 
         {/* Toast */}
         {toast && (
-          <div style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', background: toast.type === 'error' ? 'rgba(244,67,54,0.08)' : 'rgba(0,230,118,0.08)', border: `1px solid ${toast.type === 'error' ? 'rgba(244,67,54,0.2)' : 'rgba(0,230,118,0.2)'}`, color: toast.type === 'error' ? V.red : V.green, fontSize: '13px' }}>
+          <div style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', background: toast.type === 'error' ? 'rgba(244,67,54,0.08)' : 'rgba(var(--primary-rgb, 0,230,118),0.08)', border: `1px solid ${toast.type === 'error' ? 'rgba(244,67,54,0.2)' : 'rgba(var(--primary-rgb, 0,230,118),0.2)'}`, color: toast.type === 'error' ? V.red : V.green, fontSize: '13px' }}>
             {toast.text}
           </div>
         )}
@@ -173,7 +173,7 @@ export default function GerenteDashboard() {
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Média dos seus afiliados</p>
               </div>
               {/* Sua margem */}
-              <div style={{ background: 'rgba(0,230,118,0.04)', borderRadius: '10px', padding: '14px', border: `1px solid rgba(0,230,118,0.15)` }}>
+              <div style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.04)', borderRadius: '10px', padding: '14px', border: `1px solid rgba(var(--primary-rgb, 0,230,118),0.15)` }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Sua margem</p>
                 <p style={{ fontSize: '20px', fontWeight: 700, color: V.green }}>{data.stats.my_margin > 0 ? data.stats.my_margin : 0}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Teto − média distribuída</p>
@@ -189,7 +189,7 @@ export default function GerenteDashboard() {
             <code style={{ flex: 1, background: 'var(--surface)', border: `1px solid ${V.border}`, borderRadius: '8px', padding: '10px 14px', color: V.green, fontSize: '13px', wordBreak: 'break-all' }}>
               {typeof window !== 'undefined' ? `${window.location.origin}/cadastrar?ref=${data?.referral_code}` : `/cadastrar?ref=${data?.referral_code}`}
             </code>
-            <button onClick={copyLink} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: `1px solid ${copied ? V.green : V.border}`, background: copied ? 'rgba(0,230,118,0.1)' : 'transparent', color: copied ? V.green : V.muted, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
+            <button onClick={copyLink} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: `1px solid ${copied ? V.green : V.border}`, background: copied ? 'rgba(var(--primary-rgb, 0,230,118),0.1)' : 'transparent', color: copied ? V.green : V.muted, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
               {copied ? <><Check size={13} /> Copiado!</> : <><Copy size={13} /> Copiar link</>}
             </button>
           </div>
@@ -205,7 +205,7 @@ export default function GerenteDashboard() {
               <p style={{ fontWeight: 700, fontSize: '15px' }}>Meus Afiliados</p>
               <p style={{ fontSize: '12px', color: V.muted, marginTop: '2px' }}>Configure a comissão de cada afiliado</p>
             </div>
-            <span style={{ background: 'rgba(0,230,118,0.1)', color: V.green, border: '1px solid rgba(0,230,118,0.2)', borderRadius: '99px', padding: '3px 10px', fontSize: '11px', fontWeight: 600 }}>
+            <span style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.1)', color: V.green, border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.2)', borderRadius: '99px', padding: '3px 10px', fontSize: '11px', fontWeight: 600 }}>
               {data?.affiliates?.length || 0} afiliados
             </span>
           </div>

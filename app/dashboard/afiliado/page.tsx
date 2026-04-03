@@ -60,7 +60,7 @@ export default function AffiliateDashboard() {
   }
 
   const V = {
-    bg: '#0f0f0f', card: '#1a1a1a', border: '#222', green: '#00e676',
+    bg: '#0f0f0f', card: '#1a1a1a', border: '#222', green: 'var(--primary)',
     red: '#f44336', yellow: '#ffb300', blue: '#3b82f6', text: '#fff', muted: '#888', label: '#555',
   }
   const fmt = (n: number) => `R$ ${Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
@@ -111,7 +111,7 @@ export default function AffiliateDashboard() {
 
         {/* Toast */}
         {toast && (
-          <div style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', background: toast.type === 'error' ? 'rgba(244,67,54,0.08)' : 'rgba(0,230,118,0.08)', border: `1px solid ${toast.type === 'error' ? 'rgba(244,67,54,0.2)' : 'rgba(0,230,118,0.2)'}`, color: toast.type === 'error' ? V.red : V.green, fontSize: '13px' }}>
+          <div style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', background: toast.type === 'error' ? 'rgba(244,67,54,0.08)' : 'rgba(var(--primary-rgb, 0,230,118),0.08)', border: `1px solid ${toast.type === 'error' ? 'rgba(244,67,54,0.2)' : 'rgba(var(--primary-rgb, 0,230,118),0.2)'}`, color: toast.type === 'error' ? V.red : V.green, fontSize: '13px' }}>
             {toast.text}
           </div>
         )}
@@ -166,7 +166,7 @@ export default function AffiliateDashboard() {
             <code style={{ flex: 1, background: 'var(--surface)', border: `1px solid ${V.border}`, borderRadius: '8px', padding: '10px 14px', color: V.green, fontSize: '13px', wordBreak: 'break-all' }}>
               {typeof window !== 'undefined' ? `${window.location.origin}/cadastrar?ref=${data?.referral_code}` : `/cadastrar?ref=${data?.referral_code}`}
             </code>
-            <button onClick={copyLink} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: `1px solid ${copied ? V.green : V.border}`, background: copied ? 'rgba(0,230,118,0.1)' : 'transparent', color: copied ? V.green : V.muted, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
+            <button onClick={copyLink} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: `1px solid ${copied ? V.green : V.border}`, background: copied ? 'rgba(var(--primary-rgb, 0,230,118),0.1)' : 'transparent', color: copied ? V.green : V.muted, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
               {copied ? <><Check size={13} /> Copiado!</> : <><Copy size={13} /> Copiar link</>}
             </button>
           </div>
@@ -182,7 +182,7 @@ export default function AffiliateDashboard() {
               <p style={{ fontWeight: 700, fontSize: '15px' }}>Meus Indicados</p>
               <p style={{ fontSize: '12px', color: V.muted, marginTop: '2px' }}>Usuários que se cadastraram pelo seu link</p>
             </div>
-            <span style={{ background: 'rgba(0,230,118,0.1)', color: V.green, border: '1px solid rgba(0,230,118,0.2)', borderRadius: '99px', padding: '3px 10px', fontSize: '11px', fontWeight: 600 }}>
+            <span style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.1)', color: V.green, border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.2)', borderRadius: '99px', padding: '3px 10px', fontSize: '11px', fontWeight: 600 }}>
               {data?.referred?.length || 0} indicados
             </span>
           </div>
@@ -212,9 +212,9 @@ export default function AffiliateDashboard() {
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
                         display: 'inline-block', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600,
-                        background: r.status === 'active' ? 'rgba(0,230,118,0.1)' : 'rgba(255,179,0,0.1)',
+                        background: r.status === 'active' ? 'rgba(var(--primary-rgb, 0,230,118),0.1)' : 'rgba(255,179,0,0.1)',
                         color: r.status === 'active' ? V.green : V.yellow,
-                        border: `1px solid ${r.status === 'active' ? 'rgba(0,230,118,0.2)' : 'rgba(255,179,0,0.2)'}`
+                        border: `1px solid ${r.status === 'active' ? 'rgba(var(--primary-rgb, 0,230,118),0.2)' : 'rgba(255,179,0,0.2)'}`
                       }}>
                         {r.status === 'active' ? 'Ativo' : r.status || 'Pendente'}
                       </span>

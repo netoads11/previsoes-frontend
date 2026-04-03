@@ -17,7 +17,7 @@ export default function Tip({ text, pos = 'top' }: { text: string; pos?: 'top' |
           padding: 0, fontFamily: 'inherit', flexShrink: 0, lineHeight: 1,
           transition: 'border-color 0.15s, color 0.15s',
         }}
-        onMouseOver={e => { e.currentTarget.style.borderColor = '#00e676'; e.currentTarget.style.color = '#00e676' }}
+        onMouseOver={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
         onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.color = '#888'; setShow(false) }}
       >?</button>
       {show && (

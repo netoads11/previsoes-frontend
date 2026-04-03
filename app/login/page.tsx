@@ -105,7 +105,7 @@ export default function Login() {
           <div style={{display:'flex',alignItems:'center',gap:'10px',position:'relative'}}>
             {logoUrl
               ? <img src={logoUrl} alt="logo" style={{height:'36px',maxWidth:'160px',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>
-              : <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 16px rgba(106,221,0,0.5)'}}>
+              : <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 16px rgba(106,221,0,0.5)'}}>
                   <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'16px'}}>{siteName[0]}</span>
                 </div>
             }
@@ -113,12 +113,12 @@ export default function Login() {
           </div>
           <div style={{position:'relative'}}>
             <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(106,221,0,0.1)',border:'1px solid rgba(106,221,0,0.2)',borderRadius:'20px',padding:'6px 14px',marginBottom:'24px'}}>
-              <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#6ADD00'}}/>
-              <span style={{color:'#6ADD00',fontSize:'12px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Plataforma ao vivo</span>
+              <div style={{width:'6px',height:'6px',borderRadius:'50%',background:'var(--primary)'}}/>
+              <span style={{color:'var(--primary)',fontSize:'12px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>Plataforma ao vivo</span>
             </div>
             <h1 style={{fontSize:'40px',fontWeight:800,color:'#fff',lineHeight:1.2,marginBottom:'16px',textTransform:'uppercase'}}>
               BEM VINDO<br/>DE VOLTA AO<br/>
-              <span style={{color:'#6ADD00',textShadow:'0 0 30px rgba(106,221,0,0.4)'}}>{siteName.toUpperCase()}</span>
+              <span style={{color:'var(--primary)',textShadow:'0 0 30px rgba(106,221,0,0.4)'}}>{siteName.toUpperCase()}</span>
             </h1>
             <p style={{color:'rgba(255,255,255,0.5)',fontSize:'16px',lineHeight:1.6,maxWidth:'360px'}}>
               Acesse sua conta e continue apostando nos melhores mercados.
@@ -140,7 +140,7 @@ export default function Login() {
             <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'24px'}}>
               {logoUrl
                 ? <img src={logoUrl} alt="logo" style={{height:'30px',maxWidth:'140px',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>
-                : <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                : <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center'}}>
                     <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'13px'}}>{siteName[0]}</span>
                   </div>
               }
@@ -181,7 +181,7 @@ export default function Login() {
               </div>
             </div>
             <button type="submit" disabled={loading}
-              style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:loading?'not-allowed':'pointer',background:'#6ADD00',color:'#0a0a0a',fontWeight:800,fontSize:'15px',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 24px rgba(106,221,0,0.35)',opacity:loading?0.7:1,marginTop:'6px'}}>
+              style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:loading?'not-allowed':'pointer',background:'var(--primary)',color:'#0a0a0a',fontWeight:800,fontSize:'15px',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 24px rgba(106,221,0,0.35)',opacity:loading?0.7:1,marginTop:'6px'}}>
               {loading?'Entrando...':'ENTRAR'}
             </button>
           </form>
@@ -194,7 +194,7 @@ export default function Login() {
 
           <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>
             Nao tem conta?{' '}
-            <Link href="/cadastrar" style={{color:'#6ADD00',fontWeight:600,textDecoration:'none'}}>Criar conta gratis</Link>
+            <Link href="/cadastrar" style={{color:'var(--primary)',fontWeight:600,textDecoration:'none'}}>Criar conta gratis</Link>
           </p>
         </div>
       </div>

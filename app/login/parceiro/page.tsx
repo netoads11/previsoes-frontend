@@ -61,7 +61,7 @@ export default function LoginParceiro() {
     }
   }
 
-  const green = '#6ADD00'
+  const green = 'var(--primary)'
   const greenGlow = 'rgba(106,221,0,0.35)'
   const greenBg = 'rgba(106,221,0,0.1)'
   const greenBorder = 'rgba(106,221,0,0.2)'
@@ -91,7 +91,7 @@ export default function LoginParceiro() {
         .inp{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:13px 13px 13px 40px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s}
         .inp:focus{border-color:rgba(106,221,0,0.5)}
         .inp-r{padding:13px 40px}
-        .btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:#6ADD00;color:#0a0a0a;font-weight:800;font-size:15px;font-family:'Inter',system-ui,sans-serif;box-shadow:0 0 24px rgba(106,221,0,0.35);transition:opacity 0.2s}
+        .btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:var(--primary);color:#0a0a0a;font-weight:800;font-size:15px;font-family:'Inter',system-ui,sans-serif;box-shadow:0 0 24px rgba(106,221,0,0.35);transition:opacity 0.2s}
         .btn:disabled{opacity:0.7;cursor:not-allowed}
         .stat-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px}
         @media(max-width:768px){
