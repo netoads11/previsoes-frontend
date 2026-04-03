@@ -76,6 +76,8 @@ export default function Admin() {
   const [filterSearch, setFilterSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [savingUser, setSavingUser] = useState(false)
+  const [loadingUserId, setLoadingUserId] = useState<string|null>(null)
 
   useEffect(() => {
     const u = localStorage.getItem('user'), t = localStorage.getItem('token')
@@ -133,19 +135,20 @@ export default function Admin() {
     if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]}); load(token); setTab('mercados') } else showToast(r.error||'Erro','error')
   }
   async function saveMarket() { const opts=editMarket.type==='multiple'?(editMarket.options||[]).filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[] ; const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',{...editMarket,yes_odds:Number(editMarket.yes_odds),no_odds:Number(editMarket.no_odds),expires_at:editMarket.expires_at?new Date(editMarket.expires_at).toISOString():null,type:editMarket.type||'single',options:opts}); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
-  async function saveUser() { const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
+  async function saveUser() { setSavingUser(true); const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); setSavingUser(false); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
   async function openEditUser(id: string) {
+    setLoadingUserId(id)
     try {
       const r = await fetch(API+`/api/admin/users/${id}/details`,{headers:{'Authorization':'Bearer '+token}})
       const d = await r.json()
       if(d.id) {
-        // Normaliza role: usuários antigos têm is_affiliate=true mas role='user'/null
         let role = d.role
         if((!role || role==='user') && d.is_affiliate) role = 'affiliate'
         setEditUser({...d, role})
       }
       else showToast('Erro ao carregar usuário','error')
     } catch(e) { showToast('Erro de conexão','error') }
+    setLoadingUserId(null)
   }
   async function adjBalance() {
     const r = await fetch(API+`/api/admin/users/${balanceModal.id}/balance`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({balance:Number(balanceModal.newBalance)})})
@@ -238,7 +241,7 @@ export default function Admin() {
         <nav style={{flex:1,padding:'8px 12px',overflowY:'auto'}}>
           {NAV_SECTIONS.map(section => (
             <div key={section.title} style={{marginBottom:'4px'}}>
-              <button onClick={()=>setOpenSections((p:any)=>({...p,[section.title]:!p[section.title]}))}
+              <button aria-expanded={openSections[section.title]} onClick={()=>setOpenSections((p:any)=>({...p,[section.title]:!p[section.title]}))}
                 style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px',background:'none',border:'none',cursor:'pointer',color:V.label,marginTop:'8px'}}>
                 <span style={{fontSize:'10px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.12em'}}>{section.title}</span>
                 <ChevronDown size={12} color={V.label} style={{transform:openSections[section.title]?'rotate(180deg)':'none',transition:'transform 0.2s'}}/>
@@ -273,12 +276,12 @@ export default function Admin() {
         {/* HEADER */}
         <header style={{position:'sticky',top:0,zIndex:30,height:'56px',background:`${V.bg}cc`,backdropFilter:'blur(12px)',borderBottom:`1px solid ${V.border}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <button className="hamburger-btn" onClick={()=>setSidebarOpen(s=>!s)} style={{display:'none',alignItems:'center',justifyContent:'center',width:'36px',height:'36px',border:`1px solid ${V.border}`,borderRadius:'8px',background:'transparent',cursor:'pointer',color:V.muted}}>
+            <button aria-label="Abrir menu" className="hamburger-btn" onClick={()=>setSidebarOpen(s=>!s)} style={{display:'none',alignItems:'center',justifyContent:'center',width:'36px',height:'36px',border:`1px solid ${V.border}`,borderRadius:'8px',background:'transparent',cursor:'pointer',color:V.muted}}>
               <GripVertical size={18}/>
             </button>
             <div className="header-search" style={{position:'relative'}}>
               <Search size={15} color={V.muted} style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}/>
-              <input placeholder="Buscar... (Ctrl+K)" onClick={()=>setSearchOpen(true)} readOnly
+              <input role="button" aria-label="Abrir busca" placeholder="Buscar... (Ctrl+K)" onClick={()=>setSearchOpen(true)} readOnly
                 style={{width:'240px',height:'36px',background:V.card,border:`1px solid ${V.border}`,borderRadius:'8px',padding:'0 12px 0 34px',color:V.muted,cursor:'pointer',outline:'none'}}/>
               <kbd style={{position:'absolute',right:'8px',top:'50%',transform:'translateY(-50%)',background:V.hover,border:`1px solid #333`,borderRadius:'4px',padding:'1px 5px',fontSize:'10px',color:V.label}}>Ctrl+K</kbd>
             </div>
@@ -287,7 +290,7 @@ export default function Admin() {
             <a href="/" target="_blank" style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 12px',borderRadius:'8px',border:`1px solid ${V.border}`,color:V.muted,fontSize:'12px',textDecoration:'none',background:'transparent',transition:'all 0.1s'}}>
               <ExternalLink size={13}/> Ver Site
             </a>
-            <button style={{position:'relative',width:'36px',height:'36px',borderRadius:'8px',border:`1px solid ${V.border}`,background:'transparent',cursor:'pointer',color:V.muted,display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <button aria-label="Notificações" style={{position:'relative',width:'36px',height:'36px',borderRadius:'8px',border:`1px solid ${V.border}`,background:'transparent',cursor:'pointer',color:V.muted,display:'flex',alignItems:'center',justifyContent:'center'}}>
               <Bell size={15}/>
               <span style={{position:'absolute',top:'8px',right:'8px',width:'6px',height:'6px',borderRadius:'50%',background:V.green}}/>
             </button>
@@ -406,9 +409,8 @@ export default function Admin() {
                         <select defaultValue="" style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'6px',padding:'4px 8px',color:'#ccc',fontSize:'11px',cursor:'pointer'}}
                           onChange={async(e:any)=>{
                             const opt=e.target.value; if(!opt) return; e.target.value='';
-                            if(!confirm(`Resolver: "${m.options?.find((o:any)=>o.id===opt)?.title}" venceu?`)) return;
-                            const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{winning_option_id:opt});
-                            if(r.success){showToast(`Resolvido! ${r.winners} vencedores · R$${r.totalPaid}`);load(token)}else showToast(r.error,'error');
+                            const title=m.options?.find((o:any)=>o.id===opt)?.title;
+                            setConfirm({msg:`Resolver: "${title}" venceu?`,action:async()=>{const r=await api(`/api/admin/markets/${m.id}/resolve`,'PUT',{winning_option_id:opt});if(r.success){showToast(`Resolvido! ${r.winners} vencedores · R$${r.totalPaid}`);load(token)}else showToast(r.error,'error')}});
                           }}>
                           <option value="">Resolver...</option>
                           {(m.options||[]).map((o:any)=><option key={o.id} value={o.id}>{o.title}</option>)}
@@ -488,11 +490,11 @@ export default function Admin() {
                   <span style={{fontWeight:500,color:'#ccc'}}>{u.name}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{u.email}</span>,
                   <SBadge status={u.status||'active'}/>,
-                  <div style={{display:'flex',gap:'4px'}}><SBadge status={u.is_admin?'admin':'user'}/>{u.is_affiliate&&<SBadge status='affiliate'/>}</div>,
+                  <SBadge status={u.is_admin?'admin':u.is_affiliate?'affiliate':'user'}/>,
                   <span style={{color:V.green,fontWeight:600,fontSize:'13px'}}>R$ {Number(u.balance||0).toFixed(2)}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
-                    <GhostBtn onClick={()=>openEditUser(u.id)}>Editar</GhostBtn>
+                    <GhostBtn onClick={()=>openEditUser(u.id)}>{loadingUserId===u.id?'...':'Editar'}</GhostBtn>
                     <GhostBtn color="green" onClick={()=>setBalanceModal({id:u.id,name:u.name,currentBalance:Number(u.balance||0),newBalance:''})}>Saldo</GhostBtn>
                   </div>
                 ])}
@@ -578,12 +580,12 @@ export default function Admin() {
           {/* ═══ CONFIGURAÇÕES ═══ */}
           {tab==='configs' && <div className="fade-in"><ConfiguracoesFullPage settings={settings} setSettings={setSettings} api={api} showToast={showToast}/></div>}
 
-          {tab==='metricas' && <div className="fade-in"><MetricasPage/></div>}
-          {tab==='admins' && <div className="fade-in"><AdminsPage/></div>}
+          {tab==='metricas' && <div className="fade-in"><MetricasPage affiliates={affiliates} managers={managers}/></div>}
+          {tab==='admins' && <div className="fade-in"><AdminsPage users={users} token={token} api={API} onRefresh={()=>load(token)}/></div>}
           {tab==='gerentes' && <div className="fade-in"><GerentesPage managers={managers} token={token} api={API} onRefresh={()=>load(token)}/></div>}
           {tab==='afiliados' && <div className="fade-in"><AfiliadosPage affiliates={affiliates} token={token} api={API} onEdit={openEditUser}/></div>}
           {tab==='saques-afiliados' && <div className="fade-in"><SaquesAfiliadosPage token={token} api={API}/></div>}
-          {tab==='relatorio' && <div className="fade-in"><RelatorioPage/></div>}
+          {tab==='relatorio' && <div className="fade-in"><RelatorioPage affiliates={affiliates}/></div>}
           {tab==='apostas' && (
             <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Apostas</h1>
@@ -638,7 +640,7 @@ export default function Admin() {
                   </div>
                 </div>
               </div>
-              <button onClick={()=>setEditMarket(null)} style={{background:'transparent',border:'1px solid var(--border)',cursor:'pointer',color:'var(--muted-foreground)',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='var(--muted)';e.currentTarget.style.color='#ccc'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted-foreground)'}}><X size={14}/></button>
+              <button aria-label="Fechar" onClick={()=>setEditMarket(null)} style={{background:'transparent',border:'1px solid var(--border)',cursor:'pointer',color:'var(--muted-foreground)',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='var(--muted)';e.currentTarget.style.color='#ccc'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--muted-foreground)'}}><X size={14}/></button>
             </div>
 
             {/* ── BODY SCROLL ── */}
@@ -660,7 +662,7 @@ export default function Admin() {
 
               {/* SEÇÃO: INFORMAÇÕES */}
               <div>
-                <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                   <div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   Informações
                   <div style={{flex:1,height:'1px',background:'var(--card)'}}/>
@@ -677,7 +679,7 @@ export default function Admin() {
               {/* SEÇÃO: ODDS */}
               {editMarket.type==='multiple' ? (
                 <div>
-                  <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                     <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Opções<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   </div>
                   {(editMarket.options||[]).map((opt:any,i:number)=>(
@@ -691,7 +693,7 @@ export default function Admin() {
                 </div>
               ) : (
                 <div>
-                  <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                     <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Odds<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
@@ -703,7 +705,7 @@ export default function Admin() {
 
               {/* SEÇÃO: CONFIGURAÇÕES */}
               <div>
-                <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                   <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Configurações<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
@@ -722,7 +724,7 @@ export default function Admin() {
 
               {/* SEÇÃO: IMAGEM */}
               <div>
-                <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
+                <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                   <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Imagem<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                 </div>
                 <div style={{display:'flex',gap:'14px',alignItems:'flex-start'}}>
@@ -752,7 +754,7 @@ export default function Admin() {
 
             {/* ── FOOTER ── */}
             <div style={{flexShrink:0,padding:'14px 24px',borderTop:'1px solid #1e1e1e',background:'#161616',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <p style={{fontSize:'11px',color:'#333',margin:0}}>Alteração registrada no log de auditoria com seu IP.</p>
+              <p style={{fontSize:'11px',color:'var(--muted-foreground)',margin:0}}>Alteração registrada no log de auditoria com seu IP.</p>
               <div style={{display:'flex',gap:'8px'}}>
                 <GhostBtn onClick={()=>setEditMarket(null)}>Cancelar</GhostBtn>
                 <PrimaryBtn onClick={saveMarket}>Salvar alterações</PrimaryBtn>
@@ -889,11 +891,11 @@ export default function Admin() {
             {/* ── FOOTER STICKY ── */}
             <div style={{flexShrink:0,display:'flex',gap:'12px',alignItems:'center',padding:'20px 28px',borderTop:'1px solid var(--border)',background:'#161616'}}>
               <button
-                onClick={()=>{if(editUser._password&&editUser._password!==editUser._password2){showToast('Senhas não conferem','error');return;}saveUser()}}
-                style={{flex:1,height:'48px',background:'var(--primary)',color:'#000',border:'none',borderRadius:'10px',fontWeight:700,fontSize:'14px',cursor:'pointer',letterSpacing:'0.05em',transition:'opacity 0.15s',fontFamily:"'Manrope',sans-serif"}}
+                disabled={savingUser} onClick={()=>{if(editUser._password&&editUser._password!==editUser._password2){showToast('Senhas não conferem','error');return;}saveUser()}}
+                style={{flex:1,height:'48px',background:'var(--primary)',color:'#000',border:'none',borderRadius:'10px',fontWeight:700,fontSize:'14px',cursor:savingUser?'not-allowed':'pointer',letterSpacing:'0.05em',transition:'opacity 0.15s',fontFamily:"'Manrope',sans-serif",opacity:savingUser?0.7:1}}
                 onMouseEnter={(e:any)=>e.currentTarget.style.opacity='0.85'}
                 onMouseLeave={(e:any)=>e.currentTarget.style.opacity='1'}
-              >SALVAR ALTERAÇÕES</button>
+              >{savingUser?'Salvando...':'SALVAR ALTERAÇÕES'}</button>
               <button
                 onClick={()=>setEditUser(null)}
                 style={{height:'48px',padding:'0 28px',background:'var(--card)',color:'var(--muted-foreground)',border:'1px solid var(--border)',borderRadius:'10px',fontWeight:500,fontSize:'14px',cursor:'pointer',transition:'all 0.15s',fontFamily:"'Manrope',sans-serif",whiteSpace:'nowrap'}}
@@ -918,7 +920,7 @@ export default function Admin() {
               <FInput type="number" step="0.01" min="0" placeholder="Ex: 150.00" value={balanceModal.newBalance} onChange={(e:any)=>setBalanceModal({...balanceModal,newBalance:e.target.value})}/>
               <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'4px'}}>Digite o valor final que o usuário deve ter.</p>
             </FField>
-            <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta ação será registrada no log de auditoria com seu IP.</p>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'4px'}}>Esta ação será registrada no log de auditoria com seu IP.</p>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
               <PrimaryBtn onClick={()=>setConfirm({msg:`Definir saldo de ${balanceModal.name} para R$ ${Number(balanceModal.newBalance||0).toFixed(2)}?`,action:adjBalance})}>AJUSTAR</PrimaryBtn>
               <GhostBtn onClick={()=>setBalanceModal(null)}>Cancelar</GhostBtn>
@@ -1061,10 +1063,11 @@ function SBadge({status}:{status:string}) {
     won:{bg:'rgba(var(--primary-rgb, 0,230,118),0.1)',c:'var(--primary)',b:'rgba(var(--primary-rgb, 0,230,118),0.2)'},
     lost:{bg:'rgba(244,67,54,0.1)',c:'#f44336',b:'rgba(244,67,54,0.2)'},
     affiliate:{bg:'rgba(139,92,246,0.1)',c:'#a78bfa',b:'rgba(139,92,246,0.2)'},
+    manager:{bg:'rgba(99,102,241,0.1)',c:'#818cf8',b:'rgba(99,102,241,0.2)'},
     user:{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'},
   }
   const s = m[status]||{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'}
-  const labels:any = {open:'Aberto',active:'Ativo',inactive:'Inativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',closed:'Fechado',archived:'Arquivado',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',approved:'Aprovado',admin:'Admin',user:'Usuário',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
+  const labels:any = {open:'Aberto',active:'Ativo',inactive:'Inativo',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',closed:'Fechado',archived:'Arquivado',pending:'Pendente',suspended:'Suspenso',processing:'Processando',cancelled:'Cancelado',blocked:'Bloqueado',rejected:'Recusado',refunded:'Estornado',approved:'Aprovado',admin:'Admin',user:'Usuário',manager:'Gerente',won:'Ganhou',lost:'Perdeu',yes:'SIM',no:'NÃO',affiliate:'Afiliado'}
   return <span style={{display:'inline-flex',alignItems:'center',padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:s.bg,color:s.c,border:`1px solid ${s.b}`}}>{labels[status]||status}</span>
 }
 
@@ -1116,7 +1119,7 @@ function FilterRow({search,onSearch,status,onStatus,statusOpts}:any) {
   return (
     <div style={{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}}>
       <div style={{position:'relative',flex:1,minWidth:'180px',maxWidth:'300px'}}>
-        <Search size={13} color="#555" style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}/>
+        <Search size={13} color="var(--muted-foreground)" style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}/>
         <input value={search} onChange={(e:any)=>onSearch(e.target.value)} placeholder="Filtrar..." style={{width:'100%',background:'var(--card)',border:'1px solid var(--border)',borderRadius:'8px',padding:'7px 10px 7px 30px',color:'var(--muted-foreground)',fontSize:'12px',outline:'none',transition:'border-color 0.15s'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(var(--primary-rgb, 0,230,118),0.4)'} onBlur={(e:any)=>e.target.style.borderColor='var(--border)'}/>
       </div>
       <select value={status} onChange={(e:any)=>onStatus(e.target.value)} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'8px',padding:'7px 10px',color:status?'#ccc':'var(--muted-foreground)',fontSize:'12px',outline:'none',cursor:'pointer'}}>
@@ -1198,38 +1201,20 @@ function GhostBtn({children,onClick,color='gray'}:{children:any,onClick:()=>void
 // PÁGINAS COMPLETAS
 // ══════════════════════════════════════════════════════════
 
-function MetricasPage() {
+function MetricasPage({affiliates,managers}:{affiliates:any[],managers:any[]}) {
   const [activeTab, setActiveTab] = useState('Comissões')
-  const tabs = ['Comissões', 'Depósitos', 'Convites']
-  const mockData:any = {
-    'Comissões': [
-      { pos: 1, nome: 'Carlos Silva', valor: 'R$ 12.480' },
-      { pos: 2, nome: 'Ana Martins', valor: 'R$ 9.320' },
-      { pos: 3, nome: 'João Oliveira', valor: 'R$ 7.150' },
-      { pos: 4, nome: 'Maria Santos', valor: 'R$ 5.890' },
-      { pos: 5, nome: 'Pedro Costa', valor: 'R$ 4.200' },
-    ],
-    'Depósitos': [
-      { pos: 1, nome: 'Carlos Silva', valor: 'R$ 45.200' },
-      { pos: 2, nome: 'Ana Martins', valor: 'R$ 38.100' },
-      { pos: 3, nome: 'João Oliveira', valor: 'R$ 29.500' },
-      { pos: 4, nome: 'Maria Santos', valor: 'R$ 21.300' },
-      { pos: 5, nome: 'Pedro Costa', valor: 'R$ 14.800' },
-    ],
-    'Convites': [
-      { pos: 1, nome: 'Carlos Silva', valor: '42' },
-      { pos: 2, nome: 'Ana Martins', valor: '30' },
-      { pos: 3, nome: 'João Oliveira', valor: '25' },
-      { pos: 4, nome: 'Maria Santos', valor: '18' },
-      { pos: 5, nome: 'Pedro Costa', valor: '11' },
-    ],
+  const tabs = ['Comissões','Indicados','Gerentes']
+  const topComissoes = [...affiliates].sort((a,b)=>Number(b.total_earned||0)-Number(a.total_earned||0)).slice(0,5)
+  const topIndicados = [...affiliates].sort((a,b)=>Number(b.total_referred||0)-Number(a.total_referred||0)).slice(0,5)
+  const topGerentes = [...managers].sort((a,b)=>Number(b.total_commissions||0)-Number(a.total_commissions||0)).slice(0,5)
+  const rows:any = {
+    'Comissões': topComissoes.map((a,i)=>({pos:i+1,nome:a.name,valor:'R$ '+Number(a.total_earned||0).toFixed(2)})),
+    'Indicados': topIndicados.map((a,i)=>({pos:i+1,nome:a.name,valor:String(a.total_referred||0)})),
+    'Gerentes': topGerentes.map((m,i)=>({pos:i+1,nome:m.name,valor:'R$ '+Number(m.total_commissions||0).toFixed(2)})),
   }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Métricas - Top Afiliados</h1>
-        <GhostBtn onClick={()=>{}}><RefreshCw size={13}/> Atualizar Ranking</GhostBtn>
-      </div>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Métricas - Top Rankings</h1>
       <div style={{display:'flex',gap:'8px'}}>
         {tabs.map(t=>(
           <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'var(--primary)':'#222'}`,background:t===activeTab?'rgba(var(--primary-rgb, 0,230,118),0.1)':'transparent',color:t===activeTab?'var(--primary)':'var(--muted-foreground)',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s'}}>{t}</button>
@@ -1237,13 +1222,12 @@ function MetricasPage() {
       </div>
       <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
-          <thead>
-            <tr style={{background:'var(--background)'}}>
-              {['#','Nome',activeTab==='Convites'?'Convites':'Valor'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
-            </tr>
-          </thead>
+          <thead><tr style={{background:'var(--background)'}}>
+            {['#','Nome',activeTab==='Indicados'?'Indicados':'Valor'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
+          </tr></thead>
           <tbody>
-            {(mockData[activeTab]||[]).map((item:any,i:number)=>(
+            {rows[activeTab]?.length===0&&<tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum registro ainda</td></tr>}
+            {(rows[activeTab]||[]).map((item:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px'}}><span style={{fontWeight:700,color:'var(--primary)'}}>{item.pos}</span></td>
                 <td style={{padding:'11px 14px',color:'#ccc'}}>{item.nome}</td>
@@ -1257,39 +1241,48 @@ function MetricasPage() {
   )
 }
 
-function AdminsPage() {
+function AdminsPage({users,token,api,onRefresh}:{users:any[],token:string,api:string,onRefresh:()=>void}) {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
-  const [form, setForm] = useState({nome:'',email:'',senha:'',cargo:'suporte',ativo:true})
-  const [admins, setAdmins] = useState([
-    { id:1, nome:'Master Admin', email:'master@admin.com', cargo:'super_admin', ativo:true },
-    { id:2, nome:'João Admin', email:'joao@admin.com', cargo:'admin', ativo:true },
-    { id:3, nome:'Carlos Mod', email:'carlos@admin.com', cargo:'moderador', ativo:true },
-    { id:4, nome:'Ana Suporte', email:'ana@admin.com', cargo:'suporte', ativo:false },
-  ])
-  const cargoColors:any = {super_admin:{bg:'rgba(139,92,246,0.1)',c:'#a78bfa',b:'rgba(139,92,246,0.2)'},admin:{bg:'rgba(59,130,246,0.1)',c:'#3b82f6',b:'rgba(59,130,246,0.2)'},moderador:{bg:'rgba(255,179,0,0.1)',c:'#ffb300',b:'rgba(255,179,0,0.2)'},suporte:{bg:'rgba(255,255,255,0.05)',c:'#666',b:'rgba(255,255,255,0.1)'}}
+  const [form, setForm] = useState({nome:'',email:'',senha:'',cargo:'admin',ativo:true})
+  const [saving, setSaving] = useState(false)
+  const admins = users.filter((u:any)=>u.is_admin)
+  async function saveAdmin() {
+    if(!selected) return
+    setSaving(true)
+    try {
+      const body:any = {name:form.nome,email:form.email,status:form.ativo?'active':'blocked',role:form.cargo}
+      if(form.senha) body.password=form.senha
+      await fetch(api+`/api/admin/users/${selected.id}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)})
+      onRefresh(); setEditOpen(false)
+    } catch{}
+    setSaving(false)
+  }
+  async function revokeAdmin() {
+    if(!selected) return
+    try { await fetch(api+`/api/admin/users/${selected.id}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({is_admin:false,role:'user'})}) } catch{}
+    onRefresh(); setDeleteOpen(false)
+  }
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Admins</h1>
-        <PrimaryBtn onClick={()=>{setSelected(null);setForm({nome:'',email:'',senha:'',cargo:'suporte',ativo:true});setEditOpen(true)}}><Plus size={14}/> Criar Admin</PrimaryBtn>
-      </div>
+      <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Admins</h1>
       <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
           <thead><tr style={{background:'var(--background)'}}>
-            {['Nome','E-mail','Cargo','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
+            {['Nome','E-mail','Função','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {admins.map((a,i)=>(
+            {admins.length===0&&<tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum admin cadastrado</td></tr>}
+            {admins.map((a:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
-                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.nome}</td>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
                 <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{a.email}</td>
-                <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,...cargoColors[a.cargo]}}>{a.cargo.replace('_',' ')}</span></td>
-                <td style={{padding:'11px 14px'}}><SBadge status={a.ativo?'active':'inactive'}/></td>
+                <td style={{padding:'11px 14px'}}><SBadge status={a.role||'admin'}/></td>
+                <td style={{padding:'11px 14px'}}><SBadge status={a.status||'active'}/></td>
                 <td style={{padding:'11px 14px'}}>
                   <div style={{display:'flex',gap:'5px'}}>
-                    <GhostBtn onClick={()=>{setSelected(a);setForm({nome:a.nome,email:a.email,senha:'',cargo:a.cargo,ativo:a.ativo});setEditOpen(true)}}><Pencil size={12}/></GhostBtn>
+                    <GhostBtn onClick={()=>{setSelected(a);setForm({nome:a.name,email:a.email,senha:'',cargo:a.role||'admin',ativo:(a.status||'active')==='active'});setEditOpen(true)}}><Pencil size={12}/></GhostBtn>
                     <GhostBtn color="red" onClick={()=>{setSelected(a);setDeleteOpen(true)}}><Trash2 size={12}/></GhostBtn>
                   </div>
                 </td>
@@ -1300,18 +1293,10 @@ function AdminsPage() {
       </div>
       {editOpen&&(
         <Overlay onClose={()=>setEditOpen(false)}>
-          <Modal title={selected?'Editar Admin':'Criar Admin'} onClose={()=>setEditOpen(false)}>
-            <FField label="Nome *"><FInput value={form.nome} onChange={(e:any)=>setForm({...form,nome:e.target.value})}/></FField>
-            <FField label="E-mail *"><FInput value={form.email} onChange={(e:any)=>setForm({...form,email:e.target.value})}/></FField>
-            <FField label="Senha *"><FInput type="password" value={form.senha} onChange={(e:any)=>setForm({...form,senha:e.target.value})}/></FField>
-            <FField label="Cargo *">
-              <FSelect value={form.cargo} onChange={(e:any)=>setForm({...form,cargo:e.target.value})}>
-                <option value="super_admin">Super Admin</option>
-                <option value="admin">Admin</option>
-                <option value="moderador">Moderador</option>
-                <option value="suporte">Suporte</option>
-              </FSelect>
-            </FField>
+          <Modal title="Editar Admin" onClose={()=>setEditOpen(false)}>
+            <FField label="Nome"><FInput value={form.nome} onChange={(e:any)=>setForm({...form,nome:e.target.value})}/></FField>
+            <FField label="E-mail"><FInput value={form.email} onChange={(e:any)=>setForm({...form,email:e.target.value})}/></FField>
+            <FField label="Nova Senha"><FInput type="password" placeholder="Em branco = sem alteração" value={form.senha} onChange={(e:any)=>setForm({...form,senha:e.target.value})}/></FField>
             <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
               <div onClick={()=>setForm({...form,ativo:!form.ativo})} style={{width:'36px',height:'20px',borderRadius:'10px',background:form.ativo?'var(--primary)':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s'}}>
                 <div style={{position:'absolute',top:'2px',left:form.ativo?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
@@ -1319,7 +1304,7 @@ function AdminsPage() {
               <span style={{fontSize:'13px',color:'var(--muted-foreground)'}}>Ativo</span>
             </div>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-              <PrimaryBtn onClick={()=>setEditOpen(false)}>SALVAR</PrimaryBtn>
+              <PrimaryBtn onClick={saveAdmin} disabled={saving}>{saving?'Salvando...':'SALVAR'}</PrimaryBtn>
               <GhostBtn onClick={()=>setEditOpen(false)}>Cancelar</GhostBtn>
             </div>
           </Modal>
@@ -1329,10 +1314,10 @@ function AdminsPage() {
         <Overlay onClose={()=>setDeleteOpen(false)}>
           <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
             <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(244,67,54,0.1)',border:'1px solid rgba(244,67,54,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#f44336"/></div>
-            <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>Excluir admin <strong>{selected?.nome}</strong>?</p>
-            <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
+            <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>Revogar acesso admin de <strong>{selected?.name}</strong>?</p>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'20px'}}>O usuário voltará a ter role de usuário comum.</p>
             <div style={{display:'flex',gap:'8px'}}>
-              <button onClick={()=>setDeleteOpen(false)} style={{flex:1,background:'rgba(244,67,54,0.08)',color:'#f44336',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>Excluir</button>
+              <button onClick={revokeAdmin} style={{flex:1,background:'rgba(244,67,54,0.08)',color:'#f44336',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>Revogar</button>
               <GhostBtn onClick={()=>setDeleteOpen(false)}>Cancelar</GhostBtn>
             </div>
           </div>
@@ -1740,31 +1725,36 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
   )
 }
 
-function RelatorioPage() {
-  const mockData = [
-    { afiliado:'Carlos Silva', indicados:84, depositaram:52, comissao:'R$ 12.480', conversao:'61.9%' },
-    { afiliado:'Ana Martins', indicados:42, depositaram:28, comissao:'R$ 9.320', conversao:'66.7%' },
-    { afiliado:'Pedro Costa', indicados:18, depositaram:8, comissao:'R$ 3.100', conversao:'44.4%' },
-  ]
+function RelatorioPage({affiliates}:{affiliates:any[]}) {
+  function exportCSV() {
+    const rows=[['Afiliado','Código','Indicados','Comissões (R$)','Taxa (%)']]
+    affiliates.forEach((a:any)=>rows.push([a.name,a.referral_code||'',String(a.total_referred||0),Number(a.total_earned||0).toFixed(2),String(a.commission_rate||0)]))
+    const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n')
+    const blob=new Blob([csv],{type:'text/csv'})
+    const url=URL.createObjectURL(blob)
+    const link=document.createElement('a');link.href=url;link.download='relatorio-afiliados.csv';link.click()
+  }
+  const sorted=[...affiliates].sort((a,b)=>Number(b.total_earned||0)-Number(a.total_earned||0))
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Relatório de Afiliados</h1>
-        <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
+        <GhostBtn onClick={exportCSV}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
       <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
         <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
           <thead><tr style={{background:'var(--background)'}}>
-            {['Afiliado','Indicados','Depositaram','Comissão','Conversão'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
+            {['Afiliado','Código','Indicados','Comissões','Taxa'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {mockData.map((item,i)=>(
+            {sorted.length===0&&<tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>}
+            {sorted.map((a:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
-                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{item.afiliado}</td>
-                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.indicados}</td>
-                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.depositaram}</td>
-                <td style={{padding:'11px 14px',color:'var(--primary)',fontWeight:600}}>{item.comissao}</td>
-                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.conversao}</td>
+                <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
+                <td style={{padding:'11px 14px',color:'var(--primary)',fontSize:'12px',fontWeight:700,letterSpacing:'0.1em'}}>{a.referral_code||'—'}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{a.total_referred||0}</td>
+                <td style={{padding:'11px 14px',color:'var(--primary)',fontWeight:600}}>R$ {Number(a.total_earned||0).toFixed(2)}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{a.commission_rate||0}%</td>
               </tr>
             ))}
           </tbody>
