@@ -138,7 +138,12 @@ export default function Admin() {
     try {
       const r = await fetch(API+`/api/admin/users/${id}/details`,{headers:{'Authorization':'Bearer '+token}})
       const d = await r.json()
-      if(d.id) setEditUser(d)
+      if(d.id) {
+        // Normaliza role: usuários antigos têm is_affiliate=true mas role='user'/null
+        let role = d.role
+        if((!role || role==='user') && d.is_affiliate) role = 'affiliate'
+        setEditUser({...d, role})
+      }
       else showToast('Erro ao carregar usuário','error')
     } catch(e) { showToast('Erro de conexão','error') }
   }
@@ -487,7 +492,7 @@ export default function Admin() {
                   <span style={{color:V.green,fontWeight:600,fontSize:'13px'}}>R$ {Number(u.balance||0).toFixed(2)}</span>,
                   <span style={{color:V.muted,fontSize:'12px'}}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>,
                   <div style={{display:'flex',gap:'5px'}}>
-                    <GhostBtn onClick={()=>setEditUser({...u})}>Editar</GhostBtn>
+                    <GhostBtn onClick={()=>openEditUser(u.id)}>Editar</GhostBtn>
                     <GhostBtn color="green" onClick={()=>setBalanceModal({id:u.id,name:u.name,currentBalance:Number(u.balance||0),newBalance:''})}>Saldo</GhostBtn>
                   </div>
                 ])}
