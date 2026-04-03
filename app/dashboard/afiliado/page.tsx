@@ -175,58 +175,13 @@ export default function AffiliateDashboard() {
           </p>
         </div>
 
-        {/* Tabela de indicados */}
-        <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${V.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <p style={{ fontWeight: 700, fontSize: '15px' }}>Meus Indicados</p>
-              <p style={{ fontSize: '12px', color: V.muted, marginTop: '2px' }}>Usuários que se cadastraram pelo seu link</p>
-            </div>
-            <span style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.1)', color: V.green, border: '1px solid rgba(var(--primary-rgb, 0,230,118),0.2)', borderRadius: '99px', padding: '3px 10px', fontSize: '11px', fontWeight: 600 }}>
-              {data?.referred?.length || 0} indicados
-            </span>
+        {/* Contagem de indicados — sem dados pessoais */}
+        <div style={{ background: V.card, borderRadius: '12px', border: `1px solid ${V.border}`, padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: '15px' }}>Meus Indicados</p>
+            <p style={{ fontSize: '12px', color: V.muted, marginTop: '4px' }}>Cadastros realizados pelo seu link</p>
           </div>
-          <div className="table-wrap">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#141414' }}>
-                  {['Nome', 'Email', 'Depósitos gerados', 'Depósitos aprovados', 'Status', 'Cadastro'].map(c => (
-                    <th key={c} style={{ textAlign: 'left', padding: '10px 16px', fontSize: '11px', fontWeight: 600, color: V.label, textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: `1px solid ${V.border}`, whiteSpace: 'nowrap' }}>{c}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(!data?.referred || data.referred.length === 0) ? (
-                  <tr>
-                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: V.label, fontSize: '13px' }}>
-                      <UserCheck size={32} color={V.border} style={{ display: 'block', margin: '0 auto 10px' }} />
-                      Nenhum indicado ainda. Compartilhe seu link para começar.
-                    </td>
-                  </tr>
-                ) : data.referred.map((r: any, i: number) => (
-                  <tr key={i} className="trow" style={{ borderBottom: '1px solid #1e1e1e' }}>
-                    <td style={{ padding: '12px 16px', color: '#ccc', fontWeight: 500 }}>{r.name}</td>
-                    <td style={{ padding: '12px 16px', color: V.muted, fontSize: '12px' }}>{r.email}</td>
-                    <td style={{ padding: '12px 16px', color: '#ccc' }}>{fmt(r.total_deposited || 0)}</td>
-                    <td style={{ padding: '12px 16px', color: 'var(--foreground)', fontWeight: 600 }}>{fmt(r.total_approved || 0)}</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span style={{
-                        display: 'inline-block', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600,
-                        background: r.status === 'active' ? 'rgba(var(--primary-rgb, 0,230,118),0.1)' : 'rgba(255,179,0,0.1)',
-                        color: r.status === 'active' ? V.green : V.yellow,
-                        border: `1px solid ${r.status === 'active' ? 'rgba(var(--primary-rgb, 0,230,118),0.2)' : 'rgba(255,179,0,0.2)'}`
-                      }}>
-                        {r.status === 'active' ? 'Ativo' : r.status || 'Pendente'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px', color: V.muted, fontSize: '12px' }} className="hide-mobile">
-                      {new Date(r.created_at).toLocaleDateString('pt-BR')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <span style={{ fontSize: '32px', fontWeight: 800, color: 'var(--foreground)' }}>{data?.referred?.length || 0}</span>
         </div>
       </main>
     </div>
