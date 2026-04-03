@@ -1056,7 +1056,7 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
                 </div>
                 <span style={{flex:1,fontSize:'12px',color:'#ccc',overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{opt.title}</span>
                 <button onClick={(e)=>{e.stopPropagation();onOptionClick&&onOptionClick(m,opt,'yes')}}
-                  style={{padding:'4px 7px',borderRadius:'6px',border:'1px solid rgba(var(--primary-rgb, 34,197,94),0.3)',background:'rgba(var(--primary-rgb, 34,197,94),0.08)',color:'var(--primary)',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
+                  style={{padding:'4px 7px',borderRadius:'6px',border:'1px solid rgba(0,230,118,0.3)',background:'rgba(0,230,118,0.08)',color:'var(--sim)',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
                   SIM {yOdd}x
                 </button>
                 <button onClick={(e)=>{e.stopPropagation();onOptionClick&&onOptionClick(m,opt,'no')}}
