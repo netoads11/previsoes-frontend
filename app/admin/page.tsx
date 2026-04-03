@@ -996,7 +996,7 @@ function MCard({title,value,sub,icon:Icon,color,tip}:{title:string,value:string,
           <Icon size={14} color='var(--muted-foreground)' strokeWidth={1.75}/>
         </div>
       </div>
-      <p style={{fontSize:'22px',fontWeight:700,color:'var(--foreground)',fontFamily:"'Manrope',sans-serif",letterSpacing:'-0.5px',marginBottom:'4px'}}>{value}</p>
+      <p style={{fontSize:'22px',fontWeight:700,color:'#ffffff',fontFamily:"'Manrope',sans-serif",letterSpacing:'-0.5px',marginBottom:'4px'}}>{value}</p>
       <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>{sub}</p>
     </div>
   )

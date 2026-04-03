@@ -323,7 +323,7 @@ function StatCard({ icon: Icon, color, label, value, sub }: any) {
           <Icon size={15} color='var(--muted-foreground)' strokeWidth={2} />
         </div>
       </div>
-      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: 'var(--foreground)' }}>{value}</p>
+      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: '#ffffff' }}>{value}</p>
       <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{sub}</p>
     </div>
   )
