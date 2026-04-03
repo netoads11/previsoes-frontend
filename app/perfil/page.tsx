@@ -249,6 +249,13 @@ export default function Perfil() {
               <button className="copy-btn" style={{ padding: '8px 14px', fontSize: '12px' }} onClick={copyRef}>{copied ? '✓' : 'Copiar'}</button>
             </div>
 
+            {/* Botão painel afiliado — só aparece se o usuário for afiliado */}
+            {(user?.role === 'affiliate' || user?.is_affiliate) && (
+              <button onClick={() => router.push('/dashboard/afiliado')} style={{ width: '100%', padding: '14px', background: 'var(--primary)', border: 'none', borderRadius: '12px', color: '#000', fontWeight: 800, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Ver painel de afiliado →
+              </button>
+            )}
+
             {Number(referrals.balance_affiliate || 0) > 0 && (
               <button className="saque-btn" style={{ width: '100%', padding: '12px' }} onClick={() => setSaqueModal(true)}>
                 💰 Solicitar Saque de Comissão
