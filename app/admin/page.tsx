@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, GripVertical, Upload, HelpCircle, Pencil } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, GripVertical, Upload, HelpCircle, Pencil, Paintbrush } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
@@ -35,6 +35,7 @@ const NAV_SECTIONS = [
   ]},
   { title: 'Customização', items: [
     { label: 'Estilo', icon: Palette, id: 'estilo' },
+    { label: 'Tema', icon: Paintbrush, id: 'tema' },
     { label: 'Banners', icon: ImageIcon, id: 'banners' },
   ]},
 ]
@@ -605,6 +606,7 @@ export default function Admin() {
           {tab==='categorias' && <div className="fade-in"><CategoriaPage token={token} api={API} showToast={showToast} onCatsChange={setCats}/></div>}
           {tab==='configs' && tab==='configs' && false && null}
           {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API} onLogoChange={setSidebarLogo}/></div>}
+          {tab==='tema' && <div className="fade-in"><TemaPage token={token} api={API}/></div>}
           {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
         </main>
       </div>
@@ -2084,6 +2086,210 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Social salvo!'))}>Salvar</PrimaryBtn>
         </div>
       )}
+    </div>
+  )
+}
+
+// ══════ TEMA ══════
+const THEME_DEFAULTS: Record<string,string> = {
+  '--background':'#282422','--foreground':'#f5f5f5','--card':'#1e1c1c','--surface':'#242020',
+  '--muted':'#373331','--muted-foreground':'#888888','--border':'#2a2727',
+  '--primary':'#6add00','--destructive':'#ef4444',
+}
+const THEME_GROUPS = [
+  { id:'basicas', label:'Básicas', desc:'Cores fundamentais da interface', vars:[
+    { key:'--background', label:'Fundo Principal', desc:'Cor de fundo da aplicação' },
+    { key:'--foreground', label:'Texto Principal', desc:'Cor do texto sobre o fundo principal' },
+    { key:'--border', label:'Bordas', desc:'Cor das bordas dos elementos' },
+    { key:'--muted', label:'Campos de Input', desc:'Cor de fundo dos campos de entrada' },
+  ]},
+  { id:'cards', label:'Cards & Popovers', desc:'Superfícies elevadas', vars:[
+    { key:'--card', label:'Fundo do Card', desc:'Cor de fundo dos cards e popovers' },
+    { key:'--surface', label:'Superfície', desc:'Cor de superfície elevada' },
+  ]},
+  { id:'acoes', label:'Ações', desc:'Botões e interações', vars:[
+    { key:'--primary', label:'Cor Primária', desc:'Botões e destaques principais' },
+    { key:'--destructive', label:'Ação Destrutiva', desc:'Erros e ações destrutivas' },
+  ]},
+  { id:'elementos', label:'Elementos', desc:'Tipografia e detalhes', vars:[
+    { key:'--muted-foreground', label:'Texto Secundário', desc:'Textos de apoio e descrições' },
+  ]},
+  { id:'sidebar', label:'Sidebar', desc:'Barra lateral de navegação', vars:[
+    { key:'--card', label:'Fundo Sidebar', desc:'Superfície usada na sidebar' },
+    { key:'--border', label:'Borda Sidebar', desc:'Cor de borda da sidebar' },
+  ]},
+]
+const PRESETS = [
+  { label:'Dark (Padrão)', colors:{'--background':'#282422','--foreground':'#f5f5f5','--card':'#1e1c1c','--surface':'#242020','--muted':'#373331','--muted-foreground':'#888888','--border':'#2a2727','--primary':'#6add00','--destructive':'#ef4444'} },
+  { label:'Dark Blue',    colors:{'--background':'#0a0f1a','--foreground':'#e8eeff','--card':'#0d1526','--surface':'#111f38','--muted':'#111827','--muted-foreground':'#6b7e9f','--border':'#1e2a3d','--primary':'#3b82f6','--destructive':'#ef4444'} },
+  { label:'Dark Purple',  colors:{'--background':'#0d0a1a','--foreground':'#eeeaff','--card':'#130b24','--surface':'#1a1038','--muted':'#160e2e','--muted-foreground':'#7c6e9f','--border':'#2a1e3d','--primary':'#8b5cf6','--destructive':'#ef4444'} },
+  { label:'Dark Red',     colors:{'--background':'#0f0a0a','--foreground':'#fff0f0','--card':'#1a0f0f','--surface':'#221414','--muted':'#1a0d0d','--muted-foreground':'#9f6e6e','--border':'#2a1515','--primary':'#e53e3e','--destructive':'#fc8181'} },
+]
+
+function TemaPage({token,api}:{token:string,api:string}) {
+  const [colors,setColors]=useState<Record<string,string>>({...THEME_DEFAULTS})
+  const [activeGroup,setActiveGroup]=useState('basicas')
+  const [saving,setSaving]=useState(false)
+  const [msg,setMsg]=useState('')
+
+  useEffect(()=>{
+    fetch(api+'/api/admin/settings',{headers:{Authorization:'Bearer '+token}})
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.theme_colors){try{setColors({...THEME_DEFAULTS,...JSON.parse(d.theme_colors)})}catch{}}
+      }).catch(()=>{})
+  },[])
+
+  function applyToDocument(c:Record<string,string>){
+    Object.entries(c).forEach(([k,v])=>document.documentElement.style.setProperty(k,v))
+  }
+
+  async function handleApply(){
+    setSaving(true);setMsg('')
+    try{
+      await fetch(api+'/api/admin/settings',{method:'PATCH',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({theme_colors:JSON.stringify(colors)})})
+      applyToDocument(colors)
+      setMsg('Tema aplicado com sucesso!')
+    }catch(e:any){setMsg('Erro: '+e.message)}
+    finally{setSaving(false)}
+  }
+
+  function handlePreset(preset:typeof PRESETS[0]){
+    const next={...THEME_DEFAULTS,...preset.colors}
+    setColors(next)
+  }
+
+  const group=THEME_GROUPS.find(g=>g.id===activeGroup)!
+  const primary=colors['--primary']||'#6add00'
+  const bg=colors['--background']||'#282422'
+  const fg=colors['--foreground']||'#f5f5f5'
+  const card=colors['--card']||'#1e1c1c'
+  const border=colors['--border']||'#2a2727'
+  const mutedFg=colors['--muted-foreground']||'#888888'
+  const destructive=colors['--destructive']||'#ef4444'
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      <div style={{display:'flex',alignItems:'flex-start',gap:'16px'}}>
+        <Paintbrush size={28} color={primary}/>
+        <div>
+          <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Configurar Tema</h1>
+          <p style={{fontSize:'13px',color:'#666',marginTop:'2px'}}>Personalize todas as cores da sua aplicação com precisão</p>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:'20px',alignItems:'flex-start',flexWrap:'wrap'}}>
+        {/* LEFT — editor */}
+        <div style={{flex:'1 1 480px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          {/* Presets */}
+          <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px'}}>
+            <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Settings size={12}/> Presets Predefinidos</p>
+            <p style={{fontSize:'12px',color:'#444',marginBottom:'12px'}}>Escolha um preset de cores para começar</p>
+            <select onChange={e=>{const p=PRESETS.find(x=>x.label===e.target.value);if(p)handlePreset(p)}} defaultValue="" style={{width:'100%',background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer'}}>
+              <option value="" disabled>Escolha um preset de cores para começar</option>
+              {PRESETS.map(p=><option key={p.label} value={p.label}>{p.label}</option>)}
+            </select>
+          </div>
+
+          {/* Personalizar Cores */}
+          <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px',display:'flex',flexDirection:'column',gap:'16px'}}>
+            <div>
+              <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Palette size={12}/> Personalizar Cores</p>
+              <p style={{fontSize:'12px',color:'#444'}}>Escolha um preset ou ajuste cada cor individualmente para criar o tema perfeito</p>
+            </div>
+            {/* Group tabs */}
+            <div style={{display:'flex',gap:'0',borderBottom:'1px solid #222',overflowX:'auto'}}>
+              {THEME_GROUPS.map(g=>(
+                <button key={g.id} onClick={()=>setActiveGroup(g.id)} style={{background:'none',border:'none',borderBottom:`2px solid ${activeGroup===g.id?primary:'transparent'}`,color:activeGroup===g.id?primary:'#555',padding:'8px 14px',fontSize:'12px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',transition:'color 0.15s',fontFamily:"'Manrope',sans-serif"}}>
+                  {g.label}
+                </button>
+              ))}
+            </div>
+            <p style={{fontSize:'11px',color:'#444',fontWeight:600}}>{group.label} <span style={{color:'#333',fontWeight:400}}>— {group.desc}</span></p>
+            {/* Color cards */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:'12px'}}>
+              {group.vars.map(v=>{
+                const val=colors[v.key]||THEME_DEFAULTS[v.key]||'#000000'
+                return (
+                  <div key={v.key} style={{background:'#111',border:'1px solid #222',borderRadius:'10px',padding:'14px',display:'flex',flexDirection:'column',gap:'10px'}}>
+                    <div style={{display:'flex',alignItems:'flex-start',gap:'10px'}}>
+                      <div style={{width:'32px',height:'32px',borderRadius:'6px',background:'#0a0a0a',border:'1px solid #333',overflow:'hidden',flexShrink:0,position:'relative'}}>
+                        <input type="color" value={val} onChange={e=>setColors(prev=>({...prev,[v.key]:e.target.value}))} style={{position:'absolute',inset:'-4px',width:'calc(100%+8px)',height:'calc(100%+8px)',border:'none',cursor:'pointer',opacity:0.01}}/>
+                        <div style={{width:'100%',height:'100%',background:val,borderRadius:'4px'}}/>
+                      </div>
+                      <div style={{minWidth:0}}>
+                        <p style={{fontSize:'13px',fontWeight:600,color:'#ccc',fontFamily:"'Manrope',sans-serif"}}>{v.label}</p>
+                        <p style={{fontSize:'11px',color:'#444',marginTop:'1px'}}>{v.desc}</p>
+                      </div>
+                    </div>
+                    <input value={val} onChange={e=>setColors(prev=>({...prev,[v.key]:e.target.value}))} style={{background:'#0a0a0a',border:'1px solid #1e1e1e',borderRadius:'6px',padding:'5px 8px',color:'#6a9',fontSize:'12px',fontFamily:'monospace',outline:'none',width:'100%'}}/>
+                    <p style={{fontSize:'10px',color:'#333',fontFamily:'monospace'}}>HEX: {val.toUpperCase()}</p>
+                    <div style={{width:'100%',height:'28px',borderRadius:'6px',border:'1px solid #222',background:val,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontSize:'10px',color:val<'#888888'?'#fff':'#000',fontWeight:600,letterSpacing:'0.05em'}}>Preview da Cor</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Apply */}
+          {msg&&<p style={{fontSize:'12px',color:msg.includes('Erro')?'#f44336':'#00e676',textAlign:'center'}}>{msg}</p>}
+          <button onClick={handleApply} disabled={saving} style={{width:'100%',padding:'14px',borderRadius:'10px',border:'none',background:primary,color:'#000',fontSize:'14px',fontWeight:700,cursor:'pointer',fontFamily:"'Manrope',sans-serif",display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',opacity:saving?0.7:1,transition:'opacity 0.15s'}}>
+            <Paintbrush size={16}/>{saving?'Aplicando...':'Aplicar Tema'}
+          </button>
+        </div>
+
+        {/* RIGHT — preview */}
+        <div style={{width:'280px',flexShrink:0,display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px'}}>
+            <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Bell size={12}/> Preview</p>
+            <p style={{fontSize:'12px',color:'#444',marginBottom:'14px'}}>Visualização em tempo real das suas cores</p>
+            <p style={{fontSize:'11px',color:'#555',fontWeight:600,marginBottom:'8px'}}>Simulação da Interface</p>
+            {/* Mini UI mockup */}
+            <div style={{borderRadius:'8px',overflow:'hidden',border:`1px solid ${border}`}}>
+              {/* nav bar */}
+              <div style={{background:card,padding:'8px 10px',display:'flex',alignItems:'center',gap:'8px',borderBottom:`1px solid ${border}`}}>
+                <div style={{width:'20px',height:'20px',borderRadius:'4px',background:primary,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <span style={{fontSize:'10px',color:'#000',fontWeight:700}}>M</span>
+                </div>
+                <div style={{flex:1,height:'6px',borderRadius:'3px',background:mutedFg,opacity:0.3}}/>
+              </div>
+              {/* body */}
+              <div style={{background:bg,padding:'10px',display:'flex',gap:'6px'}}>
+                {/* sidebar */}
+                <div style={{width:'36px',display:'flex',flexDirection:'column',gap:'4px'}}>
+                  {[primary,...[mutedFg,mutedFg,mutedFg]].map((c,i)=>(
+                    <div key={i} style={{height:'6px',borderRadius:'3px',background:c,opacity:i===0?1:0.3}}/>
+                  ))}
+                </div>
+                {/* content */}
+                <div style={{flex:1,display:'flex',flexDirection:'column',gap:'5px'}}>
+                  <div style={{background:card,borderRadius:'4px',padding:'6px',border:`1px solid ${border}`}}>
+                    <div style={{height:'6px',borderRadius:'3px',background:fg,opacity:0.7,marginBottom:'4px'}}/>
+                    <div style={{display:'flex',gap:'4px'}}>
+                      <div style={{flex:1,height:'18px',borderRadius:'3px',background:primary,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:'8px',color:'#000',fontWeight:700}}>Primário</span></div>
+                      <div style={{flex:1,height:'18px',borderRadius:'3px',background:card,border:`1px solid ${border}`,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:'8px',color:mutedFg}}>Secundário</span></div>
+                    </div>
+                  </div>
+                  <div style={{background:card,borderRadius:'4px',padding:'5px',border:`1px solid ${border}`}}>
+                    <div style={{height:'12px',borderRadius:'3px',background:colors['--muted']||'#373331',border:`1px solid ${border}`}}/>
+                    <div style={{height:'5px',borderRadius:'2px',background:mutedFg,opacity:0.3,marginTop:'4px',width:'60%'}}/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Palette */}
+            <p style={{fontSize:'11px',color:'#555',fontWeight:600,margin:'14px 0 8px'}}>Paleta Completa</p>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'4px'}}>
+              {Object.values(colors).map((c,i)=>(
+                <div key={i} style={{height:'28px',borderRadius:'4px',background:c,border:`1px solid ${border}`}}/>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
