@@ -337,7 +337,7 @@ export default function Admin() {
                   {/* CHARTS */}
                   <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
                     {['7d','30d','90d'].map(p=>(
-                      <button key={p} onClick={()=>setChartPeriod(p)} style={{padding:'5px 14px',borderRadius:'6px',border:`1px solid ${chartPeriod===p?V.green:V.border}`,background:chartPeriod===p?`${V.green}15`:'transparent',color:chartPeriod===p?V.green:V.muted,fontSize:'12px',cursor:'pointer',fontWeight:chartPeriod===p?600:400,transition:'all 0.15s'}}>
+                      <button key={p} onClick={()=>setChartPeriod(p)} style={{padding:'5px 14px',borderRadius:'6px',border:`1px solid ${chartPeriod===p?'var(--foreground)':V.border}`,background:chartPeriod===p?'rgba(128,128,128,0.12)':'transparent',color:chartPeriod===p?'var(--foreground)':V.muted,fontSize:'12px',cursor:'pointer',fontWeight:chartPeriod===p?600:400,transition:'all 0.15s'}}>
                         {p}
                       </button>
                     ))}
@@ -351,7 +351,7 @@ export default function Admin() {
                           <XAxis dataKey="date" tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
                           <YAxis tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
                           <Tooltip contentStyle={{background:V.card,border:`1px solid ${V.border}`,borderRadius:'8px',fontSize:12}}/>
-                          <Line type="monotone" dataKey="lucro" stroke={V.green} strokeWidth={2} dot={false}/>
+                          <Line type="monotone" dataKey="lucro" stroke="var(--foreground)" strokeWidth={2} dot={false}/>
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -364,8 +364,8 @@ export default function Admin() {
                           <YAxis tick={{fill:V.muted,fontSize:11}} stroke="#1f1f1f"/>
                           <Tooltip contentStyle={{background:V.card,border:`1px solid ${V.border}`,borderRadius:'8px',fontSize:12}}/>
                           <Legend wrapperStyle={{fontSize:11,color:V.muted}}/>
-                          <Line type="monotone" dataKey="depositos" name="Depósitos" stroke={V.green} strokeWidth={2} dot={false}/>
-                          <Line type="monotone" dataKey="saques" name="Saques" stroke={V.red} strokeWidth={2} dot={false}/>
+                          <Line type="monotone" dataKey="depositos" name="Depósitos" stroke="var(--foreground)" strokeWidth={2} dot={false}/>
+                          <Line type="monotone" dataKey="saques" name="Saques" stroke="var(--muted-foreground)" strokeWidth={2} dot={false}/>
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -971,10 +971,7 @@ export default function Admin() {
 
 // ── COMPONENTS ──
 
-function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value:string,sub:string,icon:any,color?:string,tip?:string}) {
-  const colors:any = {green:'var(--primary)',red:'#f44336',blue:'#3b82f6',yellow:'#ffb300'}
-  const bgs:any = {green:'rgba(var(--primary-rgb, 0,230,118),0.08)',red:'rgba(244,67,54,0.08)',blue:'rgba(59,130,246,0.08)',yellow:'rgba(255,179,0,0.08)'}
-  const c = colors[color]||'var(--primary)', bg = bgs[color]||bgs.green
+function MCard({title,value,sub,icon:Icon,color,tip}:{title:string,value:string,sub:string,icon:any,color?:string,tip?:string}) {
   const [show,setShow] = useState(false)
   return (
     <div className="metric-card" style={{background:'var(--card)',borderRadius:'10px',border:'1px solid var(--border)',padding:'16px',transition:'all 0.2s',cursor:'default',position:'relative'}}>
@@ -983,23 +980,23 @@ function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value
           <p style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',lineHeight:1.3}}>{title}</p>
           {tip&&(
             <div style={{position:'relative',flexShrink:0}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
-              <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid #444',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help'}}>
+              <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help'}}>
                 <span style={{fontSize:'9px',color:'var(--muted-foreground)',fontWeight:700,lineHeight:1}}>?</span>
               </div>
               {show&&(
                 <div style={{position:'absolute',bottom:'calc(100% + 6px)',left:'50%',transform:'translateX(-50%)',background:'var(--muted)',border:'1px solid var(--border)',borderRadius:'8px',padding:'8px 10px',width:'200px',zIndex:100,boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
-                  <p style={{fontSize:'11px',color:'#ccc',lineHeight:1.5,margin:0}}>{tip}</p>
+                  <p style={{fontSize:'11px',color:'var(--muted-foreground)',lineHeight:1.5,margin:0}}>{tip}</p>
                   <div style={{position:'absolute',bottom:'-5px',left:'50%',transform:'translateX(-50%)',width:'8px',height:'8px',background:'var(--muted)',border:'1px solid var(--border)',borderTop:'none',borderLeft:'none',rotate:'45deg'}}/>
                 </div>
               )}
             </div>
           )}
         </div>
-        <div style={{width:'28px',height:'28px',borderRadius:'7px',background:bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <Icon size={14} color={c} strokeWidth={1.75}/>
+        <div style={{width:'28px',height:'28px',borderRadius:'7px',background:'rgba(128,128,128,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <Icon size={14} color='var(--muted-foreground)' strokeWidth={1.75}/>
         </div>
       </div>
-      <p style={{fontSize:'22px',fontWeight:700,color:color==='red'?'#f44336':color==='blue'?'#3b82f6':color==='yellow'?'#ffb300':'var(--primary)',fontFamily:"'Manrope',sans-serif",letterSpacing:'-0.5px',marginBottom:'4px'}}>{value}</p>
+      <p style={{fontSize:'22px',fontWeight:700,color:'var(--foreground)',fontFamily:"'Manrope',sans-serif",letterSpacing:'-0.5px',marginBottom:'4px'}}>{value}</p>
       <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>{sub}</p>
     </div>
   )
@@ -1592,19 +1589,19 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'8px'}}>
               <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
                 <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Código</p>
-                <p style={{fontSize:'16px',fontWeight:700,color:'var(--primary)',letterSpacing:'0.15em'}}>{detalhes.referral_code}</p>
+                <p style={{fontSize:'16px',fontWeight:700,color:'var(--foreground)',letterSpacing:'0.15em'}}>{detalhes.referral_code}</p>
               </div>
               <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
                 <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Indicados</p>
-                <p style={{fontSize:'20px',fontWeight:700,color:'#3b82f6'}}>{detalhes.total_referred||0}</p>
+                <p style={{fontSize:'20px',fontWeight:700,color:'var(--foreground)'}}>{detalhes.total_referred||0}</p>
               </div>
               <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
                 <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Comissões</p>
-                <p style={{fontSize:'16px',fontWeight:700,color:'var(--primary)'}}>R$ {Number(detalhes.total_earned||0).toFixed(2)}</p>
+                <p style={{fontSize:'16px',fontWeight:700,color:'var(--foreground)'}}>R$ {Number(detalhes.total_earned||0).toFixed(2)}</p>
               </div>
               <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
                 <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Taxa</p>
-                <p style={{fontSize:'20px',fontWeight:700,color:'#ffb300'}}>{detalhes.commission_rate||0}%</p>
+                <p style={{fontSize:'20px',fontWeight:700,color:'var(--foreground)'}}>{detalhes.commission_rate||0}%</p>
               </div>
             </div>
             <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
@@ -1695,7 +1692,7 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
                   <p style={{color:'#ccc',fontWeight:500,fontSize:'13px'}}>{item.name}</p>
                   <p style={{color:'var(--muted-foreground)',fontSize:'11px'}}>{item.email}</p>
                 </td>
-                <td style={{padding:'11px 14px',color:'#ffb300',fontWeight:600}}>{fmt(item.amount)}</td>
+                <td style={{padding:'11px 14px',color:'var(--foreground)',fontWeight:600}}>{fmt(item.amount)}</td>
                 <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{item.pix_key}</td>
                 <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{fmtDate(item.created_at)}</td>
                 <td style={{padding:'11px 14px'}}><SBadge status={item.status}/></td>

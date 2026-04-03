@@ -150,7 +150,7 @@ export default function GerenteDashboard() {
         {/* Cards de stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px', marginBottom: '16px' }} className="g3">
           <StatCard icon={UserCheck} color={V.green} label="Afiliados" value={String(data?.stats?.total_affiliates || 0)} sub="Vinculados ao seu link" />
-          <StatCard icon={Users} color={V.blue} label="Indicados pelos afiliados" value={String(data?.stats?.total_referred || 0)} sub="Total de usuários captados" />
+          <StatCard icon={Users} color={V.muted} label="Indicados pelos afiliados" value={String(data?.stats?.total_referred || 0)} sub="Total de usuários captados" />
           <StatCard icon={Wallet} color={V.green} label="Comissões geradas" value={fmt(data?.stats?.total_commissions || 0)} sub="Total acumulado" />
         </div>
 
@@ -162,20 +162,20 @@ export default function GerenteDashboard() {
               {/* Teto */}
               <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Seu teto (admin)</p>
-                <p style={{ fontSize: '20px', fontWeight: 700, color: V.blue }}>CPA: {fmt(data.my_commission.cpa)}</p>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: V.blue, marginTop: '2px' }}>RevShare: {data.my_commission.rev_share}%</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)' }}>CPA: {fmt(data.my_commission.cpa)}</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)', marginTop: '2px' }}>RevShare: {data.my_commission.rev_share}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Máximo que pode distribuir</p>
               </div>
               {/* Distribuído */}
               <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Distribuído (média)</p>
-                <p style={{ fontSize: '20px', fontWeight: 700, color: V.yellow }}>RevShare: {data.stats.avg_affiliate_rev_share}%</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)' }}>RevShare: {data.stats.avg_affiliate_rev_share}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Média dos seus afiliados</p>
               </div>
               {/* Sua margem */}
-              <div style={{ background: 'rgba(var(--primary-rgb, 0,230,118),0.04)', borderRadius: '10px', padding: '14px', border: `1px solid rgba(var(--primary-rgb, 0,230,118),0.15)` }}>
+              <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Sua margem</p>
-                <p style={{ fontSize: '20px', fontWeight: 700, color: V.green }}>{data.stats.my_margin > 0 ? data.stats.my_margin : 0}%</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)' }}>{data.stats.my_margin > 0 ? data.stats.my_margin : 0}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Teto − média distribuída</p>
               </div>
             </div>
@@ -233,12 +233,12 @@ export default function GerenteDashboard() {
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>R$ {Number(a.cpa || 0).toFixed(2)}</td>
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>{Number(a.rev_share || 0).toFixed(1)}%</td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span style={{ color: V.green, fontWeight: 600 }}>
+                      <span style={{ color: 'var(--foreground)', fontWeight: 600 }}>
                         {Math.max(0, (data?.my_commission?.rev_share || 0) - Number(a.rev_share || 0)).toFixed(1)}%
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>{a.total_referred}</td>
-                    <td style={{ padding: '12px 16px', color: V.green, fontWeight: 600 }}>{fmt(a.total_earned || 0)}</td>
+                    <td style={{ padding: '12px 16px', color: 'var(--foreground)', fontWeight: 600 }}>{fmt(a.total_earned || 0)}</td>
                     <td style={{ padding: '12px 16px' }}>
                       <button onClick={() => setEditAff({ ...a })} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', border: `1px solid ${V.border}`, background: 'transparent', color: '#ccc', fontSize: '12px', cursor: 'pointer' }}>
                         <Pencil size={12} /> Comissão
@@ -268,15 +268,15 @@ export default function GerenteDashboard() {
               <div style={{ background: 'var(--surface)', borderRadius: '8px', padding: '12px 14px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                 <div>
                   <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Seu teto RevShare</p>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: V.blue }}>{data?.my_commission?.rev_share || 0}%</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--foreground)' }}>{data?.my_commission?.rev_share || 0}%</p>
                 </div>
                 <div>
                   <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Afiliado recebe</p>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: V.yellow }}>{Number(editAff.rev_share || 0).toFixed(1)}%</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--foreground)' }}>{Number(editAff.rev_share || 0).toFixed(1)}%</p>
                 </div>
                 <div>
                   <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sua margem</p>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: V.green }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--foreground)' }}>
                     {Math.max(0, (data?.my_commission?.rev_share || 0) - Number(editAff.rev_share || 0)).toFixed(1)}%
                   </p>
                 </div>
@@ -319,11 +319,11 @@ function StatCard({ icon: Icon, color, label, value, sub }: any) {
     <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
-        <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={15} color={color} strokeWidth={2} />
+        <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(128,128,128,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={15} color='var(--muted-foreground)' strokeWidth={2} />
         </div>
       </div>
-      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: '#fff' }}>{value}</p>
+      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: 'var(--foreground)' }}>{value}</p>
       <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{sub}</p>
     </div>
   )

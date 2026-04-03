@@ -126,8 +126,8 @@ export default function AffiliateDashboard() {
 
         {/* Cards de stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '14px', marginBottom: '24px' }} className="g4">
-          <StatCard icon={UserCheck} color={V.blue} label="Indicados" value={String(data?.stats?.total_referred || 0)} sub="Cadastros pelo seu link" />
-          <StatCard icon={Wallet} color={V.yellow} label="Depósitos gerados" value={fmt(data?.stats?.total_deposits_generated || 0)} sub="Total de todos os status" />
+          <StatCard icon={UserCheck} color={V.muted} label="Indicados" value={String(data?.stats?.total_referred || 0)} sub="Cadastros pelo seu link" />
+          <StatCard icon={Wallet} color={V.muted} label="Depósitos gerados" value={fmt(data?.stats?.total_deposits_generated || 0)} sub="Total de todos os status" />
           <StatCard icon={Users} color={V.green} label="Depósitos aprovados" value={fmt(data?.stats?.total_deposits_approved || 0)} sub="Apenas concluídos" />
           <StatCard icon={DollarSign} color={V.green} label="Comissão total" value={fmt(data?.stats?.total_commissions || 0)} sub="Acumulado até agora" />
         </div>
@@ -139,18 +139,18 @@ export default function AffiliateDashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }} className="g4">
               <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>CPA</p>
-                <p style={{ fontSize: '20px', fontWeight: 700, color: V.blue }}>{fmt(data.my_commission.cpa)}</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)' }}>{fmt(data.my_commission.cpa)}</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Valor fixo por 1º depósito</p>
               </div>
               <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>RevShare</p>
-                <p style={{ fontSize: '20px', fontWeight: 700, color: V.green }}>{data.my_commission.rev_share}%</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)' }}>{data.my_commission.rev_share}%</p>
                 <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>% sobre depósitos dos indicados</p>
               </div>
               {data.my_commission.baseline > 0 && (
                 <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border)' }}>
                   <p style={{ fontSize: '10px', color: V.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Depósito mínimo</p>
-                  <p style={{ fontSize: '20px', fontWeight: 700, color: V.yellow }}>{fmt(data.my_commission.baseline)}</p>
+                  <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)' }}>{fmt(data.my_commission.baseline)}</p>
                   <p style={{ fontSize: '11px', color: V.label, marginTop: '4px' }}>Para contabilizar comissão</p>
                 </div>
               )}
@@ -208,7 +208,7 @@ export default function AffiliateDashboard() {
                     <td style={{ padding: '12px 16px', color: '#ccc', fontWeight: 500 }}>{r.name}</td>
                     <td style={{ padding: '12px 16px', color: V.muted, fontSize: '12px' }}>{r.email}</td>
                     <td style={{ padding: '12px 16px', color: '#ccc' }}>{fmt(r.total_deposited || 0)}</td>
-                    <td style={{ padding: '12px 16px', color: V.green, fontWeight: 600 }}>{fmt(r.total_approved || 0)}</td>
+                    <td style={{ padding: '12px 16px', color: 'var(--foreground)', fontWeight: 600 }}>{fmt(r.total_approved || 0)}</td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
                         display: 'inline-block', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600,
@@ -238,11 +238,11 @@ function StatCard({ icon: Icon, color, label, value, sub }: any) {
     <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
-        <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={15} color={color} strokeWidth={2} />
+        <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(128,128,128,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={15} color='var(--muted-foreground)' strokeWidth={2} />
         </div>
       </div>
-      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: '#fff' }}>{value}</p>
+      <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Manrope',sans-serif", color: 'var(--foreground)' }}>{value}</p>
       <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{sub}</p>
     </div>
   )
