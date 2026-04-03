@@ -58,10 +58,10 @@ export default function LoginAdmin() {
     }
   }
 
-  const red = '#ef4444'
-  const redGlow = 'rgba(239,68,68,0.3)'
-  const redBg = 'rgba(239,68,68,0.08)'
-  const redBorder = 'rgba(239,68,68,0.2)'
+  const red = '#6ADD00'
+  const redGlow = 'rgba(106,221,0,0.35)'
+  const redBg = 'rgba(106,221,0,0.1)'
+  const redBorder = 'rgba(106,221,0,0.2)'
 
   function Logo({ size = 36 }: { size?: number }) {
     if (logoUrl) return (
@@ -80,15 +80,15 @@ export default function LoginAdmin() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#0a0a0a}
-        .pc{display:flex;min-height:100vh;background:#0a0a0a;font-family:'Inter',system-ui,sans-serif}
-        .pl{flex:1;background:linear-gradient(135deg,#0a0a0a 0%,#130a0a 50%,#0f0808 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
+        body{background:#0d0d0d}
+        .pc{display:flex;min-height:100vh;background:#0d0d0d;font-family:'Inter',system-ui,sans-serif}
+        .pl{flex:1;background:linear-gradient(135deg,#0a0a0a 0%,#0d1a00 50%,#0a0f00 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
         .pr{width:480px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;padding:48px;border-left:1px solid rgba(255,255,255,0.05)}
         input{font-family:'Inter',system-ui,sans-serif}
         .inp{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 13px 13px 40px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s}
-        .inp:focus{border-color:rgba(239,68,68,0.4)}
+        .inp:focus{border-color:rgba(106,221,0,0.5)}
         .inp-r{padding:13px 40px}
-        .btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:#ef4444;color:#fff;font-weight:800;font-size:15px;font-family:'Inter',system-ui,sans-serif;box-shadow:0 0 24px rgba(239,68,68,0.25);transition:opacity 0.2s}
+        .btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:#6ADD00;color:#0a0a0a;font-weight:800;font-size:15px;font-family:'Inter',system-ui,sans-serif;box-shadow:0 0 24px rgba(239,68,68,0.25);transition:opacity 0.2s}
         .btn:disabled{opacity:0.6;cursor:not-allowed}
         .feat{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px}
         @media(max-width:768px){
