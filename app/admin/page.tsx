@@ -2123,7 +2123,7 @@ const THEME_GROUPS = [
   ]},
 ]
 const PRESETS = [
-  { label:'Padrão Escuro',      desc:'Tema de cor referência com tons de azul',                colors:{'--background':'#0f0f0f','--foreground':'#f0f0f0','--card':'#1a1a1a','--surface':'#111111','--muted':'#2a2a2a','--muted-foreground':'#888888','--border':'#222222','--primary':'var(--primary)','--destructive':'#ef4444'} },
+  { label:'Padrão Escuro',      desc:'Tema de cor referência com tons de azul',                colors:{'--background':'#0f0f0f','--foreground':'#f0f0f0','--card':'#1a1a1a','--surface':'#111111','--muted':'#2a2a2a','--muted-foreground':'#888888','--border':'#222222','--primary':'#00e676','--destructive':'#ef4444'} },
   { label:'Azul Profundo',      desc:'Tons de azul intenso para um visual moderno',            colors:{'--background':'#0a0e1a','--foreground':'#f0f4ff','--card':'#0d1422','--surface':'#07090f','--muted':'#162040','--muted-foreground':'#888888','--border':'#1a2d4a','--primary':'#3b82f6','--destructive':'#ef4444'} },
   { label:'Verde Militar',      desc:'Paleta verde sóbria e profissional',                    colors:{'--background':'#0d1208','--foreground':'#f0f4ea','--card':'#131a0c','--surface':'#090e06','--muted':'#243318','--muted-foreground':'#888888','--border':'#2a3d18','--primary':'#6b8a3c','--destructive':'#ef4444'} },
   { label:'Roxo Noturno',       desc:'Tons roxos elegantes para um visual sofisticado',       colors:{'--background':'#0f0b1a','--foreground':'#f4f0ff','--card':'#130e22','--surface':'#08060f','--muted':'#231b40','--muted-foreground':'#888888','--border':'#2a2050','--primary':'#9b5de5','--destructive':'#ef4444'} },
