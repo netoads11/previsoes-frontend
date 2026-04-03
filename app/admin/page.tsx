@@ -397,7 +397,7 @@ export default function Admin() {
                     <GhostBtn onClick={()=>setEditMarket({...m})}>Editar</GhostBtn>
                     {(m.status==='open'||m.status==='closed')&&<>
                       {m.type==='multiple'?(
-                        <select defaultValue="" style={{background:'#1a1a1a',border:'1px solid #333',borderRadius:'6px',padding:'4px 8px',color:'#ccc',fontSize:'11px',cursor:'pointer'}}
+                        <select defaultValue="" style={{background:'var(--card)',border:'1px solid #333',borderRadius:'6px',padding:'4px 8px',color:'#ccc',fontSize:'11px',cursor:'pointer'}}
                           onChange={async(e:any)=>{
                             const opt=e.target.value; if(!opt) return; e.target.value='';
                             if(!confirm(`Resolver: "${m.options?.find((o:any)=>o.id===opt)?.title}" venceu?`)) return;
@@ -446,7 +446,7 @@ export default function Admin() {
                     <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Chance SIM (%)<AdminTip text="Probabilidade de o evento ocorrer. Quanto menor a chance, maior o multiplicador e mais arriscada a aposta." pos="bottom"/></span>}><FInput type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/></FField>
                     <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Chance NAO (%)<AdminTip text="Probabilidade de o evento NÃO ocorrer. Ajustado automaticamente ao alterar Chance SIM." pos="bottom"/></span>}><FInput type="number" min="1" max="99" value={newMarket.no_odds} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/></FField>
                   </div>
-                  <div style={{background:'#141414',borderRadius:'8px',padding:'14px',display:'flex',justifyContent:'space-around'}}>
+                  <div style={{background:'var(--background)',borderRadius:'8px',padding:'14px',display:'flex',justifyContent:'space-around'}}>
                     <div style={{textAlign:'center'}}>
                       <p style={{fontSize:'11px',color:V.muted,marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em',display:'flex',alignItems:'center',justifyContent:'center',gap:'4px'}}>Mult. SIM<AdminTip text="Multiplicador de ganho para quem apostar SIM. Calculado como 100 ÷ Chance SIM." pos="bottom"/></p>
                       <p style={{fontSize:'24px',fontWeight:700,color:V.green,fontFamily:"'Manrope',sans-serif"}}>{(100/Number(newMarket.yes_odds||1)).toFixed(2)}x</p>
@@ -614,25 +614,25 @@ export default function Admin() {
       {/* ══ MODAL EDITAR MERCADO — PREMIUM ══ */}
       {editMarket && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.88)',backdropFilter:'blur(10px)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={(e:any)=>{if(e.target===e.currentTarget)setEditMarket(null)}}>
-          <div style={{width:'min(860px,95vw)',maxHeight:'92vh',background:'#141414',borderRadius:'16px',border:'1px solid #222',boxShadow:'0 32px 100px rgba(0,0,0,0.7)',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <div style={{width:'min(860px,95vw)',maxHeight:'92vh',background:'var(--background)',borderRadius:'16px',border:'1px solid var(--border)',boxShadow:'0 32px 100px rgba(0,0,0,0.7)',display:'flex',flexDirection:'column',overflow:'hidden'}}>
 
             {/* ── HEADER ── */}
             <div style={{flexShrink:0,padding:'20px 24px',borderBottom:'1px solid #1e1e1e',background:'#161616',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px'}}>
               <div style={{display:'flex',alignItems:'center',gap:'12px',minWidth:0}}>
                 {editMarket.image_url
-                  ? <img src={editMarket.image_url} alt="" style={{width:'42px',height:'42px',borderRadius:'10px',objectFit:'cover',flexShrink:0,border:'1px solid #2a2a2a'}} onError={(e:any)=>e.target.style.display='none'}/>
+                  ? <img src={editMarket.image_url} alt="" style={{width:'42px',height:'42px',borderRadius:'10px',objectFit:'cover',flexShrink:0,border:'1px solid var(--border)'}} onError={(e:any)=>e.target.style.display='none'}/>
                   : <div style={{width:'42px',height:'42px',borderRadius:'10px',background:'rgba(0,230,118,0.08)',border:'1px solid rgba(0,230,118,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><TrendingUp size={18} color="#00e676"/></div>
                 }
                 <div style={{minWidth:0}}>
                   <div style={{fontSize:'15px',fontWeight:700,color:'#fff',fontFamily:"'Manrope',sans-serif",whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'500px'}}>{editMarket.question}</div>
                   <div style={{display:'flex',alignItems:'center',gap:'8px',marginTop:'4px'}}>
-                    <span style={{fontSize:'11px',color:'#555',background:'#1e1e1e',padding:'2px 8px',borderRadius:'4px',border:'1px solid #2a2a2a'}}>{editMarket.category||'Sem categoria'}</span>
+                    <span style={{fontSize:'11px',color:'var(--muted-foreground)',background:'var(--card)',padding:'2px 8px',borderRadius:'4px',border:'1px solid var(--border)'}}>{editMarket.category||'Sem categoria'}</span>
                     <SBadge status={editMarket.status}/>
-                    <span style={{fontSize:'11px',color:'#555'}}>ID: {editMarket.id?.slice(0,8)}…</span>
+                    <span style={{fontSize:'11px',color:'var(--muted-foreground)'}}>ID: {editMarket.id?.slice(0,8)}…</span>
                   </div>
                 </div>
               </div>
-              <button onClick={()=>setEditMarket(null)} style={{background:'transparent',border:'1px solid #2a2a2a',cursor:'pointer',color:'#555',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#555'}}><X size={14}/></button>
+              <button onClick={()=>setEditMarket(null)} style={{background:'transparent',border:'1px solid var(--border)',cursor:'pointer',color:'var(--muted-foreground)',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#555'}}><X size={14}/></button>
             </div>
 
             {/* ── BODY SCROLL ── */}
@@ -640,7 +640,7 @@ export default function Admin() {
 
               {/* BARRA DE ODDS VISUAL */}
               {editMarket.type!=='multiple' && (
-                <div style={{background:'#1a1a1a',borderRadius:'10px',padding:'14px 16px',border:'1px solid #222'}}>
+                <div style={{background:'var(--card)',borderRadius:'10px',padding:'14px 16px',border:'1px solid var(--border)'}}>
                   <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}>
                     <span style={{fontSize:'12px',fontWeight:700,color:'#00e676'}}>SIM {Number(editMarket.yes_odds)||50}%</span>
                     <span style={{fontSize:'12px',fontWeight:700,color:'#f44336'}}>NÃO {Number(editMarket.no_odds)||50}%</span>
@@ -655,9 +655,9 @@ export default function Admin() {
               {/* SEÇÃO: INFORMAÇÕES */}
               <div>
                 <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
-                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  <div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   Informações
-                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  <div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
                   <FField label="Pergunta"><FInput value={editMarket.question} onChange={(e:any)=>setEditMarket({...editMarket,question:e.target.value})}/></FField>
@@ -672,7 +672,7 @@ export default function Admin() {
               {editMarket.type==='multiple' ? (
                 <div>
                   <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
-                    <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Opções<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                    <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Opções<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   </div>
                   {(editMarket.options||[]).map((opt:any,i:number)=>(
                     <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
@@ -686,7 +686,7 @@ export default function Admin() {
               ) : (
                 <div>
                   <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
-                    <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Odds<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                    <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Odds<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
                     <FField label="SIM (%)"><FInput type="number" min="1" max="99" style={{color:V.green,fontWeight:700}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></FField>
@@ -698,7 +698,7 @@ export default function Admin() {
               {/* SEÇÃO: CONFIGURAÇÕES */}
               <div>
                 <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
-                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Configurações<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Configurações<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
                   <FField label="Data encerramento"><FInput type="datetime-local" value={editMarket.expires_at?(()=>{const d=new Date(editMarket.expires_at);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)})():''} onChange={(e:any)=>setEditMarket({...editMarket,expires_at:e.target.value})}/></FField>
@@ -717,7 +717,7 @@ export default function Admin() {
               {/* SEÇÃO: IMAGEM */}
               <div>
                 <div style={{fontSize:'11px',fontWeight:600,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
-                  <div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>Imagem<div style={{flex:1,height:'1px',background:'#1e1e1e'}}/>
+                  <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Imagem<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                 </div>
                 <div style={{display:'flex',gap:'14px',alignItems:'flex-start'}}>
                   <div style={{flex:1,display:'flex',flexDirection:'column',gap:'8px'}}>
@@ -737,7 +737,7 @@ export default function Admin() {
                     </div>
                   </div>
                   {editMarket.image_url && (
-                    <img src={editMarket.image_url} alt="preview" style={{width:'90px',height:'64px',objectFit:'cover',borderRadius:'8px',border:'1px solid #2a2a2a',flexShrink:0}} onError={(e:any)=>e.target.style.display='none'}/>
+                    <img src={editMarket.image_url} alt="preview" style={{width:'90px',height:'64px',objectFit:'cover',borderRadius:'8px',border:'1px solid var(--border)',flexShrink:0}} onError={(e:any)=>e.target.style.display='none'}/>
                   )}
                 </div>
               </div>
@@ -760,27 +760,27 @@ export default function Admin() {
       {/* ══ EDITAR USUÁRIO — Drawer Full Width Premium ══ */}
       {editUser && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.88)',backdropFilter:'blur(10px)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={(e:any)=>{if(e.target===e.currentTarget)setEditUser(null)}}>
-          <div style={{width:'min(1200px,90vw)',height:'min(820px,90vh)',background:'#141414',borderRadius:'16px',border:'1px solid #222',boxShadow:'0 32px 100px rgba(0,0,0,0.7)',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <div style={{width:'min(1200px,90vw)',height:'min(820px,90vh)',background:'var(--background)',borderRadius:'16px',border:'1px solid var(--border)',boxShadow:'0 32px 100px rgba(0,0,0,0.7)',display:'flex',flexDirection:'column',overflow:'hidden'}}>
 
             {/* ── HEADER STICKY ── */}
-            <div style={{flexShrink:0,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'24px 28px',borderBottom:'1px solid #222',background:'#161616'}}>
+            <div style={{flexShrink:0,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'24px 28px',borderBottom:'1px solid var(--border)',background:'#161616'}}>
               <div style={{display:'flex',alignItems:'center',gap:'14px'}}>
                 <div style={{width:'38px',height:'38px',borderRadius:'10px',background:'rgba(0,230,118,0.1)',border:'1px solid rgba(0,230,118,0.2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
                   <Users size={16} color="#00e676"/>
                 </div>
                 <div>
                   <h2 style={{fontSize:'16px',fontWeight:700,color:'#fff',fontFamily:"'Manrope',sans-serif",margin:0,letterSpacing:'-0.01em'}}>Editar Usuário</h2>
-                  <p style={{fontSize:'12px',color:'#555',margin:'2px 0 0'}}>{editUser.name} · {editUser.email}</p>
+                  <p style={{fontSize:'12px',color:'var(--muted-foreground)',margin:'2px 0 0'}}>{editUser.name} · {editUser.email}</p>
                 </div>
               </div>
-              <button onClick={()=>setEditUser(null)} style={{background:'transparent',border:'1px solid #2a2a2a',cursor:'pointer',color:'#555',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.15s',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc';e.currentTarget.style.borderColor='#333'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#555';e.currentTarget.style.borderColor='#2a2a2a'}}><X size={14}/></button>
+              <button onClick={()=>setEditUser(null)} style={{background:'transparent',border:'1px solid var(--border)',cursor:'pointer',color:'var(--muted-foreground)',width:'34px',height:'34px',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.15s',flexShrink:0}} onMouseEnter={(e:any)=>{e.currentTarget.style.background='#222';e.currentTarget.style.color='#ccc';e.currentTarget.style.borderColor='#333'}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#555';e.currentTarget.style.borderColor='#2a2a2a'}}><X size={14}/></button>
             </div>
 
             {/* ── BODY SCROLLÁVEL — GRID 2 COLUNAS ── */}
             <div style={{flex:1,overflowY:'auto',padding:'24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'24px',alignContent:'start'}}>
 
               {/* ══ CARD ESQUERDO — Informações Pessoais ══ */}
-              <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'14px',padding:'24px',boxShadow:'0 4px 20px rgba(0,0,0,0.25)',display:'flex',flexDirection:'column',gap:'0'}}>
+              <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'14px',padding:'24px',boxShadow:'0 4px 20px rgba(0,0,0,0.25)',display:'flex',flexDirection:'column',gap:'0'}}>
                 <div style={{marginBottom:'20px'}}>
                   <h3 style={{fontSize:'13px',fontWeight:700,color:'#fff',margin:'0 0 12px',fontFamily:"'Manrope',sans-serif",textTransform:'uppercase',letterSpacing:'0.06em'}}>Informações Pessoais</h3>
                   <div style={{height:'1px',background:'linear-gradient(90deg,#333,transparent)'}}/>
@@ -819,7 +819,7 @@ export default function Admin() {
               </div>
 
               {/* ══ CARD DIREITO — Segurança e Saldo ══ */}
-              <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'14px',padding:'24px',boxShadow:'0 4px 20px rgba(0,0,0,0.25)',display:'flex',flexDirection:'column',gap:'0'}}>
+              <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'14px',padding:'24px',boxShadow:'0 4px 20px rgba(0,0,0,0.25)',display:'flex',flexDirection:'column',gap:'0'}}>
                 <div style={{marginBottom:'20px'}}>
                   <h3 style={{fontSize:'13px',fontWeight:700,color:'#fff',margin:'0 0 12px',fontFamily:"'Manrope',sans-serif",textTransform:'uppercase',letterSpacing:'0.06em'}}>Segurança e Saldo</h3>
                   <div style={{height:'1px',background:'linear-gradient(90deg,#333,transparent)'}}/>
@@ -881,7 +881,7 @@ export default function Admin() {
             </div>
 
             {/* ── FOOTER STICKY ── */}
-            <div style={{flexShrink:0,display:'flex',gap:'12px',alignItems:'center',padding:'20px 28px',borderTop:'1px solid #222',background:'#161616'}}>
+            <div style={{flexShrink:0,display:'flex',gap:'12px',alignItems:'center',padding:'20px 28px',borderTop:'1px solid var(--border)',background:'#161616'}}>
               <button
                 onClick={()=>{if(editUser._password&&editUser._password!==editUser._password2){showToast('Senhas não conferem','error');return;}saveUser()}}
                 style={{flex:1,height:'48px',background:'#00e676',color:'#000',border:'none',borderRadius:'10px',fontWeight:700,fontSize:'14px',cursor:'pointer',letterSpacing:'0.05em',transition:'opacity 0.15s',fontFamily:"'Manrope',sans-serif"}}
@@ -890,7 +890,7 @@ export default function Admin() {
               >SALVAR ALTERAÇÕES</button>
               <button
                 onClick={()=>setEditUser(null)}
-                style={{height:'48px',padding:'0 28px',background:'#1e1e1e',color:'#888',border:'1px solid #2a2a2a',borderRadius:'10px',fontWeight:500,fontSize:'14px',cursor:'pointer',transition:'all 0.15s',fontFamily:"'Manrope',sans-serif",whiteSpace:'nowrap'}}
+                style={{height:'48px',padding:'0 28px',background:'var(--card)',color:'var(--muted-foreground)',border:'1px solid var(--border)',borderRadius:'10px',fontWeight:500,fontSize:'14px',cursor:'pointer',transition:'all 0.15s',fontFamily:"'Manrope',sans-serif",whiteSpace:'nowrap'}}
                 onMouseEnter={(e:any)=>{e.currentTarget.style.background='#252525';e.currentTarget.style.color='#bbb'}}
                 onMouseLeave={(e:any)=>{e.currentTarget.style.background='#1e1e1e';e.currentTarget.style.color='#888'}}
               >Cancelar</button>
@@ -905,12 +905,12 @@ export default function Admin() {
         <Overlay onClose={()=>setBalanceModal(null)}>
           <Modal title={`Ajustar Saldo — ${balanceModal.name}`} onClose={()=>setBalanceModal(null)}>
             <div style={{background:'rgba(0,230,118,0.06)',border:'1px solid rgba(0,230,118,0.15)',borderRadius:'10px',padding:'14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <span style={{fontSize:'12px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>Saldo atual</span>
+              <span style={{fontSize:'12px',color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>Saldo atual</span>
               <span style={{fontSize:'22px',fontWeight:700,color:'#00e676',fontFamily:"'Manrope',sans-serif"}}>R$ {Number(balanceModal.currentBalance||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
             </div>
             <FField label="Novo saldo (R$)">
               <FInput type="number" step="0.01" min="0" placeholder="Ex: 150.00" value={balanceModal.newBalance} onChange={(e:any)=>setBalanceModal({...balanceModal,newBalance:e.target.value})}/>
-              <p style={{fontSize:'11px',color:'#555',marginTop:'4px'}}>Digite o valor final que o usuário deve ter.</p>
+              <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'4px'}}>Digite o valor final que o usuário deve ter.</p>
             </FField>
             <p style={{fontSize:'11px',color:'#333',marginTop:'4px'}}>Esta ação será registrada no log de auditoria com seu IP.</p>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
@@ -977,14 +977,14 @@ function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value
   const c = colors[color]||'#00e676', bg = bgs[color]||bgs.green
   const [show,setShow] = useState(false)
   return (
-    <div className="metric-card" style={{background:'#1a1a1a',borderRadius:'10px',border:'1px solid #222',padding:'16px',transition:'all 0.2s',cursor:'default',position:'relative'}}>
+    <div className="metric-card" style={{background:'var(--card)',borderRadius:'10px',border:'1px solid var(--border)',padding:'16px',transition:'all 0.2s',cursor:'default',position:'relative'}}>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'10px'}}>
         <div style={{display:'flex',alignItems:'center',gap:'5px',flex:1,minWidth:0}}>
-          <p style={{fontSize:'11px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',lineHeight:1.3}}>{title}</p>
+          <p style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',lineHeight:1.3}}>{title}</p>
           {tip&&(
             <div style={{position:'relative',flexShrink:0}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
               <div style={{width:'14px',height:'14px',borderRadius:'50%',border:'1px solid #444',display:'flex',alignItems:'center',justifyContent:'center',cursor:'help'}}>
-                <span style={{fontSize:'9px',color:'#666',fontWeight:700,lineHeight:1}}>?</span>
+                <span style={{fontSize:'9px',color:'var(--muted-foreground)',fontWeight:700,lineHeight:1}}>?</span>
               </div>
               {show&&(
                 <div style={{position:'absolute',bottom:'calc(100% + 6px)',left:'50%',transform:'translateX(-50%)',background:'#2a2a2a',border:'1px solid #333',borderRadius:'8px',padding:'8px 10px',width:'200px',zIndex:100,boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
@@ -1000,7 +1000,7 @@ function MCard({title,value,sub,icon:Icon,color='green',tip}:{title:string,value
         </div>
       </div>
       <p style={{fontSize:'22px',fontWeight:700,color:color==='red'?'#f44336':color==='blue'?'#3b82f6':color==='yellow'?'#ffb300':'#00e676',fontFamily:"'Manrope',sans-serif",letterSpacing:'-0.5px',marginBottom:'4px'}}>{value}</p>
-      <p style={{fontSize:'11px',color:'#555'}}>{sub}</p>
+      <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>{sub}</p>
     </div>
   )
 }
@@ -1064,14 +1064,14 @@ function DataTbl({cols,rows,loading,page,perPage,onPage,onPerPage}:{cols:any[],r
   if (loading) return <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>{Array(5).fill(0).map((_,i)=><div key={i} className="skel" style={{height:'44px'}}/>)}</div>
   const totalPages = Math.ceil(rows.length/perPage)
   const paged = rows.slice((page-1)*perPage, page*perPage)
-  if (!paged.length) return <div style={{background:'#1a1a1a',borderRadius:'10px',border:'1px solid #222',padding:'48px',textAlign:'center'}}><p style={{color:'#555',fontSize:'13px'}}>Nenhum registro encontrado</p></div>
+  if (!paged.length) return <div style={{background:'var(--card)',borderRadius:'10px',border:'1px solid var(--border)',padding:'48px',textAlign:'center'}}><p style={{color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum registro encontrado</p></div>
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
           <thead>
-            <tr style={{background:'#141414'}}>
-              {cols.map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222',whiteSpace:'nowrap'}}>{c}</th>)}
+            <tr style={{background:'var(--background)'}}>
+              {cols.map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)',whiteSpace:'nowrap'}}>{c}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -1083,19 +1083,19 @@ function DataTbl({cols,rows,loading,page,perPage,onPage,onPerPage}:{cols:any[],r
           </tbody>
         </table>
       </div>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:'12px',color:'#555'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:'12px',color:'var(--muted-foreground)'}}>
         <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
           <span>Itens por página:</span>
-          <select value={perPage} onChange={(e:any)=>{onPerPage(Number(e.target.value));onPage(1)}} style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'6px',padding:'3px 6px',color:'#888',fontSize:'12px',outline:'none',cursor:'pointer'}}>
+          <select value={perPage} onChange={(e:any)=>{onPerPage(Number(e.target.value));onPage(1)}} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'6px',padding:'3px 6px',color:'var(--muted-foreground)',fontSize:'12px',outline:'none',cursor:'pointer'}}>
             <option value="10">10</option><option value="25">25</option><option value="50">50</option>
           </select>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
           <span>{(page-1)*perPage+1}–{Math.min(page*perPage,rows.length)} de {rows.length}</span>
-          <button onClick={()=>onPage(page-1)} disabled={page<=1} style={{width:'26px',height:'26px',borderRadius:'6px',border:'1px solid #222',background:'transparent',cursor:page<=1?'not-allowed':'pointer',color:page<=1?'#333':'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <button onClick={()=>onPage(page-1)} disabled={page<=1} style={{width:'26px',height:'26px',borderRadius:'6px',border:'1px solid var(--border)',background:'transparent',cursor:page<=1?'not-allowed':'pointer',color:page<=1?'#333':'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>
             <ChevronLeft size={13}/>
           </button>
-          <button onClick={()=>onPage(page+1)} disabled={page>=totalPages} style={{width:'26px',height:'26px',borderRadius:'6px',border:'1px solid #222',background:'transparent',cursor:page>=totalPages?'not-allowed':'pointer',color:page>=totalPages?'#333':'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <button onClick={()=>onPage(page+1)} disabled={page>=totalPages} style={{width:'26px',height:'26px',borderRadius:'6px',border:'1px solid var(--border)',background:'transparent',cursor:page>=totalPages?'not-allowed':'pointer',color:page>=totalPages?'#333':'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>
             <ChevronRight size={13}/>
           </button>
         </div>
@@ -1109,13 +1109,13 @@ function FilterRow({search,onSearch,status,onStatus,statusOpts}:any) {
     <div style={{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}}>
       <div style={{position:'relative',flex:1,minWidth:'180px',maxWidth:'300px'}}>
         <Search size={13} color="#555" style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}/>
-        <input value={search} onChange={(e:any)=>onSearch(e.target.value)} placeholder="Filtrar..." style={{width:'100%',background:'#1a1a1a',border:'1px solid #222',borderRadius:'8px',padding:'7px 10px 7px 30px',color:'#888',fontSize:'12px',outline:'none',transition:'border-color 0.15s'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
+        <input value={search} onChange={(e:any)=>onSearch(e.target.value)} placeholder="Filtrar..." style={{width:'100%',background:'var(--card)',border:'1px solid var(--border)',borderRadius:'8px',padding:'7px 10px 7px 30px',color:'var(--muted-foreground)',fontSize:'12px',outline:'none',transition:'border-color 0.15s'}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
       </div>
-      <select value={status} onChange={(e:any)=>onStatus(e.target.value)} style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'8px',padding:'7px 10px',color:status?'#ccc':'#555',fontSize:'12px',outline:'none',cursor:'pointer'}}>
+      <select value={status} onChange={(e:any)=>onStatus(e.target.value)} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'8px',padding:'7px 10px',color:status?'#ccc':'#555',fontSize:'12px',outline:'none',cursor:'pointer'}}>
         <option value="">Todos os status</option>
         {statusOpts.map((s:string)=>{const lbl:any={active:'Ativo',blocked:'Bloqueado',suspended:'Suspenso',open:'Aberto',closed:'Fechado',archived:'Arquivado',pending:'Pendente',completed:'Confirmado',paid:'Pago',resolved:'Resolvido',cancelled:'Cancelado',rejected:'Recusado',won:'Ganhou',lost:'Perdeu',approved:'Aprovado'};return<option key={s} value={s}>{lbl[s]||s}</option>})}
       </select>
-      {(search||status)&&<button onClick={()=>{onSearch('');onStatus('')}} style={{background:'transparent',border:'1px solid #222',borderRadius:'8px',padding:'7px 12px',color:'#555',fontSize:'12px',cursor:'pointer'}}>Limpar</button>}
+      {(search||status)&&<button onClick={()=>{onSearch('');onStatus('')}} style={{background:'transparent',border:'1px solid var(--border)',borderRadius:'8px',padding:'7px 12px',color:'var(--muted-foreground)',fontSize:'12px',cursor:'pointer'}}>Limpar</button>}
     </div>
   )
 }
@@ -1126,10 +1126,10 @@ function Overlay({children,onClose}:{children:any,onClose:()=>void}) {
 
 function Modal({title,onClose,children}:{title:string,onClose:()=>void,children:any}) {
   return (
-    <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',width:'100%',maxWidth:'480px',maxHeight:'90vh',overflowY:'auto'}}>
+    <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',width:'100%',maxWidth:'480px',maxHeight:'90vh',overflowY:'auto'}}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'20px'}}>
         <h3 style={{fontSize:'15px',fontWeight:600,color:'#fff',fontFamily:"'Manrope',sans-serif"}}>{title}</h3>
-        <button onClick={onClose} style={{background:'#222',border:'none',cursor:'pointer',color:'#666',width:'28px',height:'28px',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#ccc'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#666'}><X size={14}/></button>
+        <button onClick={onClose} style={{background:'#222',border:'none',cursor:'pointer',color:'var(--muted-foreground)',width:'28px',height:'28px',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.color='#ccc'} onMouseLeave={(e:any)=>e.currentTarget.style.color='#666'}><X size={14}/></button>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>{children}</div>
     </div>
@@ -1137,11 +1137,11 @@ function Modal({title,onClose,children}:{title:string,onClose:()=>void,children:
 }
 
 function FField({label,children}:{label:any,children:any}) {
-  return <div><label style={{fontSize:'11px',color:'#555',display:'flex',alignItems:'center',gap:'4px',marginBottom:'5px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>{label}</label>{children}</div>
+  return <div><label style={{fontSize:'11px',color:'var(--muted-foreground)',display:'flex',alignItems:'center',gap:'4px',marginBottom:'5px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>{label}</label>{children}</div>
 }
 
 function FInput({style,...p}:any) {
-  return <input {...p} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',transition:'border-color 0.15s',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
+  return <input {...p} style={{width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',transition:'border-color 0.15s',...style}} onFocus={(e:any)=>e.target.style.borderColor='rgba(0,230,118,0.4)'} onBlur={(e:any)=>e.target.style.borderColor='#222'}/>
 }
 
 /* ── Componentes premium para o modal de edição de usuário ── */
@@ -1156,7 +1156,7 @@ function UField({label,children}:{label:string,children:any}) {
 function UInput({style,...p}:any) {
   return (
     <input {...p}
-      style={{width:'100%',background:'#111',border:'1px solid #333',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'46px',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
+      style={{width:'100%',background:'var(--surface)',border:'1px solid #333',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'46px',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
       onFocus={(e:any)=>{e.target.style.borderColor='#00e676';e.target.style.boxShadow='0 0 0 3px rgba(0,230,118,0.15)'}}
       onBlur={(e:any)=>{e.target.style.borderColor='#333';e.target.style.boxShadow='none'}}
     />
@@ -1165,7 +1165,7 @@ function UInput({style,...p}:any) {
 function USelect({style,children,...p}:any) {
   return (
     <select {...p}
-      style={{width:'100%',background:'#111',border:'1px solid #333',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'46px',cursor:'pointer',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
+      style={{width:'100%',background:'var(--surface)',border:'1px solid #333',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'46px',cursor:'pointer',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
       onFocus={(e:any)=>{e.target.style.borderColor='#00e676';e.target.style.boxShadow='0 0 0 3px rgba(0,230,118,0.15)'}}
       onBlur={(e:any)=>{e.target.style.borderColor='#333';e.target.style.boxShadow='none'}}
     >{children}</select>
@@ -1173,7 +1173,7 @@ function USelect({style,children,...p}:any) {
 }
 
 function FSelect({style,...p}:any) {
-  return <select {...p} style={{width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer',...style}}/>
+  return <select {...p} style={{width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer',...style}}/>
 }
 
 function PrimaryBtn({children,onClick,type,style,disabled}:{children:any,onClick?:()=>void,type?:any,style?:any,disabled?:boolean}) {
@@ -1227,11 +1227,11 @@ function MetricasPage() {
           <button key={t} onClick={()=>setActiveTab(t)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t===activeTab?'#00e676':'#222'}`,background:t===activeTab?'rgba(0,230,118,0.1)':'transparent',color:t===activeTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t===activeTab?600:400,transition:'all 0.15s'}}>{t}</button>
         ))}
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
           <thead>
-            <tr style={{background:'#141414'}}>
-              {['#','Nome',activeTab==='Convites'?'Convites':'Valor'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            <tr style={{background:'var(--background)'}}>
+              {['#','Nome',activeTab==='Convites'?'Convites':'Valor'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -1239,7 +1239,7 @@ function MetricasPage() {
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px'}}><span style={{fontWeight:700,color:'#00e676'}}>{item.pos}</span></td>
                 <td style={{padding:'11px 14px',color:'#ccc'}}>{item.nome}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{item.valor}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.valor}</td>
               </tr>
             ))}
           </tbody>
@@ -1267,16 +1267,16 @@ function AdminsPage() {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Admins</h1>
         <PrimaryBtn onClick={()=>{setSelected(null);setForm({nome:'',email:'',senha:'',cargo:'suporte',ativo:true});setEditOpen(true)}}><Plus size={14}/> Criar Admin</PrimaryBtn>
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-          <thead><tr style={{background:'#141414'}}>
-            {['Nome','E-mail','Cargo','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+          <thead><tr style={{background:'var(--background)'}}>
+            {['Nome','E-mail','Cargo','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {admins.map((a,i)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.nome}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{a.email}</td>
                 <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,...cargoColors[a.cargo]}}>{a.cargo.replace('_',' ')}</span></td>
                 <td style={{padding:'11px 14px'}}><SBadge status={a.ativo?'active':'inactive'}/></td>
                 <td style={{padding:'11px 14px'}}>
@@ -1308,7 +1308,7 @@ function AdminsPage() {
               <div onClick={()=>setForm({...form,ativo:!form.ativo})} style={{width:'36px',height:'20px',borderRadius:'10px',background:form.ativo?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s'}}>
                 <div style={{position:'absolute',top:'2px',left:form.ativo?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
               </div>
-              <span style={{fontSize:'13px',color:'#888'}}>Ativo</span>
+              <span style={{fontSize:'13px',color:'var(--muted-foreground)'}}>Ativo</span>
             </div>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
               <PrimaryBtn onClick={()=>setEditOpen(false)}>SALVAR</PrimaryBtn>
@@ -1319,10 +1319,10 @@ function AdminsPage() {
       )}
       {deleteOpen&&(
         <Overlay onClose={()=>setDeleteOpen(false)}>
-          <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
+          <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
             <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(244,67,54,0.1)',border:'1px solid rgba(244,67,54,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#f44336"/></div>
             <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>Excluir admin <strong>{selected?.nome}</strong>?</p>
-            <p style={{fontSize:'11px',color:'#888',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
             <div style={{display:'flex',gap:'8px'}}>
               <button onClick={()=>setDeleteOpen(false)} style={{flex:1,background:'rgba(244,67,54,0.08)',color:'#f44336',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>Excluir</button>
               <GhostBtn onClick={()=>setDeleteOpen(false)}>Cancelar</GhostBtn>
@@ -1342,7 +1342,7 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
   const [toast, setToast] = useState('')
   const V2 = {green:'#00e676',border:'#222',card:'#1a1a1a',muted:'#888',label:'#555',text:'#ccc'}
   const LabelStyle = {fontSize:'11px',color:V2.label,display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
-  const InputStyle = {width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:V2.text,fontSize:'13px',outline:'none'}
+  const InputStyle = {width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:V2.text,fontSize:'13px',outline:'none'}
 
   async function saveTeto() {
     if(!editTeto) return
@@ -1394,21 +1394,21 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
 
       {/* Lista de gerentes */}
       {!selected ? (
-        <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-          <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-            <thead><tr style={{background:'#141414'}}>
+        <div style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+            <thead><tr style={{background:'var(--background)'}}>
               {['Nome','Email','Código','Afiliados','Comissões','Status','Ações'].map(c=>(
-                <th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>
+                <th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>
               ))}
             </tr></thead>
             <tbody>
               {managers.length===0?(
-                <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum gerente cadastrado ainda</td></tr>
+                <tr><td colSpan={7} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum gerente cadastrado ainda</td></tr>
               ):managers.map((m:any,i:number)=>(
                 <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                   <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{m.name}</td>
-                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{m.email}</td>
-                  <td style={{padding:'11px 14px'}}><code style={{background:'#111',padding:'2px 7px',borderRadius:'4px',fontSize:'11px',color:V2.green}}>{m.referral_code||'—'}</code></td>
+                  <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{m.email}</td>
+                  <td style={{padding:'11px 14px'}}><code style={{background:'var(--surface)',padding:'2px 7px',borderRadius:'4px',fontSize:'11px',color:V2.green}}>{m.referral_code||'—'}</code></td>
                   <td style={{padding:'11px 14px',color:'#ccc'}}>{m.total_affiliates}</td>
                   <td style={{padding:'11px 14px',color:V2.green,fontWeight:600}}>R$ {Number(m.total_commissions||0).toFixed(2)}</td>
                   <td style={{padding:'11px 14px'}}><SBadge status={m.status||'active'}/></td>
@@ -1429,31 +1429,31 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
         /* Detalhe do gerente selecionado */
         <div style={{display:'flex',flexDirection:'column',gap:'16px'}}>
           <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <button onClick={()=>setSelected(null)} style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 12px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'#888',fontSize:'12px',cursor:'pointer'}}>
+            <button onClick={()=>setSelected(null)} style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 12px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'var(--muted-foreground)',fontSize:'12px',cursor:'pointer'}}>
               <ChevronLeft size={13}/> Voltar
             </button>
             <div>
               <p style={{fontWeight:700,fontSize:'16px',color:'#ccc'}}>{selected.name}</p>
-              <p style={{fontSize:'12px',color:'#555'}}>{selected.email} · Código: <code style={{color:V2.green}}>{selected.referral_code}</code></p>
+              <p style={{fontSize:'12px',color:'var(--muted-foreground)'}}>{selected.email} · Código: <code style={{color:V2.green}}>{selected.referral_code}</code></p>
             </div>
           </div>
 
-          <p style={{fontSize:'13px',color:'#888'}}>Afiliados cadastrados pelo link deste gerente. Configure a comissão de cada um.</p>
+          <p style={{fontSize:'13px',color:'var(--muted-foreground)'}}>Afiliados cadastrados pelo link deste gerente. Configure a comissão de cada um.</p>
 
-          <div style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-            <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-              <thead><tr style={{background:'#141414'}}>
+          <div style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+            <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+              <thead><tr style={{background:'var(--background)'}}>
                 {['Nome','Email','CPA (R$)','RevShare (%)','Baseline (R$)','Indicados','Comissões','Ações'].map(c=>(
-                  <th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>
+                  <th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>
                 ))}
               </tr></thead>
               <tbody>
                 {(!selected.affiliates||selected.affiliates.length===0)?(
-                  <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado vinculado a este gerente ainda</td></tr>
+                  <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum afiliado vinculado a este gerente ainda</td></tr>
                 ):selected.affiliates.map((a:any,i:number)=>(
                   <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                     <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
-                    <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
+                    <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{a.email}</td>
                     <td style={{padding:'11px 14px',color:'#ccc'}}>R$ {Number(a.cpa||0).toFixed(2)}</td>
                     <td style={{padding:'11px 14px',color:'#ccc'}}>{Number(a.rev_share||0).toFixed(1)}%</td>
                     <td style={{padding:'11px 14px',color:'#ccc'}}>R$ {Number(a.baseline||0).toFixed(2)}</td>
@@ -1477,7 +1477,7 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
         <Overlay onClose={()=>setEditTeto(null)}>
           <Modal title={`Configurações de Afiliação — ${editTeto.name}`} onClose={()=>setEditTeto(null)}>
             <div style={{display:'flex',flexDirection:'column',gap:'14px',minWidth:'320px'}}>
-              <p style={{fontSize:'12px',color:'#888'}}>Configure a comissão que este gerente pode distribuir para seus afiliados. Ele fica com a diferença.</p>
+              <p style={{fontSize:'12px',color:'var(--muted-foreground)'}}>Configure a comissão que este gerente pode distribuir para seus afiliados. Ele fica com a diferença.</p>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                 <div>
                   <label style={LabelStyle}>CPA (R$)</label>
@@ -1493,7 +1493,7 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
                 </div>
               </div>
               <div style={{display:'flex',gap:'10px',justifyContent:'flex-end'}}>
-                <button onClick={()=>setEditTeto(null)} style={{padding:'8px 16px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'#888',fontSize:'13px',cursor:'pointer'}}>Cancelar</button>
+                <button onClick={()=>setEditTeto(null)} style={{padding:'8px 16px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'var(--muted-foreground)',fontSize:'13px',cursor:'pointer'}}>Cancelar</button>
                 <PrimaryBtn onClick={saveTeto}>{saving?'Salvando...':'Salvar'}</PrimaryBtn>
               </div>
             </div>
@@ -1506,7 +1506,7 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
         <Overlay onClose={()=>setEditAff(null)}>
           <Modal title={`Comissão — ${editAff.name}`} onClose={()=>setEditAff(null)}>
             <div style={{display:'flex',flexDirection:'column',gap:'14px',minWidth:'320px'}}>
-              <p style={{fontSize:'12px',color:'#888'}}>Configure a comissão deste afiliado gerenciado por <strong style={{color:'#ccc'}}>{selected?.name}</strong>.</p>
+              <p style={{fontSize:'12px',color:'var(--muted-foreground)'}}>Configure a comissão deste afiliado gerenciado por <strong style={{color:'#ccc'}}>{selected?.name}</strong>.</p>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                 <div>
                   <label style={LabelStyle}>CPA (R$)</label>
@@ -1522,7 +1522,7 @@ function GerentesPage({managers,token,api,onRefresh}:{managers:any[],token:strin
                 </div>
               </div>
               <div style={{display:'flex',gap:'10px',justifyContent:'flex-end'}}>
-                <button onClick={()=>setEditAff(null)} style={{padding:'8px 16px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'#888',fontSize:'13px',cursor:'pointer'}}>Cancelar</button>
+                <button onClick={()=>setEditAff(null)} style={{padding:'8px 16px',borderRadius:'8px',border:'1px solid #333',background:'transparent',color:'var(--muted-foreground)',fontSize:'13px',cursor:'pointer'}}>Cancelar</button>
                 <PrimaryBtn onClick={saveCommission}>{saving?'Salvando...':'Salvar comissão'}</PrimaryBtn>
               </div>
             </div>
@@ -1548,9 +1548,9 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
         <MCard title="Total Indicados" value={String(totalReferred)} sub="Todos os indicados" icon={Users} color="blue" tip="Soma de todos os usuários indicados por afiliados via link de referência."/>
         <MCard title="Comissões Pagas" value={'R$ '+totalEarned.toFixed(2)} sub="Total distribuído" icon={Wallet} color="green" tip="Total em reais já distribuído em comissões para todos os afiliados."/>
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-          <thead><tr style={{background:'#141414'}}>
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+          <thead><tr style={{background:'var(--background)'}}>
             {[
               'Nome','Email',
               <span style={{display:'flex',alignItems:'center',gap:'4px'}}>Código<AdminTip text="Link de convite exclusivo do afiliado. Quando um novo usuário se cadastra usando esse código, é vinculado a este afiliado."/></span>,
@@ -1558,17 +1558,17 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
               'Comissões',
               <span style={{display:'flex',alignItems:'center',gap:'4px'}}>Taxa<AdminTip text="Percentual de comissão que este afiliado recebe sobre os depósitos dos seus indicados."/></span>,
               'Status','Ações'
-            ].map((c,i)=><th key={i} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+            ].map((c,i)=><th key={i} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {safe.length===0?(
-              <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>
+              <tr><td colSpan={8} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum afiliado ainda</td></tr>
             ):safe.map((a:any,i:number)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{a.name}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.email}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{a.email}</td>
                 <td style={{padding:'11px 14px',color:'#00e676',fontWeight:700,letterSpacing:'0.1em',fontSize:'12px'}}>{a.referral_code}</td>
-                <td style={{padding:'11px 14px',color:'#888',textAlign:'center'}}>{a.total_referred||0}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)',textAlign:'center'}}>{a.total_referred||0}</td>
                 <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>R$ {Number(a.total_earned||0).toFixed(2)}</td>
                 <td style={{padding:'11px 14px',color:'#aaa'}}>{a.commission_rate||0}%</td>
                 <td style={{padding:'11px 14px'}}><SBadge status={a.status||'active'}/></td>
@@ -1590,25 +1590,25 @@ function AfiliadosPage({affiliates,token,api,onEdit}:{affiliates:any[],token:str
         <Overlay onClose={()=>setDetalhes(null)}>
           <Modal title={`Detalhes — ${detalhes.name}`} onClose={()=>setDetalhes(null)}>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'8px'}}>
-              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
-                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Código</p>
+              <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Código</p>
                 <p style={{fontSize:'16px',fontWeight:700,color:'#00e676',letterSpacing:'0.15em'}}>{detalhes.referral_code}</p>
               </div>
-              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
-                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Indicados</p>
+              <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Indicados</p>
                 <p style={{fontSize:'20px',fontWeight:700,color:'#3b82f6'}}>{detalhes.total_referred||0}</p>
               </div>
-              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
-                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Comissões</p>
+              <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Comissões</p>
                 <p style={{fontSize:'16px',fontWeight:700,color:'#00e676'}}>R$ {Number(detalhes.total_earned||0).toFixed(2)}</p>
               </div>
-              <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
-                <p style={{fontSize:'11px',color:'#555',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Taxa</p>
+              <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'4px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Taxa</p>
                 <p style={{fontSize:'20px',fontWeight:700,color:'#ffb300'}}>{detalhes.commission_rate||0}%</p>
               </div>
             </div>
-            <div style={{background:'#111',borderRadius:'8px',padding:'12px'}}>
-              <p style={{fontSize:'11px',color:'#555',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Contato</p>
+            <div style={{background:'var(--surface)',borderRadius:'8px',padding:'12px'}}>
+              <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.08em'}}>Contato</p>
               <p style={{fontSize:'13px',color:'#ccc'}}>{detalhes.email}</p>
             </div>
             <GhostBtn onClick={()=>setDetalhes(null)}>Fechar</GhostBtn>
@@ -1681,23 +1681,23 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
           </button>
         ))}
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-          <thead><tr style={{background:'#141414'}}>
-            {['Afiliado','Valor','PIX','Data','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+          <thead><tr style={{background:'var(--background)'}}>
+            {['Afiliado','Valor','PIX','Data','Status','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
-            {loading && <tr><td colSpan={6} style={{padding:'24px',textAlign:'center',color:'#555'}}>Carregando...</td></tr>}
-            {!loading && filtered.length===0 && <tr><td colSpan={6} style={{padding:'24px',textAlign:'center',color:'#555'}}>Nenhum saque</td></tr>}
+            {loading && <tr><td colSpan={6} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)'}}>Carregando...</td></tr>}
+            {!loading && filtered.length===0 && <tr><td colSpan={6} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)'}}>Nenhum saque</td></tr>}
             {filtered.map((item:any)=>(
               <tr key={item.id} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px'}}>
                   <p style={{color:'#ccc',fontWeight:500,fontSize:'13px'}}>{item.name}</p>
-                  <p style={{color:'#555',fontSize:'11px'}}>{item.email}</p>
+                  <p style={{color:'var(--muted-foreground)',fontSize:'11px'}}>{item.email}</p>
                 </td>
                 <td style={{padding:'11px 14px',color:'#ffb300',fontWeight:600}}>{fmt(item.amount)}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{item.pix_key}</td>
-                <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{fmtDate(item.created_at)}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{item.pix_key}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{fmtDate(item.created_at)}</td>
                 <td style={{padding:'11px 14px'}}><SBadge status={item.status}/></td>
                 <td style={{padding:'11px 14px'}}>
                   {item.status==='pending'&&(
@@ -1714,13 +1714,13 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
       </div>
       {confirmOpen&&confirmAction&&(
         <Overlay onClose={()=>setConfirmOpen(false)}>
-          <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
+          <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'28px',maxWidth:'380px',width:'100%',textAlign:'center'}}>
             <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(255,179,0,0.1)',border:'1px solid rgba(255,179,0,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#ffb300"/></div>
             <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>{confirmAction.type==='approve'?'Aprovar este saque?':'Recusar este saque?'}</p>
             {confirmAction.type==='reject'&&(
-              <input value={rejectReason} onChange={e=>setRejectReason(e.target.value)} placeholder="Motivo (opcional)" style={{width:'100%',background:'#111',border:'1px solid #333',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',fontFamily:'inherit',outline:'none',marginBottom:'12px',boxSizing:'border-box'}}/>
+              <input value={rejectReason} onChange={e=>setRejectReason(e.target.value)} placeholder="Motivo (opcional)" style={{width:'100%',background:'var(--surface)',border:'1px solid #333',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',fontFamily:'inherit',outline:'none',marginBottom:'12px',boxSizing:'border-box'}}/>
             )}
-            <p style={{fontSize:'11px',color:'#888',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
             <div style={{display:'flex',gap:'8px'}}>
               <PrimaryBtn onClick={doAction} disabled={acting}>{acting?'Aguarde...':'Confirmar'}</PrimaryBtn>
               <GhostBtn onClick={()=>setConfirmOpen(false)}>Cancelar</GhostBtn>
@@ -1744,19 +1744,19 @@ function RelatorioPage() {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Relatório de Afiliados</h1>
         <GhostBtn onClick={()=>{}}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-          <thead><tr style={{background:'#141414'}}>
-            {['Afiliado','Indicados','Depositaram','Comissão','Conversão'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+          <thead><tr style={{background:'var(--background)'}}>
+            {['Afiliado','Indicados','Depositaram','Comissão','Conversão'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {mockData.map((item,i)=>(
               <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>{item.afiliado}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{item.indicados}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{item.depositaram}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.indicados}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.depositaram}</td>
                 <td style={{padding:'11px 14px',color:'#00e676',fontWeight:600}}>{item.comissao}</td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{item.conversao}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{item.conversao}</td>
               </tr>
             ))}
           </tbody>
@@ -1815,14 +1815,14 @@ function HistoricoPage({audit}:{audit:any[]}) {
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Histórico de Auditoria</h1>
         <GhostBtn onClick={exportCSV}><FileDown size={13}/> Exportar CSV</GhostBtn>
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-          <thead><tr style={{background:'#141414'}}>
-            {['Tipo','Ação','Descrição','Admin','Data'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+          <thead><tr style={{background:'var(--background)'}}>
+            {['Tipo','Ação','Descrição','Admin','Data'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {audit.length===0?(
-              <tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhum registro de auditoria ainda</td></tr>
+              <tr><td colSpan={5} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhum registro de auditoria ainda</td></tr>
             ):audit.map((a:any,i:number)=>{
               const m = ACTION_MAP[a.action]
               if (!m) return null
@@ -1831,9 +1831,9 @@ function HistoricoPage({audit}:{audit:any[]}) {
                 <tr key={i} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                   <td style={{padding:'11px 14px'}}><span style={{fontSize:'12px',fontWeight:500,color:'#ccc'}}>{m.tipo}</span></td>
                   <td style={{padding:'11px 14px'}}><span style={{padding:'2px 8px',borderRadius:'99px',fontSize:'11px',fontWeight:600,background:badge.bg,color:badge.c}}>{badge.label}</span></td>
-                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px',maxWidth:'240px'}}>{m.desc(a)}</td>
-                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px'}}>{a.name||'—'}</td>
-                  <td style={{padding:'11px 14px',color:'#888',fontSize:'12px',whiteSpace:'nowrap'}}>{new Date(a.created_at).toLocaleString('pt-BR')}</td>
+                  <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px',maxWidth:'240px'}}>{m.desc(a)}</td>
+                  <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px'}}>{a.name||'—'}</td>
+                  <td style={{padding:'11px 14px',color:'var(--muted-foreground)',fontSize:'12px',whiteSpace:'nowrap'}}>{new Date(a.created_at).toLocaleString('pt-BR')}</td>
                 </tr>
               )
             })}
@@ -1896,23 +1896,23 @@ function CategoriaPage({token,api,showToast,onCatsChange}:{token:string,api:stri
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Categorias</h1>
       </div>
-      <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'16px',display:'flex',gap:'10px',alignItems:'flex-end'}}>
+      <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'10px',padding:'16px',display:'flex',gap:'10px',alignItems:'flex-end'}}>
         <div style={{flex:1}}>
-          <div style={{fontSize:'11px',color:'#555',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'6px'}}>Nova categoria</div>
+          <div style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'6px'}}>Nova categoria</div>
           <FInput value={novaCategoria} onChange={(e:any)=>setNovaCategoria(e.target.value)} placeholder="Ex: Tecnologia" onKeyDown={(e:any)=>{if(e.key==='Enter')criar()}}/>
         </div>
         <PrimaryBtn onClick={criar} disabled={saving}><Plus size={14}/> Adicionar</PrimaryBtn>
       </div>
-      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid #222',overflow:'hidden'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',background:'#1a1a1a'}}>
-          <thead><tr style={{background:'#141414'}}>
-            {['Nome','Mercados vinculados','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid #222'}}>{c}</th>)}
+      <div className="table-wrap" style={{borderRadius:'10px',border:'1px solid var(--border)',overflow:'hidden'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',background:'var(--card)'}}>
+          <thead><tr style={{background:'var(--background)'}}>
+            {['Nome','Mercados vinculados','Ações'].map(c=><th key={c} style={{textAlign:'left',padding:'10px 14px',fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',borderBottom:'1px solid var(--border)'}}>{c}</th>)}
           </tr></thead>
           <tbody>
             {loading?(
-              <tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Carregando...</td></tr>
+              <tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Carregando...</td></tr>
             ):categorias.length===0?(
-              <tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'#555',fontSize:'13px'}}>Nenhuma categoria cadastrada</td></tr>
+              <tr><td colSpan={3} style={{padding:'24px',textAlign:'center',color:'var(--muted-foreground)',fontSize:'13px'}}>Nenhuma categoria cadastrada</td></tr>
             ):categorias.map((c:any)=>(
               <tr key={c.id} className="trow" style={{borderBottom:'1px solid #1e1e1e'}}>
                 <td style={{padding:'11px 14px',color:'#ccc',fontWeight:500}}>
@@ -1920,7 +1920,7 @@ function CategoriaPage({token,api,showToast,onCatsChange}:{token:string,api:stri
                     <FInput value={editando.name} onChange={(e:any)=>setEditando({...editando,name:e.target.value})} onKeyDown={(e:any)=>{if(e.key==='Enter')salvar();if(e.key==='Escape')setEditando(null)}} style={{width:'200px'}}/>
                   ):c.name}
                 </td>
-                <td style={{padding:'11px 14px',color:'#888'}}>{c.total_mercados||0}</td>
+                <td style={{padding:'11px 14px',color:'var(--muted-foreground)'}}>{c.total_mercados||0}</td>
                 <td style={{padding:'11px 14px'}}>
                   <div style={{display:'flex',gap:'6px'}}>
                     {editando?.id===c.id?(
@@ -1956,31 +1956,31 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
   const tabs = [{id:'seo',l:'SEO'},{id:'cpa',l:'Afiliados CPA'},{id:'financeiro',l:'Financeiro'},{id:'scripts',l:'Scripts'},{id:'social',l:'Social'}]
   const finTabs = [{id:'usuario',l:'Usuário'},{id:'taxas',l:'Taxas'},{id:'afiliado',l:'Afiliado'}]
   const addKw = () => { if(kwInput.trim()&&!keywords.includes(kwInput.trim())){setKeywords([...keywords,kwInput.trim()]);setKwInput('')} }
-  const InputStyle = {width:'100%',background:'#141414',border:'1px solid #222',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}
-  const LabelStyle = {fontSize:'11px',color:'#555',display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
+  const InputStyle = {width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}
+  const LabelStyle = {fontSize:'11px',color:'var(--muted-foreground)',display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Configurações</h1>
-      <div style={{display:'flex',gap:'6px',borderBottom:'1px solid #222',paddingBottom:'0'}}>
+      <div style={{display:'flex',gap:'6px',borderBottom:'1px solid var(--border)',paddingBottom:'0'}}>
         {tabs.map(t=>(
           <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{padding:'8px 16px',border:'none',background:'transparent',cursor:'pointer',color:t.id===activeTab?'#00e676':'#888',fontSize:'13px',fontWeight:t.id===activeTab?600:400,borderBottom:t.id===activeTab?'2px solid #00e676':'2px solid transparent',transition:'all 0.15s',marginBottom:'-1px'}}>{t.l}</button>
         ))}
       </div>
 
       {activeTab==='seo'&&(
-        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+        <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
           <div><label style={LabelStyle}>Título do site *</label><input value={local.platform_name||''} onChange={upd('platform_name')} style={InputStyle}/></div>
           <div><label style={LabelStyle}>Descrição *</label><textarea value={local.platform_description||''} onChange={upd('platform_description')} style={{...InputStyle,resize:'vertical',minHeight:'80px'} as any}/></div>
           <div>
             <label style={LabelStyle}>Palavras-chave</label>
             <div style={{display:'flex',gap:'8px',marginBottom:'8px'}}>
               <input value={kwInput} onChange={(e:any)=>setKwInput(e.target.value)} onKeyDown={(e:any)=>{if(e.key==='Enter'){e.preventDefault();addKw()}}} placeholder="Digite e pressione Enter" style={InputStyle}/>
-              <button onClick={addKw} style={{padding:'9px 14px',borderRadius:'8px',border:'1px solid #222',background:'#141414',color:'#888',cursor:'pointer'}}><Plus size={14}/></button>
+              <button onClick={addKw} style={{padding:'9px 14px',borderRadius:'8px',border:'1px solid var(--border)',background:'var(--background)',color:'var(--muted-foreground)',cursor:'pointer'}}><Plus size={14}/></button>
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:'6px'}}>
               {keywords.map(kw=>(
-                <span key={kw} style={{display:'flex',alignItems:'center',gap:'5px',background:'#222',borderRadius:'99px',padding:'4px 10px',fontSize:'12px',color:'#888'}}>
-                  {kw}<button onClick={()=>setKeywords(keywords.filter(k=>k!==kw))} style={{background:'none',border:'none',cursor:'pointer',color:'#555',display:'flex'}}><X size={11}/></button>
+                <span key={kw} style={{display:'flex',alignItems:'center',gap:'5px',background:'#222',borderRadius:'99px',padding:'4px 10px',fontSize:'12px',color:'var(--muted-foreground)'}}>
+                  {kw}<button onClick={()=>setKeywords(keywords.filter(k=>k!==kw))} style={{background:'none',border:'none',cursor:'pointer',color:'var(--muted-foreground)',display:'flex'}}><X size={11}/></button>
                 </span>
               ))}
             </div>
@@ -1990,10 +1990,10 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
       )}
 
       {activeTab==='cpa'&&(
-        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'20px'}}>
+        <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'20px'}}>
           <div>
             <p style={{fontSize:'14px',fontWeight:700,color:'#ccc',margin:'0 0 4px'}}>Configurações de Afiliação</p>
-            <p style={{fontSize:'12px',color:'#555',margin:0}}>Configure os valores padrão para novos afiliados</p>
+            <p style={{fontSize:'12px',color:'var(--muted-foreground)',margin:0}}>Configure os valores padrão para novos afiliados</p>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px'}}>
             <div>
@@ -2030,7 +2030,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
       )}
 
       {activeTab==='financeiro'&&(
-        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+        <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
           <div style={{display:'flex',gap:'6px'}}>
             {finTabs.map(t=>(
               <button key={t.id} onClick={()=>setFinTab(t.id)} style={{padding:'6px 14px',borderRadius:'6px',border:`1px solid ${t.id===finTab?'#00e676':'#222'}`,background:t.id===finTab?'rgba(0,230,118,0.1)':'transparent',color:t.id===finTab?'#00e676':'#888',fontSize:'12px',cursor:'pointer',fontWeight:t.id===finTab?600:400,transition:'all 0.15s'}}>{t.l}</button>
@@ -2072,14 +2072,14 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
       )}
 
       {activeTab==='scripts'&&(
-        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+        <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
           <div><label style={LabelStyle}>Scripts externos</label><textarea rows={10} placeholder="Cole seus scripts aqui..." style={{...InputStyle,resize:'vertical',fontFamily:"monospace",fontSize:'12px'} as any}/></div>
           <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Scripts salvos!'))}>Salvar</PrimaryBtn>
         </div>
       )}
 
       {activeTab==='social'&&(
-        <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+        <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
           {['Instagram','Telegram','WhatsApp','Twitter/X','YouTube','TikTok'].map(s=>(
             <div key={s}><label style={LabelStyle}>{s}</label><input placeholder={`URL do ${s}`} style={InputStyle}/></div>
           ))}
@@ -2193,7 +2193,7 @@ function TemaPage({token,api}:{token:string,api:string}) {
         <Paintbrush size={28} color={primary}/>
         <div>
           <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Configurar Tema</h1>
-          <p style={{fontSize:'13px',color:'#666',marginTop:'2px'}}>Personalize todas as cores da sua aplicação com precisão</p>
+          <p style={{fontSize:'13px',color:'var(--muted-foreground)',marginTop:'2px'}}>Personalize todas as cores da sua aplicação com precisão</p>
         </div>
       </div>
 
@@ -2201,17 +2201,17 @@ function TemaPage({token,api}:{token:string,api:string}) {
         {/* LEFT — editor */}
         <div style={{flex:'1 1 480px',display:'flex',flexDirection:'column',gap:'16px'}}>
           {/* Presets */}
-          <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px'}}>
-            <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Settings size={12}/> Presets Predefinidos</p>
+          <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',padding:'20px'}}>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Settings size={12}/> Presets Predefinidos</p>
             <p style={{fontSize:'12px',color:'#444',marginBottom:'12px'}}>Escolha um preset de cores para começar</p>
             {/* Custom preset picker */}
             <div style={{position:'relative'}}>
-              <button onClick={()=>setPresetsOpen(o=>!o)} style={{width:'100%',background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',fontFamily:"'Manrope',sans-serif"}}>
+              <button onClick={()=>setPresetsOpen(o=>!o)} style={{width:'100%',background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',fontFamily:"'Manrope',sans-serif"}}>
                 <span>Escolha um preset de cores para começar</span>
                 <ChevronDown size={14} style={{transition:'transform 0.2s',transform:presetsOpen?'rotate(180deg)':'rotate(0deg)'}}/>
               </button>
               {presetsOpen&&(
-                <div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',marginTop:'4px',maxHeight:'320px',overflowY:'auto'}}>
+                <div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'8px',marginTop:'4px',maxHeight:'320px',overflowY:'auto'}}>
                   {PRESETS.map(p=>(
                     <div key={p.label} onClick={()=>{handlePreset(p);setPresetsOpen(false)}} style={{padding:'10px 14px',cursor:'pointer',display:'flex',alignItems:'center',gap:'10px',borderBottom:'1px solid #1a1a1a',transition:'background 0.1s'}} onMouseEnter={(e:any)=>e.currentTarget.style.background='#1a1a1a'} onMouseLeave={(e:any)=>e.currentTarget.style.background='transparent'}>
                       <div style={{display:'flex',gap:'3px',flexShrink:0}}>
@@ -2221,7 +2221,7 @@ function TemaPage({token,api}:{token:string,api:string}) {
                       </div>
                       <div style={{minWidth:0}}>
                         <p style={{fontSize:'13px',fontWeight:600,color:'#ddd',fontFamily:"'Manrope',sans-serif"}}>{p.label}</p>
-                        <p style={{fontSize:'11px',color:'#555',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.desc}</p>
+                        <p style={{fontSize:'11px',color:'var(--muted-foreground)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -2231,13 +2231,13 @@ function TemaPage({token,api}:{token:string,api:string}) {
           </div>
 
           {/* Personalizar Cores */}
-          <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px',display:'flex',flexDirection:'column',gap:'16px'}}>
+          <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',padding:'20px',display:'flex',flexDirection:'column',gap:'16px'}}>
             <div>
-              <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Palette size={12}/> Personalizar Cores</p>
+              <p style={{fontSize:'11px',color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Palette size={12}/> Personalizar Cores</p>
               <p style={{fontSize:'12px',color:'#444'}}>Escolha um preset ou ajuste cada cor individualmente para criar o tema perfeito</p>
             </div>
             {/* Group tabs */}
-            <div style={{display:'flex',gap:'0',borderBottom:'1px solid #222',overflowX:'auto'}}>
+            <div style={{display:'flex',gap:'0',borderBottom:'1px solid var(--border)',overflowX:'auto'}}>
               {THEME_GROUPS.map(g=>(
                 <button key={g.id} onClick={()=>setActiveGroup(g.id)} style={{background:'none',border:'none',borderBottom:`2px solid ${activeGroup===g.id?primary:'transparent'}`,color:activeGroup===g.id?primary:'#555',padding:'8px 14px',fontSize:'12px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',transition:'color 0.15s',fontFamily:"'Manrope',sans-serif"}}>
                   {g.label}
@@ -2250,7 +2250,7 @@ function TemaPage({token,api}:{token:string,api:string}) {
               {group.vars.map(v=>{
                 const val=colors[v.key]||THEME_DEFAULTS[v.key]||'#000000'
                 return (
-                  <div key={v.key} style={{background:'#111',border:'1px solid #222',borderRadius:'10px',padding:'14px',display:'flex',flexDirection:'column',gap:'10px'}}>
+                  <div key={v.key} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'10px',padding:'14px',display:'flex',flexDirection:'column',gap:'10px'}}>
                     <div style={{display:'flex',alignItems:'flex-start',gap:'10px'}}>
                       <div style={{width:'32px',height:'32px',borderRadius:'6px',background:'#0a0a0a',border:'1px solid #333',overflow:'hidden',flexShrink:0,position:'relative'}}>
                         <input type="color" value={val} onChange={e=>setColors(prev=>({...prev,[v.key]:e.target.value}))} style={{position:'absolute',inset:'-4px',width:'calc(100%+8px)',height:'calc(100%+8px)',border:'none',cursor:'pointer',opacity:0.01}}/>
@@ -2263,7 +2263,7 @@ function TemaPage({token,api}:{token:string,api:string}) {
                     </div>
                     <input value={val} onChange={e=>setColors(prev=>({...prev,[v.key]:e.target.value}))} style={{background:'#0a0a0a',border:'1px solid #1e1e1e',borderRadius:'6px',padding:'5px 8px',color:'#6a9',fontSize:'12px',fontFamily:'monospace',outline:'none',width:'100%'}}/>
                     <p style={{fontSize:'10px',color:'#333',fontFamily:'monospace'}}>HEX: {val.toUpperCase()}</p>
-                    <div style={{width:'100%',height:'28px',borderRadius:'6px',border:'1px solid #222',background:val,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <div style={{width:'100%',height:'28px',borderRadius:'6px',border:'1px solid var(--border)',background:val,display:'flex',alignItems:'center',justifyContent:'center'}}>
                       <span style={{fontSize:'10px',color:val<'#888888'?'#fff':'#000',fontWeight:600,letterSpacing:'0.05em'}}>Preview da Cor</span>
                     </div>
                   </div>
@@ -2281,10 +2281,10 @@ function TemaPage({token,api}:{token:string,api:string}) {
 
         {/* RIGHT — preview */}
         <div style={{width:'280px',flexShrink:0,display:'flex',flexDirection:'column',gap:'16px'}}>
-          <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'12px',padding:'20px'}}>
-            <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Bell size={12}/> Preview</p>
+          <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',padding:'20px'}}>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}><Bell size={12}/> Preview</p>
             <p style={{fontSize:'12px',color:'#444',marginBottom:'14px'}}>Visualização em tempo real das suas cores</p>
-            <p style={{fontSize:'11px',color:'#555',fontWeight:600,marginBottom:'8px'}}>Simulação da Interface</p>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,marginBottom:'8px'}}>Simulação da Interface</p>
             {/* Mini UI mockup */}
             <div style={{borderRadius:'8px',overflow:'hidden',border:`1px solid ${border}`}}>
               {/* nav bar */}
@@ -2320,7 +2320,7 @@ function TemaPage({token,api}:{token:string,api:string}) {
             </div>
 
             {/* Palette */}
-            <p style={{fontSize:'11px',color:'#555',fontWeight:600,margin:'14px 0 8px'}}>Paleta Completa</p>
+            <p style={{fontSize:'11px',color:'var(--muted-foreground)',fontWeight:600,margin:'14px 0 8px'}}>Paleta Completa</p>
             <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'4px'}}>
               {Object.values(colors).map((c,i)=>(
                 <div key={i} style={{height:'28px',borderRadius:'4px',background:c,border:`1px solid ${border}`}}/>
@@ -2363,16 +2363,16 @@ function EstiloPage({token,api,onLogoChange}:{token:string,api:string,onLogoChan
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
       <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Customização - Estilo</h1>
-      <div style={{background:'#1a1a1a',borderRadius:'12px',border:'1px solid #222',padding:'24px',display:'flex',flexDirection:'column',gap:'20px',maxWidth:'500px'}}>
+      <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'20px',maxWidth:'500px'}}>
         <div>
-          <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Logo</label>
+          <label style={{fontSize:'11px',color:'var(--muted-foreground)',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Logo</label>
           <label style={{height:'100px',border:`2px dashed ${logoUrl?'rgba(0,230,118,0.4)':'#222'}`,borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'border-color 0.15s',overflow:'hidden'}} onMouseEnter={(e:any)=>e.currentTarget.style.borderColor='rgba(0,230,118,0.3)'} onMouseLeave={(e:any)=>e.currentTarget.style.borderColor=logoUrl?'rgba(0,230,118,0.4)':'#222'}>
-            {logoUrl?<img src={logoUrl} alt="logo" style={{maxHeight:'90px',maxWidth:'100%',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>:<div style={{textAlign:'center'}}><Upload size={24} color="#555" style={{margin:'0 auto 6px'}}/><p style={{fontSize:'12px',color:'#555'}}>Clique para enviar logo</p></div>}
+            {logoUrl?<img src={logoUrl} alt="logo" style={{maxHeight:'90px',maxWidth:'100%',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>:<div style={{textAlign:'center'}}><Upload size={24} color="#555" style={{margin:'0 auto 6px'}}/><p style={{fontSize:'12px',color:'var(--muted-foreground)'}}>Clique para enviar logo</p></div>}
             <input type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f)uploadFile('/api/admin/settings/logo',f,setLogoUrl)}}/>
           </label>
         </div>
         <div>
-          <label style={{fontSize:'11px',color:'#555',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Favicon</label>
+          <label style={{fontSize:'11px',color:'var(--muted-foreground)',display:'block',marginBottom:'8px',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600}}>Favicon</label>
           <label style={{width:'80px',height:'80px',border:`2px dashed ${faviconUrl?'rgba(0,230,118,0.4)':'#222'}`,borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden'}}>
             {faviconUrl?<img src={faviconUrl} alt="favicon" style={{width:'60px',height:'60px',objectFit:'contain'}} onError={()=>setFaviconUrl('')}/>:<Upload size={18} color="#555"/>}
             <input type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f)uploadFile('/api/admin/settings/favicon',f,setFaviconUrl)}}/>
@@ -2418,16 +2418,16 @@ function BannersPage({token,api}:{token:string,api:string}) {
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif"}}>Banners</h1>
       </div>
-      <div style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'16px',display:'flex',flexDirection:'column',gap:'10px'}}>
-        <p style={{fontSize:'11px',color:'#555',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>Novo Banner</p>
-        <input value={newLink} onChange={e=>setNewLink(e.target.value)} placeholder="Link ao clicar (opcional, ex: https://...)" style={{background:'#111',border:'1px solid #2a2a2a',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',width:'100%'}}/>
+      <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'10px',padding:'16px',display:'flex',flexDirection:'column',gap:'10px'}}>
+        <p style={{fontSize:'11px',color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>Novo Banner</p>
+        <input value={newLink} onChange={e=>setNewLink(e.target.value)} placeholder="Link ao clicar (opcional, ex: https://...)" style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',width:'100%'}}/>
         <PrimaryBtn onClick={()=>{(document.getElementById('banner-file-input') as HTMLInputElement)?.click()}}><Upload size={14}/> {uploading?'Enviando...':'Escolher imagem e enviar'}</PrimaryBtn>
         <input id="banner-file-input" type="file" accept="image/*" style={{display:'none'}} onChange={(e:any)=>{const f=e.target.files?.[0];if(f){uploadBanner(f);(e.target as HTMLInputElement).value=''}}}/>
       </div>
-      {banners.length===0&&<p style={{color:'#555',fontSize:'13px',textAlign:'center',padding:'40px'}}>Nenhum banner cadastrado.</p>}
+      {banners.length===0&&<p style={{color:'var(--muted-foreground)',fontSize:'13px',textAlign:'center',padding:'40px'}}>Nenhum banner cadastrado.</p>}
       <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
         {banners.map((banner:any)=>(
-          <div key={banner.id} style={{display:'flex',flexDirection:'column',gap:'8px',background:'#1a1a1a',border:'1px solid #222',borderRadius:'10px',padding:'14px'}}>
+          <div key={banner.id} style={{display:'flex',flexDirection:'column',gap:'8px',background:'var(--card)',border:'1px solid var(--border)',borderRadius:'10px',padding:'14px'}}>
             <div style={{display:'flex',alignItems:'center',gap:'14px'}}>
               <GripVertical size={16} color="#555" style={{cursor:'grab',flexShrink:0}}/>
               <div style={{width:'100px',height:'56px',background:'#222',borderRadius:'6px',flexShrink:0,overflow:'hidden'}}>
@@ -2435,7 +2435,7 @@ function BannersPage({token,api}:{token:string,api:string}) {
               </div>
               <div style={{flex:1}}>
                 <p style={{fontSize:'13px',fontWeight:500,color:'#ccc',marginBottom:'3px'}}>{banner.name}</p>
-                <p style={{fontSize:'11px',color:'#555'}}>{new Date(banner.created_at).toLocaleDateString('pt-BR')}</p>
+                <p style={{fontSize:'11px',color:'var(--muted-foreground)'}}>{new Date(banner.created_at).toLocaleDateString('pt-BR')}</p>
               </div>
               <div onClick={()=>toggleBanner(banner.id,!banner.active)} style={{width:'36px',height:'20px',borderRadius:'10px',background:banner.active?'#00e676':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
                 <div style={{position:'absolute',top:'2px',left:banner.active?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
@@ -2444,14 +2444,14 @@ function BannersPage({token,api}:{token:string,api:string}) {
             </div>
             {editingLink?.id===banner.id&&editingLink?(
               <div style={{display:'flex',gap:'8px'}}>
-                <input value={editingLink.val} onChange={e=>setEditingLink({id:banner.id,val:e.target.value})} placeholder="https://..." style={{flex:1,background:'#111',border:'1px solid rgba(0,230,118,0.3)',borderRadius:'7px',padding:'7px 10px',color:'#ccc',fontSize:'12px',outline:'none'}} autoFocus/>
+                <input value={editingLink.val} onChange={e=>setEditingLink({id:banner.id,val:e.target.value})} placeholder="https://..." style={{flex:1,background:'var(--surface)',border:'1px solid rgba(0,230,118,0.3)',borderRadius:'7px',padding:'7px 10px',color:'#ccc',fontSize:'12px',outline:'none'}} autoFocus/>
                 <button onClick={()=>{const v=editingLink.val;saveLink(banner.id,v)}} style={{padding:'7px 14px',borderRadius:'7px',border:'none',background:'#00e676',color:'#000',fontWeight:700,fontSize:'12px',cursor:'pointer'}}>Salvar</button>
                 <button onClick={()=>setEditingLink(null)} style={{padding:'7px 10px',borderRadius:'7px',border:'1px solid #333',background:'transparent',color:'#777',fontSize:'12px',cursor:'pointer'}}>Cancelar</button>
               </div>
             ):(
               <div style={{display:'flex',alignItems:'center',gap:'8px',paddingLeft:'30px'}}>
                 <span style={{fontSize:'11px',color:banner.link?'#00e676':'#444'}}>{banner.link||'Sem link'}</span>
-                <button onClick={()=>setEditingLink({id:banner.id,val:banner.link||''})} style={{fontSize:'11px',color:'#666',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'}}>editar link</button>
+                <button onClick={()=>setEditingLink({id:banner.id,val:banner.link||''})} style={{fontSize:'11px',color:'var(--muted-foreground)',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'}}>editar link</button>
               </div>
             )}
           </div>

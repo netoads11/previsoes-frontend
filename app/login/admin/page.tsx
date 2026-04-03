@@ -69,7 +69,7 @@ export default function LoginAdmin() {
         onError={() => setLogoUrl('')} />
     )
     return (
-      <div style={{ width: size + 'px', height: size + 'px', borderRadius: '8px', background: '#1a1a1a', border: `1px solid ${redBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ width: size + 'px', height: size + 'px', borderRadius: '8px', background: 'var(--card)', border: `1px solid ${redBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Shield size={Math.round(size * 0.45)} color={red} strokeWidth={2} />
       </div>
     )
