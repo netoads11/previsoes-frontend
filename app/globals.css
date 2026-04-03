@@ -3,6 +3,7 @@
 
 :root {
   --primary: #00e676;
+  --primary-rgb: 0,230,118;
   --sim: #00e676;
   --nao: #ef4444;
   --radius: 0.625rem;

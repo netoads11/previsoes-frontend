@@ -14,6 +14,11 @@ export default function ThemeLoader() {
             Object.entries(colors).forEach(([k, v]) =>
               document.documentElement.style.setProperty(k, v)
             )
+            if (colors['--primary']) {
+              const h = colors['--primary'].replace('#','')
+              const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16)
+              if (!isNaN(r)) document.documentElement.style.setProperty('--primary-rgb', `${r},${g},${b}`)
+            }
           } catch {}
         }
       })

@@ -2156,6 +2156,11 @@ function TemaPage({token,api}:{token:string,api:string}) {
 
   function applyToDocument(c:Record<string,string>){
     Object.entries(c).forEach(([k,v])=>document.documentElement.style.setProperty(k,v))
+    if(c['--primary']){
+      const h=c['--primary'].replace('#','')
+      const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16)
+      if(!isNaN(r))document.documentElement.style.setProperty('--primary-rgb',`${r},${g},${b}`)
+    }
   }
 
   async function handleApply(){
