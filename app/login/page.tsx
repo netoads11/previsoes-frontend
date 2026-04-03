@@ -8,15 +8,24 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.
 
 export default function Login() {
   const router = useRouter()
-
-  useEffect(() => {
-    if (localStorage.getItem('token')) router.push('/')
-  }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [logoUrl, setLogoUrl] = useState('')
+  const [siteName, setSiteName] = useState('Previmarket')
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) router.push('/')
+    fetch(API + '/api/admin/branding')
+      .then(r => r.json())
+      .then(d => {
+        if (d.logo_url) setLogoUrl(API + d.logo_url)
+        if (d.platform_name || d.site_name) setSiteName(d.platform_name || d.site_name)
+      })
+      .catch(() => {})
+  }, [])
 
   async function handleLogin(e: any) {
     e.preventDefault()
@@ -94,10 +103,13 @@ export default function Login() {
           <div style={{position:'absolute',top:'-80px',right:'-80px',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.15) 0%,transparent 70%)'}}/>
           <div style={{position:'absolute',bottom:'-60px',left:'-60px',width:'250px',height:'250px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.08) 0%,transparent 70%)'}}/>
           <div style={{display:'flex',alignItems:'center',gap:'10px',position:'relative'}}>
-            <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 16px rgba(106,221,0,0.5)'}}>
-              <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'16px'}}>P</span>
-            </div>
-            <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>Previmarket</span>
+            {logoUrl
+              ? <img src={logoUrl} alt="logo" style={{height:'36px',maxWidth:'160px',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>
+              : <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 16px rgba(106,221,0,0.5)'}}>
+                  <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'16px'}}>{siteName[0]}</span>
+                </div>
+            }
+            {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'18px'}}>{siteName}</span>}
           </div>
           <div style={{position:'relative'}}>
             <div style={{display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(106,221,0,0.1)',border:'1px solid rgba(106,221,0,0.2)',borderRadius:'20px',padding:'6px 14px',marginBottom:'24px'}}>
@@ -106,7 +118,7 @@ export default function Login() {
             </div>
             <h1 style={{fontSize:'40px',fontWeight:800,color:'#fff',lineHeight:1.2,marginBottom:'16px',textTransform:'uppercase'}}>
               BEM VINDO<br/>DE VOLTA AO<br/>
-              <span style={{color:'#6ADD00',textShadow:'0 0 30px rgba(106,221,0,0.4)'}}>PREVIMARKET</span>
+              <span style={{color:'#6ADD00',textShadow:'0 0 30px rgba(106,221,0,0.4)'}}>{siteName.toUpperCase()}</span>
             </h1>
             <p style={{color:'rgba(255,255,255,0.5)',fontSize:'16px',lineHeight:1.6,maxWidth:'360px'}}>
               Acesse sua conta e continue apostando nos melhores mercados.
@@ -120,16 +132,19 @@ export default function Login() {
               ))}
             </div>
           </div>
-          <p style={{color:'rgba(255,255,255,0.2)',fontSize:'12px',position:'relative'}}>© 2026 Previmarket</p>
+          <p style={{color:'rgba(255,255,255,0.2)',fontSize:'12px',position:'relative'}}>© 2026 {siteName}</p>
         </div>
 
         <div className="auth-right">
           <div style={{marginBottom:'32px'}}>
             <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'24px'}}>
-              <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'13px'}}>P</span>
-              </div>
-              <span style={{color:'#fff',fontWeight:700,fontSize:'16px'}}>Previmarket</span>
+              {logoUrl
+                ? <img src={logoUrl} alt="logo" style={{height:'30px',maxWidth:'140px',objectFit:'contain'}} onError={()=>setLogoUrl('')}/>
+                : <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'#6ADD00',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'13px'}}>{siteName[0]}</span>
+                  </div>
+              }
+              {!logoUrl && <span style={{color:'#fff',fontWeight:700,fontSize:'16px'}}>{siteName}</span>}
             </div>
             <h2 style={{fontSize:'26px',fontWeight:800,color:'#fff',marginBottom:'6px'}}>Bem vindo de volta!</h2>
             <p style={{color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>Entre na sua conta para continuar</p>
