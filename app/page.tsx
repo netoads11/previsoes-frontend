@@ -719,44 +719,39 @@ export default function Home() {
             {/* ── PROBABILITY CARD ── */}
             {marketModal.type === 'multiple' && marketModal.options && marketModal.options.length > 0 ? (
               <div style={{margin:'20px 20px 0',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
-                <div style={{fontSize:'10px',fontWeight:700,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'12px'}}>ESCOLHA UMA OPCAO</div>
+                <div style={{fontSize:'10px',fontWeight:700,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'12px'}}>Escolha sua previsão</div>
                 {marketModal.options.map((opt: any) => {
-                  const isSelected = modalOption?.id === opt.id
-                  const yp = Number(opt.yes_percent) || 50
-                  const yOdd = (100/Number(opt.yes_odds||50)).toFixed(2)
-                  const nOdd = (100/Number(opt.no_odds||50)).toFixed(2)
+                  const isSelected = modalOption?.id === opt.id && modalBetChoice === 'yes'
+                  const yp = Number(opt.yes_percent) || Number(opt.yes_odds) || 50
+                  const yOdd = ((1 - (Number(marketModal.house_margin)||0.05)) * 100 / Number(opt.yes_odds||50)).toFixed(2)
                   return (
-                    <div key={opt.id} style={{marginBottom:'10px',padding:'12px',borderRadius:'10px',
-                      background: isSelected ? 'rgba(var(--primary-rgb, 34,197,94),0.05)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${isSelected ? 'var(--primary)' : 'rgba(255,255,255,0.08)'}`,
-                      transition:'all 0.15s'}}>
-                      <div style={{marginBottom:'8px'}}>
-                        <span style={{fontSize:'13px',fontWeight:600,color:'#fff'}}>{opt.title}</span>
-                        <div style={{height:'3px',borderRadius:'2px',overflow:'hidden',display:'flex',marginTop:'6px'}}>
-                          <div style={{width:`${yp}%`,background:'var(--primary)'}}/>
-                          <div style={{flex:1,background:'#444'}}/>
+                    <button key={opt.id}
+                      onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
+                      style={{width:'100%',display:'flex',alignItems:'center',gap:'12px',marginBottom:'8px',
+                        padding:'12px 14px',borderRadius:'12px',cursor:'pointer',textAlign:'left',
+                        background: isSelected ? 'rgba(var(--primary-rgb,0,230,118),0.10)' : 'rgba(255,255,255,0.03)',
+                        border: `1.5px solid ${isSelected ? 'var(--primary)' : 'rgba(255,255,255,0.08)'}`,
+                        boxShadow: isSelected ? '0 0 12px rgba(var(--primary-rgb,0,230,118),0.15)' : 'none',
+                        transition:'all 0.15s'}}>
+                      {/* Indicador de seleção */}
+                      <div style={{width:'18px',height:'18px',borderRadius:'50%',flexShrink:0,border:`2px solid ${isSelected?'var(--primary)':'rgba(255,255,255,0.2)'}`,background:isSelected?'var(--primary)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.15s'}}>
+                        {isSelected && <div style={{width:'7px',height:'7px',borderRadius:'50%',background:'#000'}}/>}
+                      </div>
+                      {/* Conteúdo */}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:'13px',fontWeight:600,color:'#fff',marginBottom:'4px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{opt.title}</div>
+                        <div style={{height:'3px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
+                          <div style={{width:`${yp}%`,background:isSelected?'var(--primary)':'rgba(255,255,255,0.3)',transition:'width 0.3s'}}/>
+                          <div style={{flex:1,background:'rgba(255,255,255,0.08)'}}/>
                         </div>
-                        <div style={{fontSize:'10px',color:'var(--muted-foreground)',marginTop:'3px'}}>{yp}% {marketModal?.yes_label||'SIM'}</div>
+                        <div style={{fontSize:'10px',color:'var(--muted-foreground)',marginTop:'3px'}}>{yp}% de chance</div>
                       </div>
-                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}}>
-                        <button onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
-                          style={{padding:'8px 0',borderRadius:'8px',cursor:'pointer',border:'none',
-                            background: isSelected && modalBetChoice==='yes' ? 'rgba(0,230,118,0.18)' : 'rgba(0,230,118,0.06)',
-                            outline: isSelected && modalBetChoice==='yes' ? '1.5px solid var(--sim)' : '1px solid rgba(0,230,118,0.25)',
-                            transition:'all 0.15s'}}>
-                          <div style={{fontSize:'10px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.04em'}}>{marketModal?.yes_label||'SIM'}</div>
-                          <div style={{fontSize:'15px',fontWeight:800,color:'var(--sim)',lineHeight:1.2}}>{yOdd}x</div>
-                        </button>
-                        <button onClick={() => { setModalOption(opt); setModalBetChoice('no') }}
-                          style={{padding:'8px 0',borderRadius:'8px',cursor:'pointer',border:'none',
-                            background: isSelected && modalBetChoice==='no' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.06)',
-                            outline: isSelected && modalBetChoice==='no' ? '1.5px solid #ef4444' : '1px solid rgba(239,68,68,0.25)',
-                            transition:'all 0.15s'}}>
-                          <div style={{fontSize:'10px',fontWeight:700,color:'#ef4444',letterSpacing:'0.04em'}}>{marketModal?.no_label||'NÃO'}</div>
-                          <div style={{fontSize:'15px',fontWeight:800,color:'#ef4444',lineHeight:1.2}}>{nOdd}x</div>
-                        </button>
+                      {/* Multiplicador */}
+                      <div style={{textAlign:'right',flexShrink:0}}>
+                        <div style={{fontSize:'18px',fontWeight:900,color:isSelected?'var(--primary)':'#aaa',lineHeight:1}}>{yOdd}x</div>
+                        <div style={{fontSize:'9px',color:'var(--muted-foreground)',marginTop:'2px',letterSpacing:'0.05em'}}>GANHO</div>
                       </div>
-                    </div>
+                    </button>
                   )
                 })}
               </div>
@@ -811,7 +806,7 @@ export default function Home() {
               {modalOption && marketModal.type === 'multiple' && (
                 <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
                   <span style={{flex:1,padding:'8px 12px',borderRadius:'8px',background:'rgba(var(--primary-rgb, 34,197,94),0.08)',border:'1px solid rgba(var(--primary-rgb, 34,197,94),0.2)',fontSize:'12px',fontWeight:600,color:'var(--primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                    📌 {modalOption.title} · {modalBetChoice === 'yes' ? (marketModal.yes_label||'SIM') : (marketModal.no_label||'NÃO')}
+                    📌 {modalOption.title}
                   </span>
                   <button onClick={() => { setModalOption(null); setModalBetChoice(null) }}
                     style={{padding:'7px 12px',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.05)',color:'var(--muted-foreground)',fontSize:'11px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
@@ -1058,12 +1053,8 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
                 </div>
                 <span style={{flex:1,fontSize:'12px',color:'#ccc',overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{opt.title}</span>
                 <button onClick={(e)=>{e.stopPropagation();onOptionClick&&onOptionClick(m,opt,'yes')}}
-                  style={{padding:'4px 7px',borderRadius:'6px',border:'1px solid rgba(0,230,118,0.3)',background:'rgba(0,230,118,0.08)',color:'var(--sim)',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
-                  SIM {yOdd}x
-                </button>
-                <button onClick={(e)=>{e.stopPropagation();onOptionClick&&onOptionClick(m,opt,'no')}}
-                  style={{padding:'4px 7px',borderRadius:'6px',border:'1px solid rgba(239,68,68,0.3)',background:'rgba(239,68,68,0.08)',color:'#ef4444',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
-                  NÃO {nOdd}x
+                  style={{padding:'4px 10px',borderRadius:'6px',border:'1px solid rgba(0,230,118,0.3)',background:'rgba(0,230,118,0.08)',color:'var(--sim)',fontSize:'10px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
+                  {yOdd}x
                 </button>
               </div>
             )

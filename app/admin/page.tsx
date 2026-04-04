@@ -439,17 +439,24 @@ export default function Admin() {
                   <FField label="Categoria"><FSelect value={newMarket.category} onChange={(e:any)=>setNewMarket({...newMarket,category:e.target.value})}>{cats.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></FField>
                   <FField label="Tipo"><FSelect value={newMarket.type} onChange={(e:any)=>setNewMarket({...newMarket,type:e.target.value})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Multiplo (varias opcoes)</option></FSelect></FField>
                   {newMarket.type==='multiple'&&(
-                    <FField label="Opcoes">
-                      {newMarket.options.map((opt:any,i:number)=>(
-                        <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
-                          <FInput placeholder={`Opcao ${i+1}`} value={opt.title} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})} style={{flex:2}}/>
-                          <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{flex:1,color:'var(--primary)'}}/>
-                          <button type="button" onClick={()=>setNewMarket({...newMarket,options:newMarket.options.filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'12px'}}>X</button>
-                        </div>
-                      ))}
-                      <button type="button" onClick={()=>setNewMarket({...newMarket,options:[...newMarket.options,{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(var(--primary-rgb, 0,230,118),0.08)',border:'1px solid rgba(var(--primary-rgb, 0,230,118),0.2)',color:'var(--primary)',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opcao</button>
-                    </FField>
+                    <>
+                      <div style={{background:'rgba(var(--primary-rgb,0,230,118),0.06)',border:'1px solid rgba(var(--primary-rgb,0,230,118),0.15)',borderRadius:'8px',padding:'10px 14px',fontSize:'12px',color:'var(--muted-foreground)',lineHeight:1.5}}>
+                        O apostador escolhe <strong style={{color:'var(--primary)'}}>qual opção vai acontecer</strong>. Cada opção tem sua própria probabilidade e multiplicador.
+                      </div>
+                      <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Opções<AdminTip text="Adicione as opções possíveis. A % de probabilidade define o multiplicador: quanto menor a chance, maior o ganho." pos="bottom"/></span>}>
+                        {newMarket.options.map((opt:any,i:number)=>(
+                          <div key={i} style={{display:'grid',gridTemplateColumns:'1fr auto auto auto',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
+                            <FInput placeholder={`Ex: Flamengo`} value={opt.title} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})}/>
+                            <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{width:'60px',color:'var(--primary)',textAlign:'center'}}/>
+                            <span style={{fontSize:'11px',color:V.muted,whiteSpace:'nowrap'}}>{(100/Number(opt.yes_odds||1)).toFixed(2)}x</span>
+                            <button type="button" onClick={()=>setNewMarket({...newMarket,options:newMarket.options.filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 10px',cursor:'pointer',fontSize:'12px'}}>✕</button>
+                          </div>
+                        ))}
+                        <button type="button" onClick={()=>setNewMarket({...newMarket,options:[...newMarket.options,{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(var(--primary-rgb, 0,230,118),0.08)',border:'1px solid rgba(var(--primary-rgb, 0,230,118),0.2)',color:'var(--primary)',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
+                      </FField>
+                    </>
                   )}
+                  {newMarket.type==='single'&&(<>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                     <FField label="Label SIM (ex: Vai Subir)"><FInput placeholder="SIM" value={newMarket.yes_label} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_label:e.target.value})}/></FField>
                     <FField label="Label NÃO (ex: Vai Cair)"><FInput placeholder="NÃO" value={newMarket.no_label} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_label:e.target.value})}/></FField>
@@ -472,6 +479,7 @@ export default function Admin() {
                   <div style={{height:'4px',borderRadius:'2px',background:V.border,overflow:'hidden'}}>
                     <div style={{height:'100%',background:`linear-gradient(90deg,${V.green},${V.green}60)`,width:`${newMarket.yes_odds}%`,transition:'width 0.3s',borderRadius:'2px'}}/>
                   </div>
+                  </>)}
                   <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Data de encerramento<AdminTip text="Quando o mercado fecha para novas apostas. Após esta data, não é possível apostar — apenas resolver." pos="bottom"/></span>}><FInput type="datetime-local" value={newMarket.expires_at} onChange={(e:any)=>setNewMarket({...newMarket,expires_at:e.target.value})}/></FField>
                   <FField label="Imagem (URL)">
                     <FInput placeholder="https://... ou deixe vazio" value={newMarket.image_url} onChange={(e:any)=>setNewMarket({...newMarket,image_url:e.target.value})}/>
@@ -686,11 +694,15 @@ export default function Admin() {
                   <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                     <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Opções<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   </div>
+                  <div style={{background:'rgba(var(--primary-rgb,0,230,118),0.06)',border:'1px solid rgba(var(--primary-rgb,0,230,118),0.15)',borderRadius:'8px',padding:'10px 14px',fontSize:'12px',color:'var(--muted-foreground)',marginBottom:'12px',lineHeight:1.5}}>
+                    O apostador escolhe <strong style={{color:'var(--primary)'}}>qual opção vai acontecer</strong>. A % define a probabilidade e o multiplicador de cada opção.
+                  </div>
                   {(editMarket.options||[]).map((opt:any,i:number)=>(
-                    <div key={i} style={{display:'flex',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
-                      <FInput placeholder={`Opção ${i+1}`} value={opt.title||''} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})} style={{flex:2}}/>
-                      <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds||'50'} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{flex:1,color:'var(--primary)'}}/>
-                      <button type="button" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'12px'}}>X</button>
+                    <div key={i} style={{display:'grid',gridTemplateColumns:'1fr auto auto auto',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
+                      <FInput placeholder={`Ex: Flamengo`} value={opt.title||''} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})}/>
+                      <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds||'50'} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{width:'60px',color:'var(--primary)',textAlign:'center'}}/>
+                      <span style={{fontSize:'11px',color:V.muted,whiteSpace:'nowrap'}}>{(100/Number(opt.yes_odds||1)).toFixed(2)}x</span>
+                      <button type="button" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 10px',cursor:'pointer',fontSize:'12px'}}>✕</button>
                     </div>
                   ))}
                   <button type="button" onClick={()=>setEditMarket({...editMarket,options:[...(editMarket.options||[]),{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(var(--primary-rgb, 0,230,118),0.08)',border:'1px solid rgba(var(--primary-rgb, 0,230,118),0.2)',color:'var(--primary)',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
