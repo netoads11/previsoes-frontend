@@ -24,6 +24,8 @@ interface Market {
   question: string
   yes_odds: number
   no_odds: number
+  yes_label?: string
+  no_label?: string
   house_margin?: number
   category?: string
   status?: string
@@ -461,7 +463,7 @@ export default function Home() {
               <div style={{background:'var(--card)',borderRadius:'10px',padding:'10px',marginBottom:'12px',border:'1px solid rgba(255,255,255,0.06)'}}>
                 <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'6px',lineHeight:1.4}}>{betMarket?.question}</p>
                 <span style={{display:'inline-flex',alignItems:'center',gap:'5px',padding:'4px 10px',borderRadius:'5px',fontSize:'12px',fontWeight:700,background:betChoice==='yes'?'rgba(0,230,118,0.12)':'rgba(198,40,40,0.12)',color:betChoice==='yes'?'var(--sim)':'#ef5350',border:`1px solid ${betChoice==='yes'?'rgba(0,230,118,0.25)':'rgba(198,40,40,0.25)'}`}}>
-                  {betChoice==='yes'?'✓ SIM':'✗ NÃO'} · {mult}x
+                  {betChoice==='yes'?`✓ ${betMarket?.yes_label||'SIM'}`:`✗ ${betMarket?.no_label||'NÃO'}`} · {mult}x
                 </span>
               </div>
 
@@ -504,7 +506,7 @@ export default function Home() {
                 </button>
               ) : (
                 <button style={{width:'100%',padding:'13px',borderRadius:'9px',border:'none',cursor:'pointer',background: betNum>0?'var(--primary)':'#333',color: betNum>0?'#000':'#666',fontWeight:900,fontSize:'14px',boxShadow: betNum>0?'0 0 16px rgba(var(--primary-rgb, 0,230,118),0.3)':'none',transition:'all 0.2s'}} onClick={handleBet} disabled={betNum<=0}>
-                  {betChoice==='yes'?'SIM':'NÃO'} R$ {betNum.toFixed(2)}
+                  {betChoice==='yes'?(betMarket?.yes_label||'SIM'):(betMarket?.no_label||'NÃO')} R$ {betNum.toFixed(2)}
                 </button>
               )}
             </div>
@@ -557,7 +559,7 @@ export default function Home() {
                   color:betChoice==='yes'?'var(--sim)':'#ef5350',
                   border:`1px solid ${betChoice==='yes'?'rgba(0,230,118,0.25)':'rgba(198,40,40,0.25)'}`
                 }}>
-                  {betChoice==='yes'?'✓ SIM':'✗ NÃO'} · {mult}x
+                  {betChoice==='yes'?`✓ ${betMarket?.yes_label||'SIM'}`:`✗ ${betMarket?.no_label||'NÃO'}`} · {mult}x
                 </span>
               </div>
               <button
@@ -639,7 +641,7 @@ export default function Home() {
                   transition:'all 0.2s'
                 }}
               >
-                {betChoice==='yes'?'SIM':'NÃO'} · R$ {betNum.toFixed(2)}
+                {betChoice==='yes'?(betMarket?.yes_label||'SIM'):(betMarket?.no_label||'NÃO')} · R$ {betNum.toFixed(2)}
               </button>
             )}
           </div>
@@ -762,9 +764,9 @@ export default function Home() {
             <div style={{margin:'20px 20px 0',background:'var(--card)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:'16px',padding:'16px'}}>
               {/* Row: SIM% | PROBABILIDADE | NÃO% */}
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
-                <span style={{fontSize:'15px',fontWeight:700,color:'var(--sim)'}}>{mYes}% SIM</span>
+                <span style={{fontSize:'15px',fontWeight:700,color:'var(--sim)'}}>{mYes}% {marketModal.yes_label||'SIM'}</span>
                 <span style={{fontSize:'9px',fontWeight:600,color:'var(--muted-foreground)',letterSpacing:'0.1em',textTransform:'uppercase'}}>PROBABILIDADE</span>
-                <span style={{fontSize:'15px',fontWeight:700,color:'#ef4444'}}>{mNo}% NÃO</span>
+                <span style={{fontSize:'15px',fontWeight:700,color:'#ef4444'}}>{mNo}% {marketModal.no_label||'NÃO'}</span>
               </div>
               {/* Bar */}
               <div style={{height:'10px',borderRadius:'5px',overflow:'hidden',display:'flex',marginBottom:'14px'}}>
@@ -783,7 +785,7 @@ export default function Home() {
                     transition:'all 0.15s',
                   }}
                 >
-                  <div style={{fontSize:'11px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.06em',textTransform:'uppercase'}}>SIM</div>
+                  <div style={{fontSize:'11px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.06em',textTransform:'uppercase'}}>{marketModal.yes_label||'SIM'}</div>
                   <div style={{fontSize:'20px',fontWeight:900,color:'var(--sim)',lineHeight:1.2}}>{mYM}x</div>
                 </button>
                 <button
@@ -796,7 +798,7 @@ export default function Home() {
                     transition:'all 0.15s',
                   }}
                 >
-                  <div style={{fontSize:'11px',fontWeight:700,color:'#ef4444',letterSpacing:'0.06em',textTransform:'uppercase'}}>NÃO</div>
+                  <div style={{fontSize:'11px',fontWeight:700,color:'#ef4444',letterSpacing:'0.06em',textTransform:'uppercase'}}>{marketModal.no_label||'NÃO'}</div>
                   <div style={{fontSize:'20px',fontWeight:900,color:'#ef4444',lineHeight:1.2}}>{mNM}x</div>
                 </button>
               </div>
@@ -809,7 +811,7 @@ export default function Home() {
               {modalOption && marketModal.type === 'multiple' && (
                 <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
                   <span style={{flex:1,padding:'8px 12px',borderRadius:'8px',background:'rgba(var(--primary-rgb, 34,197,94),0.08)',border:'1px solid rgba(var(--primary-rgb, 34,197,94),0.2)',fontSize:'12px',fontWeight:600,color:'var(--primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                    📌 {modalOption.title} · {modalBetChoice === 'yes' ? 'SIM' : 'NÃO'}
+                    📌 {modalOption.title} · {modalBetChoice === 'yes' ? (marketModal.yes_label||'SIM') : (marketModal.no_label||'NÃO')}
                   </span>
                   <button onClick={() => { setModalOption(null); setModalBetChoice(null) }}
                     style={{padding:'7px 12px',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.05)',color:'var(--muted-foreground)',fontSize:'11px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
@@ -1072,9 +1074,9 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
           {/* BARRA */}
           <div style={{marginBottom:'10px'}}>
             <div style={{display:'flex',justifyContent:'space-between',marginBottom:'3px'}}>
-              <span style={{fontSize:'10px',color:'var(--sim)',fontWeight:700}}>{yes}% SIM</span>
+              <span style={{fontSize:'10px',color:'var(--sim)',fontWeight:700}}>{yes}% {m.yes_label||'SIM'}</span>
               <span style={{fontSize:'10px',color:'var(--muted-foreground)'}}>chance</span>
-              <span style={{fontSize:'10px',color:'#ef5350',fontWeight:700}}>{no}% NÃO</span>
+              <span style={{fontSize:'10px',color:'#ef5350',fontWeight:700}}>{no}% {m.no_label||'NÃO'}</span>
             </div>
             <div style={{height:'4px',borderRadius:'2px',overflow:'hidden',display:'flex'}}>
               <div style={{width:`${yes}%`,background:'var(--sim)',transition:'width 0.5s ease'}}/>
@@ -1084,8 +1086,8 @@ function MCard({m,i,onBet,fav,onFav,onCardClick,onOptionClick}:{m:Market,i:numbe
 
           {/* BOTÕES */}
           <div style={{display:'flex',gap:'6px',marginBottom:'8px'}}>
-            <button className="btn-sim" onClick={(e)=>{e.stopPropagation();onBet(m,'yes')}}>✓ SIM {yM}x</button>
-            <button className="btn-nao" onClick={(e)=>{e.stopPropagation();onBet(m,'no')}}>✗ NÃO {nM}x</button>
+            <button className="btn-sim" onClick={(e)=>{e.stopPropagation();onBet(m,'yes')}}>✓ {m.yes_label||'SIM'} {yM}x</button>
+            <button className="btn-nao" onClick={(e)=>{e.stopPropagation();onBet(m,'no')}}>✗ {m.no_label||'NÃO'} {nM}x</button>
           </div>
         </>
       )}

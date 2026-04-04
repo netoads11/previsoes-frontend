@@ -64,7 +64,7 @@ export default function Admin() {
   const [balanceModal, setBalanceModal] = useState<any>(null)
   const [openSections, setOpenSections] = useState<any>({Principal:true,Gerenciamento:true,Financeiro:true,'Área de Afiliados':true,Operacional:true,Customização:true})
   const [chartPeriod, setChartPeriod] = useState('7d')
-  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}]})
+  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}],yes_label:'SIM',no_label:'NÃO'})
   const [bets, setBets] = useState<any[]>([])
   const [affiliates, setAffiliates] = useState<any[]>([])
   const [managers, setManagers] = useState<any[]>([])
@@ -451,6 +451,10 @@ export default function Admin() {
                     </FField>
                   )}
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                    <FField label="Label SIM (ex: Vai Subir)"><FInput placeholder="SIM" value={newMarket.yes_label} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_label:e.target.value})}/></FField>
+                    <FField label="Label NÃO (ex: Vai Cair)"><FInput placeholder="NÃO" value={newMarket.no_label} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_label:e.target.value})}/></FField>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                     <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Chance SIM (%)<AdminTip text="Probabilidade de o evento ocorrer. Quanto menor a chance, maior o multiplicador e mais arriscada a aposta." pos="bottom"/></span>}><FInput type="number" min="1" max="99" value={newMarket.yes_odds} style={{color:V.green,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))})}/></FField>
                     <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Chance NAO (%)<AdminTip text="Probabilidade de o evento NÃO ocorrer. Ajustado automaticamente ao alterar Chance SIM." pos="bottom"/></span>}><FInput type="number" min="1" max="99" value={newMarket.no_odds} style={{color:V.red,fontWeight:600}} onChange={(e:any)=>setNewMarket({...newMarket,no_odds:e.target.value,yes_odds:String(100-Number(e.target.value))})}/></FField>
                   </div>
@@ -650,8 +654,8 @@ export default function Admin() {
               {editMarket.type!=='multiple' && (
                 <div style={{background:'var(--card)',borderRadius:'10px',padding:'14px 16px',border:'1px solid var(--border)'}}>
                   <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}>
-                    <span style={{fontSize:'12px',fontWeight:700,color:'var(--primary)'}}>SIM {Number(editMarket.yes_odds)||50}%</span>
-                    <span style={{fontSize:'12px',fontWeight:700,color:'#f44336'}}>NÃO {Number(editMarket.no_odds)||50}%</span>
+                    <span style={{fontSize:'12px',fontWeight:700,color:'var(--primary)'}}>{editMarket.yes_label||'SIM'} {Number(editMarket.yes_odds)||50}%</span>
+                    <span style={{fontSize:'12px',fontWeight:700,color:'#f44336'}}>{editMarket.no_label||'NÃO'} {Number(editMarket.no_odds)||50}%</span>
                   </div>
                   <div style={{height:'8px',borderRadius:'999px',background:'var(--muted)',overflow:'hidden',display:'flex'}}>
                     <div style={{width:`${Number(editMarket.yes_odds)||50}%`,background:'linear-gradient(90deg,var(--primary),var(--primary))',transition:'width 0.3s'}}/>
@@ -695,6 +699,10 @@ export default function Admin() {
                 <div>
                   <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                     <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Odds<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                    <FField label="Label SIM"><FInput placeholder="SIM" style={{color:V.green,fontWeight:700}} value={editMarket.yes_label||'SIM'} onChange={(e:any)=>setEditMarket({...editMarket,yes_label:e.target.value})}/></FField>
+                    <FField label="Label NÃO"><FInput placeholder="NÃO" style={{color:V.red,fontWeight:700}} value={editMarket.no_label||'NÃO'} onChange={(e:any)=>setEditMarket({...editMarket,no_label:e.target.value})}/></FField>
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
                     <FField label="SIM (%)"><FInput type="number" min="1" max="99" style={{color:V.green,fontWeight:700}} value={editMarket.yes_odds} onChange={(e:any)=>setEditMarket({...editMarket,yes_odds:e.target.value,no_odds:100-Number(e.target.value)})}/></FField>
@@ -938,7 +946,7 @@ export default function Admin() {
             </div>
             <p style={{fontSize:'14px',color:'#ccc',lineHeight:1.6,marginBottom:'6px'}}>{confirm.msg}</p>
             <p style={{fontSize:'11px',color:V.muted,marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
-            <div style={{display:'flex',gap:'8px'}}>
+            <div style={{display:'flex',gap:'8px',justifyContent:'center'}}>
               <PrimaryBtn onClick={async()=>{await confirm.action();setConfirm(null)}}>Confirmar</PrimaryBtn>
               <GhostBtn onClick={()=>setConfirm(null)}>Cancelar</GhostBtn>
             </div>
@@ -1316,8 +1324,8 @@ function AdminsPage({users,token,api,onRefresh}:{users:any[],token:string,api:st
             <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(244,67,54,0.1)',border:'1px solid rgba(244,67,54,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}><AlertTriangle size={20} color="#f44336"/></div>
             <p style={{fontSize:'14px',color:'#ccc',marginBottom:'6px'}}>Revogar acesso admin de <strong>{selected?.name}</strong>?</p>
             <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'20px'}}>O usuário voltará a ter role de usuário comum.</p>
-            <div style={{display:'flex',gap:'8px'}}>
-              <button onClick={revokeAdmin} style={{flex:1,background:'rgba(244,67,54,0.08)',color:'#f44336',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>Revogar</button>
+            <div style={{display:'flex',gap:'8px',justifyContent:'center'}}>
+              <button onClick={revokeAdmin} style={{background:'rgba(244,67,54,0.08)',color:'#f44336',border:'1px solid rgba(244,67,54,0.2)',borderRadius:'8px',padding:'10px 24px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>Revogar</button>
               <GhostBtn onClick={()=>setDeleteOpen(false)}>Cancelar</GhostBtn>
             </div>
           </div>
@@ -1714,7 +1722,7 @@ function SaquesAfiliadosPage({token, api}:{token:string,api:string}) {
               <input value={rejectReason} onChange={e=>setRejectReason(e.target.value)} placeholder="Motivo (opcional)" style={{width:'100%',background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',fontFamily:'inherit',outline:'none',marginBottom:'12px',boxSizing:'border-box'}}/>
             )}
             <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'20px'}}>Esta ação será registrada na auditoria.</p>
-            <div style={{display:'flex',gap:'8px'}}>
+            <div style={{display:'flex',gap:'8px',justifyContent:'center'}}>
               <PrimaryBtn onClick={doAction} disabled={acting}>{acting?'Aguarde...':'Confirmar'}</PrimaryBtn>
               <GhostBtn onClick={()=>setConfirmOpen(false)}>Cancelar</GhostBtn>
             </div>
