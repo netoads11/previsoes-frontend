@@ -736,7 +736,7 @@ export default function Home() {
                           <div style={{width:`${yp}%`,background:'var(--primary)'}}/>
                           <div style={{flex:1,background:'#444'}}/>
                         </div>
-                        <div style={{fontSize:'10px',color:'var(--muted-foreground)',marginTop:'3px'}}>{yp}% SIM</div>
+                        <div style={{fontSize:'10px',color:'var(--muted-foreground)',marginTop:'3px'}}>{yp}% {marketModal?.yes_label||'SIM'}</div>
                       </div>
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}}>
                         <button onClick={() => { setModalOption(opt); setModalBetChoice('yes') }}
@@ -744,7 +744,7 @@ export default function Home() {
                             background: isSelected && modalBetChoice==='yes' ? 'rgba(0,230,118,0.18)' : 'rgba(0,230,118,0.06)',
                             outline: isSelected && modalBetChoice==='yes' ? '1.5px solid var(--sim)' : '1px solid rgba(0,230,118,0.25)',
                             transition:'all 0.15s'}}>
-                          <div style={{fontSize:'10px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.04em'}}>SIM</div>
+                          <div style={{fontSize:'10px',fontWeight:700,color:'var(--sim)',letterSpacing:'0.04em'}}>{marketModal?.yes_label||'SIM'}</div>
                           <div style={{fontSize:'15px',fontWeight:800,color:'var(--sim)',lineHeight:1.2}}>{yOdd}x</div>
                         </button>
                         <button onClick={() => { setModalOption(opt); setModalBetChoice('no') }}
@@ -752,7 +752,7 @@ export default function Home() {
                             background: isSelected && modalBetChoice==='no' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.06)',
                             outline: isSelected && modalBetChoice==='no' ? '1.5px solid #ef4444' : '1px solid rgba(239,68,68,0.25)',
                             transition:'all 0.15s'}}>
-                          <div style={{fontSize:'10px',fontWeight:700,color:'#ef4444',letterSpacing:'0.04em'}}>NÃO</div>
+                          <div style={{fontSize:'10px',fontWeight:700,color:'#ef4444',letterSpacing:'0.04em'}}>{marketModal?.no_label||'NÃO'}</div>
                           <div style={{fontSize:'15px',fontWeight:800,color:'#ef4444',lineHeight:1.2}}>{nOdd}x</div>
                         </button>
                       </div>
