@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, GripVertical, Upload, HelpCircle, Pencil, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, Menu, Upload, HelpCircle, Pencil, Paintbrush } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
@@ -276,8 +276,8 @@ export default function Admin() {
         {/* HEADER */}
         <header style={{position:'sticky',top:0,zIndex:30,height:'56px',background:`${V.bg}cc`,backdropFilter:'blur(12px)',borderBottom:`1px solid ${V.border}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <button aria-label="Abrir menu" className="hamburger-btn" onClick={()=>setSidebarOpen(s=>!s)} style={{display:'none',alignItems:'center',justifyContent:'center',width:'36px',height:'36px',border:`1px solid ${V.border}`,borderRadius:'8px',background:'transparent',cursor:'pointer',color:V.muted}}>
-              <GripVertical size={18}/>
+            <button aria-label="Abrir menu" aria-expanded={sidebarOpen} className="hamburger-btn" onClick={()=>setSidebarOpen(s=>!s)} style={{display:'none',alignItems:'center',justifyContent:'center',width:'36px',height:'36px',border:`1px solid ${V.border}`,borderRadius:'8px',background:'transparent',cursor:'pointer',color:V.muted}}>
+              <Menu size={18}/>
             </button>
             <div className="header-search" style={{position:'relative'}}>
               <Search size={15} color={V.muted} style={{position:'absolute',left:'10px',top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}/>
@@ -459,7 +459,7 @@ export default function Admin() {
                             <FInput placeholder={`Ex: Flamengo`} value={opt.title} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})}/>
                             <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds} onChange={(e:any)=>setNewMarket({...newMarket,options:newMarket.options.map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{width:'60px',color:'var(--primary)',textAlign:'center'}}/>
                             <span style={{fontSize:'11px',color:V.muted,whiteSpace:'nowrap'}}>{(100/Number(opt.yes_odds||1)).toFixed(2)}x</span>
-                            <button type="button" onClick={()=>setNewMarket({...newMarket,options:newMarket.options.filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 10px',cursor:'pointer',fontSize:'12px'}}>✕</button>
+                            <button type="button" aria-label="Remover opção" onClick={()=>setNewMarket({...newMarket,options:newMarket.options.filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={12}/></button>
                           </div>
                         ))}
                         <button type="button" onClick={()=>setNewMarket({...newMarket,options:[...newMarket.options,{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(var(--primary-rgb, 0,230,118),0.08)',border:'1px solid rgba(var(--primary-rgb, 0,230,118),0.2)',color:'var(--primary)',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
@@ -634,7 +634,6 @@ export default function Admin() {
           )}
           {tab==='historico' && <div className="fade-in"><HistoricoPage audit={audit}/></div>}
           {tab==='categorias' && <div className="fade-in"><CategoriaPage token={token} api={API} showToast={showToast} onCatsChange={setCats}/></div>}
-          {tab==='configs' && tab==='configs' && false && null}
           {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API} onLogoChange={setSidebarLogo}/></div>}
           {tab==='tema' && <div className="fade-in"><TemaPage token={token} api={API}/></div>}
           {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
@@ -720,7 +719,7 @@ export default function Admin() {
                       <FInput placeholder={`Ex: Flamengo`} value={opt.title||''} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,title:e.target.value}:o)})}/>
                       <FInput type="number" min="1" max="99" placeholder="%" value={opt.yes_odds||'50'} onChange={(e:any)=>setEditMarket({...editMarket,options:(editMarket.options||[]).map((o:any,j:number)=>j===i?{...o,yes_odds:e.target.value,no_odds:String(100-Number(e.target.value))}:o)})} style={{width:'60px',color:'var(--primary)',textAlign:'center'}}/>
                       <span style={{fontSize:'11px',color:V.muted,whiteSpace:'nowrap'}}>{(100/Number(opt.yes_odds||1)).toFixed(2)}x</span>
-                      <button type="button" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 10px',cursor:'pointer',fontSize:'12px'}}>✕</button>
+                      <button type="button" aria-label="Remover opção" onClick={()=>setEditMarket({...editMarket,options:(editMarket.options||[]).filter((_:any,j:number)=>j!==i)})} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef5350',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={12}/></button>
                     </div>
                   ))}
                   <button type="button" onClick={()=>setEditMarket({...editMarket,options:[...(editMarket.options||[]),{title:'',yes_odds:'50',no_odds:'50'}]})} style={{background:'rgba(var(--primary-rgb, 0,230,118),0.08)',border:'1px solid rgba(var(--primary-rgb, 0,230,118),0.2)',color:'var(--primary)',borderRadius:'6px',padding:'6px 12px',cursor:'pointer',fontSize:'12px',fontWeight:600}}>+ Adicionar opção</button>
@@ -986,22 +985,7 @@ export default function Admin() {
 
       {/* ══ SEARCH ══ */}
       {searchOpen && (
-        <Overlay onClose={()=>setSearchOpen(false)}>
-          <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,width:'100%',maxWidth:'480px',overflow:'hidden'}}>
-            <div style={{display:'flex',alignItems:'center',gap:'10px',padding:'14px 16px',borderBottom:`1px solid ${V.border}`}}>
-              <Search size={15} color={V.muted}/>
-              <input autoFocus placeholder="Buscar página..." style={{flex:1,background:'transparent',border:'none',outline:'none',color:V.text,fontSize:'14px'}} onKeyDown={(e:any)=>{if(e.key==='Escape')setSearchOpen(false)}}/>
-            </div>
-            <div style={{padding:'6px'}}>
-              {NAV_SECTIONS.flatMap(s=>s.items).map(item=>(
-                <button key={item.id} onClick={()=>{setTab(item.id);setSearchOpen(false)}} style={{width:'100%',display:'flex',alignItems:'center',gap:'10px',padding:'10px 12px',border:'none',background:'transparent',cursor:'pointer',borderRadius:'7px',color:V.muted,fontSize:'13px',textAlign:'left',transition:'all 0.08s'}}
-                  onMouseEnter={(e:any)=>{e.currentTarget.style.background=V.hover;e.currentTarget.style.color=V.text}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color=V.muted}}>
-                  <item.icon size={15} strokeWidth={1.75}/>{item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Overlay>
+        <SearchModal onClose={()=>setSearchOpen(false)} onSelect={(id)=>{setTab(id);setSearchOpen(false)}} V={V}/>
       )}
 
       {/* ══ TOAST ══ */}
@@ -1017,8 +1001,40 @@ export default function Admin() {
 
 // ── COMPONENTS ──
 
+function SearchModal({onClose,onSelect,V}:{onClose:()=>void,onSelect:(id:string)=>void,V:any}) {
+  const [q,setQ] = useState('')
+  const all = NAV_SECTIONS.flatMap(s=>s.items)
+  const filtered = q ? all.filter(i=>i.label.toLowerCase().includes(q.toLowerCase())) : all
+  return (
+    <Overlay onClose={onClose}>
+      <div style={{background:V.card,borderRadius:'12px',border:`1px solid ${V.border}`,width:'100%',maxWidth:'480px',overflow:'hidden'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'10px',padding:'14px 16px',borderBottom:`1px solid ${V.border}`}}>
+          <Search size={15} color={V.muted}/>
+          <input autoFocus value={q} onChange={(e:any)=>setQ(e.target.value)} placeholder="Buscar página..." style={{flex:1,background:'transparent',border:'none',outline:'none',color:V.text,fontSize:'14px'}} onKeyDown={(e:any)=>{if(e.key==='Escape')onClose();if(e.key==='Enter'&&filtered.length)onSelect(filtered[0].id)}}/>
+          {q&&<button onClick={()=>setQ('')} style={{background:'none',border:'none',cursor:'pointer',color:V.muted,display:'flex',padding:0}}><X size={14}/></button>}
+        </div>
+        <div style={{padding:'6px',maxHeight:'320px',overflowY:'auto'}}>
+          {filtered.length===0&&<p style={{padding:'16px',textAlign:'center',color:V.muted,fontSize:'13px'}}>Nenhuma página encontrada</p>}
+          {filtered.map(item=>(
+            <button key={item.id} onClick={()=>onSelect(item.id)} style={{width:'100%',display:'flex',alignItems:'center',gap:'10px',padding:'10px 12px',border:'none',background:'transparent',cursor:'pointer',borderRadius:'7px',color:V.muted,fontSize:'13px',textAlign:'left',transition:'all 0.08s'}}
+              onMouseEnter={(e:any)=>{e.currentTarget.style.background=V.hover;e.currentTarget.style.color=V.text}} onMouseLeave={(e:any)=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color=V.muted}}>
+              <item.icon size={15} strokeWidth={1.75}/>{item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Overlay>
+  )
+}
+
 function MCard({title,value,sub,icon:Icon,color,tip}:{title:string,value:string,sub:string,icon:any,color?:string,tip?:string}) {
   const [show,setShow] = useState(false)
+  const iconColor:any = {green:'var(--primary)',blue:'#3b82f6',red:'#f44336',yellow:'#ffb300'}
+  const ic = iconColor[color||'']||'rgba(255,255,255,0.3)'
+  const icBg:any = {green:'rgba(var(--primary-rgb,0,230,118),0.08)',blue:'rgba(59,130,246,0.08)',red:'rgba(244,67,54,0.08)',yellow:'rgba(255,179,0,0.08)'}
+  const ib = icBg[color||'']||'rgba(255,255,255,0.05)'
+  const icBd:any = {green:'rgba(var(--primary-rgb,0,230,118),0.15)',blue:'rgba(59,130,246,0.15)',red:'rgba(244,67,54,0.15)',yellow:'rgba(255,179,0,0.15)'}
+  const ibd = icBd[color||'']||'rgba(255,255,255,0.07)'
   return (
     <div className="metric-card" style={{background:'var(--card)',borderRadius:'14px',border:'1px solid var(--border)',padding:'20px',cursor:'default',position:'relative',overflow:'hidden'}}>
       {/* top accent line */}
@@ -1041,8 +1057,8 @@ function MCard({title,value,sub,icon:Icon,color,tip}:{title:string,value:string,
             </div>
           )}
         </div>
-        <div style={{width:'36px',height:'36px',borderRadius:'10px',background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.07)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <Icon size={16} color='rgba(255,255,255,0.3)' strokeWidth={1.75}/>
+        <div style={{width:'36px',height:'36px',borderRadius:'10px',background:ib,border:`1px solid ${ibd}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <Icon size={16} color={ic} strokeWidth={1.75}/>
         </div>
       </div>
       {/* value */}
@@ -1205,7 +1221,7 @@ function UField({label,children}:{label:string,children:any}) {
 function UInput({style,...p}:any) {
   return (
     <input {...p}
-      style={{width:'100%',background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'46px',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
+      style={{width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'0 14px',color:'#fff',fontSize:'14px',outline:'none',height:'46px',transition:'border-color 0.15s, box-shadow 0.15s',boxSizing:'border-box',...style}}
       onFocus={(e:any)=>{e.target.style.borderColor='var(--primary)';e.target.style.boxShadow='0 0 0 3px rgba(var(--primary-rgb, 0,230,118),0.15)'}}
       onBlur={(e:any)=>{e.target.style.borderColor='#333';e.target.style.boxShadow='none'}}
     />
@@ -1222,7 +1238,7 @@ function USelect({style,children,...p}:any) {
 }
 
 function FSelect({style,...p}:any) {
-  return <select {...p} style={{width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer',...style}}/>
+  return <select {...p} style={{width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none',cursor:'pointer',transition:'border-color 0.15s',...style}} onFocus={(e:any)=>{e.target.style.borderColor='rgba(var(--primary-rgb, 0,230,118),0.4)';if(p.onFocus)p.onFocus(e)}} onBlur={(e:any)=>{e.target.style.borderColor='var(--border)';if(p.onBlur)p.onBlur(e)}}/>
 }
 
 function PrimaryBtn({children,onClick,type,style,disabled}:{children:any,onClick?:()=>void,type?:any,style?:any,disabled?:boolean}) {
@@ -1336,9 +1352,9 @@ function AdminsPage({users,token,api,onRefresh}:{users:any[],token:string,api:st
             <FField label="E-mail"><FInput value={form.email} onChange={(e:any)=>setForm({...form,email:e.target.value})}/></FField>
             <FField label="Nova Senha"><FInput type="password" placeholder="Em branco = sem alteração" value={form.senha} onChange={(e:any)=>setForm({...form,senha:e.target.value})}/></FField>
             <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-              <div onClick={()=>setForm({...form,ativo:!form.ativo})} style={{width:'36px',height:'20px',borderRadius:'10px',background:form.ativo?'var(--primary)':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s'}}>
+              <button type="button" role="switch" aria-checked={form.ativo} onClick={()=>setForm({...form,ativo:!form.ativo})} style={{width:'36px',height:'20px',borderRadius:'10px',background:form.ativo?'var(--primary)':'#333',cursor:'pointer',position:'relative',transition:'background 0.2s',border:'none',padding:0,flexShrink:0}}>
                 <div style={{position:'absolute',top:'2px',left:form.ativo?'18px':'2px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
-              </div>
+              </button>
               <span style={{fontSize:'13px',color:'var(--muted-foreground)'}}>Ativo</span>
             </div>
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
