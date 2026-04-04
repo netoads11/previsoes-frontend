@@ -2004,8 +2004,11 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
   const [kwInput, setKwInput] = useState('')
   const [cpaType, setCpaType] = useState('fixed')
   const [local, setLocal] = useState<any>(settings)
+  const [gwTesting, setGwTesting] = useState(false)
+  const [gwTestResult, setGwTestResult] = useState<{ok:boolean,msg:string}|null>(null)
+  const [showSecret, setShowSecret] = useState(false)
   const upd = (k:string) => (e:any) => setLocal((p:any)=>({...p,[k]:e.target.value}))
-  const tabs = [{id:'seo',l:'SEO'},{id:'cpa',l:'Afiliados CPA'},{id:'financeiro',l:'Financeiro'},{id:'scripts',l:'Scripts'},{id:'social',l:'Social'}]
+  const tabs = [{id:'seo',l:'SEO'},{id:'cpa',l:'Afiliados CPA'},{id:'financeiro',l:'Financeiro'},{id:'gateway',l:'Gateway'},{id:'scripts',l:'Scripts'},{id:'social',l:'Social'}]
   const finTabs = [{id:'usuario',l:'Usuário'},{id:'taxas',l:'Taxas'},{id:'afiliado',l:'Afiliado'}]
   const addKw = () => { if(kwInput.trim()&&!keywords.includes(kwInput.trim())){setKeywords([...keywords,kwInput.trim()]);setKwInput('')} }
   const InputStyle = {width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}
@@ -2120,6 +2123,84 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
               <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab==='gateway'&&(
+        <div style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+          {/* Header */}
+          <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+              <div style={{width:'40px',height:'40px',borderRadius:'10px',background:'rgba(var(--primary-rgb,0,230,118),0.1)',border:'1px solid rgba(var(--primary-rgb,0,230,118),0.2)',display:'flex',alignItems:'center',justifyContent:'center'}}><QrCode size={18} color="var(--primary)"/></div>
+              <div><p style={{fontWeight:700,color:'#fff',margin:0,fontSize:'14px'}}>Simplify BR</p><p style={{color:'var(--muted-foreground)',fontSize:'12px',margin:0}}>simplifybr.com/api/v1 — PIX cobranças e saques</p></div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+              <span style={{fontSize:'12px',color:'var(--muted-foreground)'}}>Ativo</span>
+              <button type="button" role="switch" aria-checked={local.simplify_active==='true'} onClick={()=>setLocal((p:any)=>({...p,simplify_active:p.simplify_active==='true'?'false':'true'}))}
+                style={{width:'40px',height:'22px',borderRadius:'11px',background:local.simplify_active==='true'?'var(--primary)':'#333',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
+                <div style={{position:'absolute',top:'3px',left:local.simplify_active==='true'?'21px':'3px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
+              </button>
+            </div>
+          </div>
+
+          {/* Credenciais */}
+          <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+            <p style={{fontSize:'13px',fontWeight:700,color:'#ccc',margin:0}}>Credenciais da API</p>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+              <div>
+                <label style={LabelStyle}>Client ID</label>
+                <input value={local.simplify_client_id||''} onChange={upd('simplify_client_id')} placeholder="seu-client-id" style={InputStyle}/>
+              </div>
+              <div>
+                <label style={LabelStyle}>Client Secret</label>
+                <div style={{position:'relative'}}>
+                  <input type={showSecret?'text':'password'} value={local.simplify_client_secret||''} onChange={upd('simplify_client_secret')} placeholder="seu-client-secret" style={{...InputStyle,paddingRight:'80px'}}/>
+                  <button type="button" onClick={()=>setShowSecret(s=>!s)} style={{position:'absolute',right:'8px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'var(--muted-foreground)',cursor:'pointer',fontSize:'11px'}}>{showSecret?'Ocultar':'Mostrar'}</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label style={LabelStyle}>Webhook Secret (para validar notificações)</label>
+              <input type={showSecret?'text':'password'} value={local.simplify_webhook_secret||''} onChange={upd('simplify_webhook_secret')} placeholder="webhook-secret" style={InputStyle}/>
+            </div>
+            <div style={{background:'rgba(var(--primary-rgb,0,230,118),0.06)',border:'1px solid rgba(var(--primary-rgb,0,230,118),0.15)',borderRadius:'8px',padding:'12px'}}>
+              <p style={{fontSize:'11px',color:'var(--muted-foreground)',margin:0}}><strong style={{color:'var(--primary)'}}>Webhook URL:</strong> configure no painel Simplify:</p>
+              <code style={{fontSize:'11px',color:'#aaa',wordBreak:'break-all' as any}}>{(typeof window!=='undefined'?window.location.origin:'https://seu-dominio.com')}/api/webhooks/simplify</code>
+            </div>
+            <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Gateway salvo!'))}>Salvar credenciais</PrimaryBtn>
+              <GhostBtn onClick={async()=>{
+                setGwTesting(true); setGwTestResult(null);
+                await api('/api/admin/settings','PUT',local);
+                const r = await api('/api/admin/settings/test-gateway','POST',{});
+                setGwTestResult({ok:r.success,msg:r.message||r.error||'Sem resposta'});
+                setGwTesting(false);
+              }}>{gwTesting?'Testando...':'Testar conexão'}</GhostBtn>
+            </div>
+            {gwTestResult&&(
+              <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'10px 14px',borderRadius:'8px',background:gwTestResult.ok?'rgba(var(--primary-rgb,0,230,118),0.08)':'rgba(244,67,54,0.08)',border:`1px solid ${gwTestResult.ok?'rgba(var(--primary-rgb,0,230,118),0.2)':'rgba(244,67,54,0.2)'}`}}>
+                {gwTestResult.ok?<Check size={14} color="var(--primary)"/>:<X size={14} color="#f44336"/>}
+                <span style={{fontSize:'13px',color:gwTestResult.ok?'var(--primary)':'#f44336'}}>{gwTestResult.msg}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'20px'}}>
+            <p style={{fontSize:'13px',fontWeight:700,color:'#ccc',margin:'0 0 12px'}}>Como funciona</p>
+            <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+              {[
+                {icon:'💳',t:'Depósito PIX',d:'Usuário clica em depositar → sistema cria cobrança PIX via Simplify → QR Code gerado automaticamente'},
+                {icon:'📤',t:'Saque PIX',d:'Admin aprova saque → sistema transfere via PIX para a chave do usuário automaticamente'},
+                {icon:'🔔',t:'Webhook',d:'Simplify notifica o sistema quando pagamento é confirmado → saldo creditado automaticamente'},
+              ].map(i=>(
+                <div key={i.t} style={{display:'flex',gap:'12px',padding:'10px',borderRadius:'8px',background:'var(--background)'}}>
+                  <span style={{fontSize:'18px',flexShrink:0}}>{i.icon}</span>
+                  <div><p style={{fontSize:'12px',fontWeight:600,color:'#ccc',margin:'0 0 2px'}}>{i.t}</p><p style={{fontSize:'11px',color:'var(--muted-foreground)',margin:0}}>{i.d}</p></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
