@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, Menu, Upload, HelpCircle, Pencil, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, Menu, GripVertical, Upload, HelpCircle, Pencil, Paintbrush } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
