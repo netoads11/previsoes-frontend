@@ -202,7 +202,7 @@ export default function Perfil() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: '12px', color: b.choice === 'yes' ? 'var(--primary)' : '#ef5350', fontWeight: 600 }}>
-                    {b.choice === 'yes' ? 'SIM' : 'NAO'}
+                    {b.choice === 'yes' ? (b.yes_label || 'SIM') : (b.no_label || 'NÃO')}
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>R$ {Number(b.amount).toFixed(2)}</span>
                 </div>
