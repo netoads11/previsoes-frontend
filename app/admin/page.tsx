@@ -64,7 +64,7 @@ export default function Admin() {
   const [balanceModal, setBalanceModal] = useState<any>(null)
   const [openSections, setOpenSections] = useState<any>({Principal:true,Gerenciamento:true,Financeiro:true,'Área de Afiliados':true,Operacional:true,Customização:true})
   const [chartPeriod, setChartPeriod] = useState('7d')
-  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}],yes_label:'SIM',no_label:'NÃO'})
+  const [newMarket, setNewMarket] = useState({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}],yes_label:'SIM',no_label:'NÃO',multi_bet_mode:'yes_no'})
   const [bets, setBets] = useState<any[]>([])
   const [affiliates, setAffiliates] = useState<any[]>([])
   const [managers, setManagers] = useState<any[]>([])
@@ -132,7 +132,7 @@ export default function Admin() {
   async function createMarket(e: any) {
     e.preventDefault()
     const r = await api('/api/admin/markets','POST',{...newMarket,yes_odds:Number(newMarket.yes_odds),no_odds:Number(newMarket.no_odds),expires_at:newMarket.expires_at?new Date(newMarket.expires_at).toISOString():null,type:newMarket.type,options:newMarket.type==='multiple'?newMarket.options.filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[]})
-    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}],yes_label:'SIM',no_label:'NÃO'}); load(token); setTab('mercados') } else showToast(r.error||'Erro','error')
+    if (r.id) { showToast('Mercado criado!'); setNewMarket({question:'',category:'Financeiro',yes_odds:'50',no_odds:'50',expires_at:'',image_url:'',type:'single',options:[{title:'',yes_odds:'50',no_odds:'50'}],yes_label:'SIM',no_label:'NÃO',multi_bet_mode:'yes_no'}); load(token); setTab('mercados') } else showToast(r.error||'Erro','error')
   }
   async function saveMarket() { const opts=editMarket.type==='multiple'?(editMarket.options||[]).filter((o:any)=>o.title).map((o:any)=>({...o,yes_odds:Number(o.yes_odds),no_odds:Number(o.no_odds)})):[] ; const r = await api(`/api/admin/markets/${editMarket.id}`,'PUT',{...editMarket,yes_odds:Number(editMarket.yes_odds),no_odds:Number(editMarket.no_odds),expires_at:editMarket.expires_at?new Date(editMarket.expires_at).toISOString():null,type:editMarket.type||'single',options:opts}); if(r.id){showToast('Salvo!');setEditMarket(null);load(token)}else showToast(r.error||'Erro','error') }
   async function saveUser() { setSavingUser(true); const r = await api(`/api/admin/users/${editUser.id}`,'PUT',editUser); setSavingUser(false); if(r.id){showToast('Salvo!');setEditUser(null);load(token)}else showToast(r.error||'Erro','error') }
@@ -440,9 +440,19 @@ export default function Admin() {
                   <FField label="Tipo"><FSelect value={newMarket.type} onChange={(e:any)=>setNewMarket({...newMarket,type:e.target.value})}><option value="single">Simples (SIM/NAO)</option><option value="multiple">Multiplo (varias opcoes)</option></FSelect></FField>
                   {newMarket.type==='multiple'&&(
                     <>
-                      <div style={{background:'rgba(var(--primary-rgb,0,230,118),0.06)',border:'1px solid rgba(var(--primary-rgb,0,230,118),0.15)',borderRadius:'8px',padding:'10px 14px',fontSize:'12px',color:'var(--muted-foreground)',lineHeight:1.5}}>
-                        O apostador escolhe <strong style={{color:'var(--primary)'}}>qual opção vai acontecer</strong>. Cada opção tem sua própria probabilidade e multiplicador.
-                      </div>
+                      <FField label="Modo de aposta nas opções">
+                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+                          {[{val:'yes_no',label:'SIM / NÃO',desc:'Apostador escolhe sim ou não para cada opção'},{val:'pick',label:'Escolha única',desc:'Apostador escolhe qual opção vai acontecer'}].map(m=>(
+                            <button key={m.val} type="button" onClick={()=>setNewMarket({...newMarket,multi_bet_mode:m.val})}
+                              style={{padding:'10px 12px',borderRadius:'8px',cursor:'pointer',textAlign:'left',
+                                border:`1.5px solid ${newMarket.multi_bet_mode===m.val?'var(--primary)':'rgba(255,255,255,0.1)'}`,
+                                background:newMarket.multi_bet_mode===m.val?'rgba(var(--primary-rgb,0,230,118),0.08)':'transparent'}}>
+                              <div style={{fontSize:'12px',fontWeight:700,color:newMarket.multi_bet_mode===m.val?'var(--primary)':'#fff',marginBottom:'3px'}}>{m.label}</div>
+                              <div style={{fontSize:'10px',color:'var(--muted-foreground)',lineHeight:1.3}}>{m.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </FField>
                       <FField label={<span style={{display:'flex',alignItems:'center',gap:'4px'}}>Opções<AdminTip text="Adicione as opções possíveis. A % de probabilidade define o multiplicador: quanto menor a chance, maior o ganho." pos="bottom"/></span>}>
                         {newMarket.options.map((opt:any,i:number)=>(
                           <div key={i} style={{display:'grid',gridTemplateColumns:'1fr auto auto auto',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
@@ -694,8 +704,16 @@ export default function Admin() {
                   <div style={{fontSize:'11px',fontWeight:600,color:'var(--muted-foreground)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'8px'}}>
                     <div style={{flex:1,height:'1px',background:'var(--card)'}}/>Opções<div style={{flex:1,height:'1px',background:'var(--card)'}}/>
                   </div>
-                  <div style={{background:'rgba(var(--primary-rgb,0,230,118),0.06)',border:'1px solid rgba(var(--primary-rgb,0,230,118),0.15)',borderRadius:'8px',padding:'10px 14px',fontSize:'12px',color:'var(--muted-foreground)',marginBottom:'12px',lineHeight:1.5}}>
-                    O apostador escolhe <strong style={{color:'var(--primary)'}}>qual opção vai acontecer</strong>. A % define a probabilidade e o multiplicador de cada opção.
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px',marginBottom:'12px'}}>
+                    {[{val:'yes_no',label:'SIM / NÃO',desc:'Apostador escolhe sim ou não'},{val:'pick',label:'Escolha única',desc:'Apostador escolhe qual opção'}].map(m=>(
+                      <button key={m.val} type="button" onClick={()=>setEditMarket({...editMarket,multi_bet_mode:m.val})}
+                        style={{padding:'10px 12px',borderRadius:'8px',cursor:'pointer',textAlign:'left',
+                          border:`1.5px solid ${(editMarket.multi_bet_mode||'yes_no')===m.val?'var(--primary)':'rgba(255,255,255,0.1)'}`,
+                          background:(editMarket.multi_bet_mode||'yes_no')===m.val?'rgba(var(--primary-rgb,0,230,118),0.08)':'transparent'}}>
+                        <div style={{fontSize:'12px',fontWeight:700,color:(editMarket.multi_bet_mode||'yes_no')===m.val?'var(--primary)':'#fff',marginBottom:'3px'}}>{m.label}</div>
+                        <div style={{fontSize:'10px',color:'var(--muted-foreground)',lineHeight:1.3}}>{m.desc}</div>
+                      </button>
+                    ))}
                   </div>
                   {(editMarket.options||[]).map((opt:any,i:number)=>(
                     <div key={i} style={{display:'grid',gridTemplateColumns:'1fr auto auto auto',gap:'8px',marginBottom:'8px',alignItems:'center'}}>
