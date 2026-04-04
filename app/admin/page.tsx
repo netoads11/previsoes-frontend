@@ -2113,9 +2113,9 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
           {finTab==='afiliado'&&(
             <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
-                <div><label style={LabelStyle}>Saque Mínimo (R$) *</label><input type="number" defaultValue="50" style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Saque Máximo (R$) *</label><input type="number" defaultValue="10000" style={InputStyle}/></div>
-                <div><label style={LabelStyle}>Limite Diário (R$) *</label><input type="number" defaultValue="20000" style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Saque Mínimo Afiliado (R$)</label><input type="number" value={local.aff_saque_minimo||''} onChange={upd('aff_saque_minimo')} placeholder="50" style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Saque Máximo Afiliado (R$)</label><input type="number" value={local.aff_saque_maximo||''} onChange={upd('aff_saque_maximo')} placeholder="10000" style={InputStyle}/></div>
+                <div><label style={LabelStyle}>Limite Diário Afiliado (R$)</label><input type="number" value={local.aff_saque_diario||''} onChange={upd('aff_saque_diario')} placeholder="20000" style={InputStyle}/></div>
               </div>
               <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
             </div>
@@ -2125,15 +2125,24 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
 
       {activeTab==='scripts'&&(
         <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
-          <div><label style={LabelStyle}>Scripts externos</label><textarea rows={10} placeholder="Cole seus scripts aqui..." style={{...InputStyle,resize:'vertical',fontFamily:"monospace",fontSize:'12px'} as any}/></div>
+          <div><label style={LabelStyle}>Scripts &lt;head&gt; (Google Analytics, Pixel, etc)</label><textarea rows={8} value={local.head_scripts||''} onChange={upd('head_scripts')} placeholder="<!-- Cole scripts do <head> aqui -->" style={{...InputStyle,resize:'vertical',fontFamily:'monospace',fontSize:'12px'} as any}/></div>
+          <div><label style={LabelStyle}>Scripts &lt;body&gt; (chat, hotjar, etc)</label><textarea rows={8} value={local.body_scripts||''} onChange={upd('body_scripts')} placeholder="<!-- Cole scripts do <body> aqui -->" style={{...InputStyle,resize:'vertical',fontFamily:'monospace',fontSize:'12px'} as any}/></div>
           <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Scripts salvos!'))}>Salvar</PrimaryBtn>
         </div>
       )}
 
       {activeTab==='social'&&(
         <div style={{background:'var(--card)',borderRadius:'12px',border:'1px solid var(--border)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
-          {['Instagram','Telegram','WhatsApp','Twitter/X','YouTube','TikTok'].map(s=>(
-            <div key={s}><label style={LabelStyle}>{s}</label><input placeholder={`URL do ${s}`} style={InputStyle}/></div>
+          {[
+            {label:'Instagram', key:'social_instagram'},
+            {label:'Telegram',  key:'social_telegram'},
+            {label:'WhatsApp',  key:'social_whatsapp'},
+            {label:'Twitter/X', key:'social_twitter'},
+            {label:'YouTube',   key:'social_youtube'},
+            {label:'TikTok',    key:'social_tiktok'},
+            {label:'Suporte (link direto)', key:'support_url'},
+          ].map(s=>(
+            <div key={s.key}><label style={LabelStyle}>{s.label}</label><input value={local[s.key]||''} onChange={upd(s.key)} placeholder={`URL do ${s.label}`} style={InputStyle}/></div>
           ))}
           <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Social salvo!'))}>Salvar</PrimaryBtn>
         </div>
