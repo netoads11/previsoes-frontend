@@ -32,23 +32,29 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
     return d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6,9)+'-'+d.slice(9)
   }
 
-  function openCpfPopup() {
+  async function openCpfPopup() {
     if (num < min) { setError(`Valor mínimo: R$ ${min.toFixed(2).replace('.',',')}`) ; return }
     setError('')
+    // Verifica se já tem CPF salvo — se sim, pula direto para geração
+    try {
+      const token = localStorage.getItem('token')
+      const r = await fetch(API + '/api/auth/me', { headers: { 'Authorization': 'Bearer ' + (token||'') } })
+      if (r.ok) {
+        const u = await r.json()
+        if (u.cpf) { setCpf(u.cpf); await generatePix(u.cpf); return }
+      }
+    } catch {}
     setStep('cpf')
   }
 
-  async function requestDeposit() {
-    const raw = cpf.replace(/\D/g,'')
-    if (raw.length !== 11) { setError('CPF inválido — informe os 11 dígitos'); return }
-    setError('')
+  async function generatePix(cpfValue: string) {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
       const res = await fetch(API + '/api/wallet/deposit', {
         method: 'POST',
         headers: {'Content-Type':'application/json','Authorization':'Bearer '+(token||'')},
-        body: JSON.stringify({ amount: num, cpf: raw })
+        body: JSON.stringify({ amount: num, cpf: cpfValue.replace(/\D/g,'') })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar depósito')
@@ -56,26 +62,27 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
       setQrCodeImage(data.qr_code_image || '')
       setTxId(data.id || '')
       setStep('pix')
-      // Polling a cada 5s para detectar pagamento confirmado
       pollRef.current = setInterval(async () => {
         try {
           const t = localStorage.getItem('token')
-          const r = await fetch(API + '/api/wallet/transaction/' + data.id + '/status', {
-            headers: { 'Authorization': 'Bearer ' + (t||'') }
-          })
+          const r = await fetch(API + '/api/wallet/transaction/' + data.id + '/status', { headers: { 'Authorization': 'Bearer '+(t||'') } })
           const d = await r.json()
-          if (d.status === 'completed') {
-            clearInterval(pollRef.current)
-            setBalance((b: number) => b + num)
-            setStep('done')
-          }
+          if (d.status === 'completed') { clearInterval(pollRef.current); setBalance((b:number) => b+num); setStep('done') }
         } catch {}
       }, 5000)
     } catch(e:any) {
       setError(e.message)
+      setStep('cpf')
     } finally {
       setLoading(false)
     }
+  }
+
+  async function requestDeposit() {
+    const raw = cpf.replace(/\D/g,'')
+    if (raw.length !== 11) { setError('CPF inválido — informe os 11 dígitos'); return }
+    setError('')
+    await generatePix(raw)
   }
 
   function copyPix() {
