@@ -2011,7 +2011,7 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
   const [showSecret, setShowSecret] = useState(false)
   const upd = (k:string) => (e:any) => setLocal((p:any)=>({...p,[k]:e.target.value}))
   const tabs = [{id:'seo',l:'SEO'},{id:'cpa',l:'Afiliados CPA'},{id:'financeiro',l:'Financeiro'},{id:'gateway',l:'Gateway'},{id:'scripts',l:'Scripts'},{id:'social',l:'Social'}]
-  const finTabs = [{id:'usuario',l:'Usuário'},{id:'taxas',l:'Taxas'},{id:'afiliado',l:'Afiliado'}]
+  const finTabs = [{id:'usuario',l:'Usuário'},{id:'taxas',l:'Taxas'},{id:'afiliado',l:'Afiliado'},{id:'bonus',l:'Bônus'}]
   const addKw = () => { if(kwInput.trim()&&!keywords.includes(kwInput.trim())){setKeywords([...keywords,kwInput.trim()]);setKwInput('')} }
   const InputStyle = {width:'100%',background:'var(--background)',border:'1px solid var(--border)',borderRadius:'8px',padding:'9px 12px',color:'#ccc',fontSize:'13px',outline:'none'}
   const LabelStyle = {fontSize:'11px',color:'var(--muted-foreground)',display:'block' as any,marginBottom:'5px',textTransform:'uppercase' as any,letterSpacing:'0.1em',fontWeight:600}
@@ -2123,6 +2123,40 @@ function ConfiguracoesFullPage({settings,setSettings,api,showToast}:{settings:an
                 <div><label style={LabelStyle}>Limite Diário Afiliado (R$)</label><input type="number" value={local.aff_saque_diario||''} onChange={upd('aff_saque_diario')} placeholder="20000" style={InputStyle}/></div>
               </div>
               <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Salvo!'))}>Salvar</PrimaryBtn>
+            </div>
+          )}
+          {finTab==='bonus'&&(
+            <div style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 16px',background:'rgba(255,255,255,0.03)',borderRadius:'10px',border:'1px solid var(--border)'}}>
+                <div>
+                  <p style={{fontWeight:700,color:'#ccc',margin:0,fontSize:'13px'}}>Bônus de Depósito</p>
+                  <p style={{color:'var(--muted-foreground)',fontSize:'11px',margin:'3px 0 0'}}>Oferece bônus automático ao depositar</p>
+                </div>
+                <button type="button" onClick={()=>setLocal((p:any)=>({...p,bonus_enabled:p.bonus_enabled==='true'?'false':'true'}))}
+                  style={{width:'40px',height:'22px',borderRadius:'11px',background:local.bonus_enabled==='true'?'var(--primary)':'#333',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
+                  <div style={{position:'absolute',top:'3px',left:local.bonus_enabled==='true'?'21px':'3px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
+                </button>
+              </div>
+              {local.bonus_enabled==='true'&&(
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
+                  <div>
+                    <div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Porcentagem (%)</label><AdminTip text="Ex: 100 = bônus de 100% sobre o depósito (depósito de R$50 → R$50 de bônus)" pos="bottom"/></div>
+                    <input type="number" min="1" max="500" value={local.bonus_percentage||''} onChange={upd('bonus_percentage')} placeholder="100" style={InputStyle}/>
+                  </div>
+                  <div>
+                    <div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Bônus Máximo (R$)</label><AdminTip text="Teto do bônus. Ex: 100% com máximo R$200 = depósito de R$500 gera apenas R$200 de bônus" pos="bottom"/></div>
+                    <input type="number" min="0" value={local.bonus_max||''} onChange={upd('bonus_max')} placeholder="200" style={InputStyle}/>
+                  </div>
+                  <div>
+                    <div style={{display:'flex',alignItems:'center',gap:'5px',marginBottom:'5px'}}><label style={{...LabelStyle,marginBottom:0}}>Rollover (multiplicador)</label><AdminTip text="Quantas vezes o bônus precisa ser apostado para liberar o saldo. Ex: 3x sobre R$50 = precisa apostar R$150 no total" pos="bottom"/></div>
+                    <input type="number" min="1" max="50" value={local.bonus_rollover||''} onChange={upd('bonus_rollover')} placeholder="3" style={InputStyle}/>
+                  </div>
+                </div>
+              )}
+              <div style={{background:'rgba(251,191,36,0.06)',border:'1px solid rgba(251,191,36,0.2)',borderRadius:'8px',padding:'12px'}}>
+                <p style={{fontSize:'12px',color:'#fbbf24',margin:0}}>⚠️ O bônus fica bloqueado como "Bônus Pendente" até o rollover ser completado. Após isso é transferido automaticamente para o saldo real.</p>
+              </div>
+              <PrimaryBtn onClick={()=>api('/api/admin/settings','PUT',local).then(()=>showToast('Configurações de bônus salvas!'))}>Salvar</PrimaryBtn>
             </div>
           )}
         </div>
