@@ -111,7 +111,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
         </p>
 
         {/* ── Tela de valor ── */}
-        {step !== 'pix' && (
+        {step === 'amount' && (
           <div style={{padding:'0 20px'}}>
             <div style={{marginTop:'20px',display:'flex',alignItems:'center',gap:'14px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'14px',padding:'14px 16px'}}>
               <div style={{width:'44px',height:'44px',borderRadius:'10px',background:'rgba(var(--primary-rgb,106,221,0),0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
