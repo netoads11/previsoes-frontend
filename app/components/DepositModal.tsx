@@ -35,7 +35,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
   async function openCpfPopup() {
     if (num < min) { setError(`Valor mínimo: R$ ${min.toFixed(2).replace('.',',')}`) ; return }
     setError('')
-    // Verifica se já tem CPF salvo — se sim, pula direto para geração
+    setLoading(true)
     try {
       const token = localStorage.getItem('token')
       const r = await fetch(API + '/api/auth/me', { headers: { 'Authorization': 'Bearer ' + (token||'') } })
@@ -44,6 +44,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
         if (u.cpf) { setCpf(u.cpf); await generatePix(u.cpf); return }
       }
     } catch {}
+    setLoading(false)
     setStep('cpf')
   }
 
@@ -161,16 +162,17 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
               </div>
             )}
 
-            <button disabled={num < min} onClick={openCpfPopup} style={{
+            <button disabled={num < min || loading} onClick={openCpfPopup} style={{
               marginTop:'24px',width:'100%',height:'52px',borderRadius:'10px',border:'none',
               background:num>=min?'var(--primary)':'rgba(255,255,255,0.06)',
               color:num>=min?'#000':'rgba(255,255,255,0.2)',
               fontWeight:900,fontSize:'15px',letterSpacing:'0.04em',
-              cursor:num>=min?'pointer':'not-allowed',
+              cursor:(num>=min&&!loading)?'pointer':'not-allowed',
+              opacity:loading?0.7:1,
               boxShadow:num>=min?'0 0 24px rgba(var(--primary-rgb,106,221,0),0.3)':'none',
               transition:'all 0.2s',fontFamily:'Kanit,sans-serif'
             }}>
-              DEPOSITAR R$ {num > 0 ? num.toFixed(2).replace('.',',') : '—'}
+              {loading ? 'Aguarde...' : `DEPOSITAR R$ ${num > 0 ? num.toFixed(2).replace('.',',') : '—'}`}
             </button>
           </div>
         )}
