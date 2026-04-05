@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, Menu, GripVertical, Upload, HelpCircle, Pencil, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Shield, Settings, Users, UserCog, Wallet, ArrowDownToLine, ArrowUpFromLine, UserCheck, FileText, History, Calendar, TrendingUp, Palette, ImageIcon, LogOut, ChevronDown, Search, ExternalLink, Bell, DollarSign, QrCode, UserPlus, Briefcase, ChevronLeft, ChevronRight, AlertTriangle, X, Check, Plus, Trash2, RefreshCw, FileDown, Menu, GripVertical, Upload, HelpCircle, Pencil, Paintbrush, MessageSquare } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
@@ -32,6 +32,7 @@ const NAV_SECTIONS = [
     { label: 'Histórico', icon: History, id: 'historico' },
     { label: 'Categorias', icon: Calendar, id: 'categorias' },
     { label: 'Mercados', icon: TrendingUp, id: 'markets' },
+    { label: 'Chat Live', icon: MessageSquare, id: 'chat-live' },
   ]},
   { title: 'Customização', items: [
     { label: 'Estilo', icon: Palette, id: 'estilo' },
@@ -637,6 +638,7 @@ export default function Admin() {
           {tab==='estilo' && <div className="fade-in"><EstiloPage token={token} api={API} onLogoChange={setSidebarLogo}/></div>}
           {tab==='tema' && <div className="fade-in"><TemaPage token={token} api={API}/></div>}
           {tab==='banners' && <div className="fade-in"><BannersPage token={token} api={API}/></div>}
+          {tab==='chat-live' && <div className="fade-in"><ChatLivePage token={token} api={API} showToast={showToast}/></div>}
         </main>
       </div>
 
@@ -2523,6 +2525,119 @@ function EstiloPage({token,api,onLogoChange}:{token:string,api:string,onLogoChan
         {saving&&<p style={{fontSize:'12px',color:'#ffb300'}}>Enviando...</p>}
         {msg&&<p style={{fontSize:'12px',color:msg.includes('Erro')?'#f44336':'var(--primary)'}}>{msg}</p>}
       </div>
+    </div>
+  )
+}
+
+function ChatLivePage({token,api,showToast}:{token:string,api:string,showToast:(m:string,t?:string)=>void}) {
+  const [messages,setMessages]=useState<any[]>([])
+  const [chatEnabled,setChatEnabled]=useState(true)
+  const [loading,setLoading]=useState(true)
+  const pollRef=useRef<any>(null)
+  const bottomRef=useRef<HTMLDivElement>(null)
+
+  function maskName(name:string){
+    if(!name)return'u***'
+    const c=name.trim()
+    return c.length<=2?c[0]+'***':c.slice(0,2)+'***'
+  }
+
+  const load=()=>{
+    fetch(api+'/api/chat/admin/messages',{headers:{'Authorization':'Bearer '+token}})
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.messages){setMessages(d.messages);setChatEnabled(d.chat_enabled)}
+        setLoading(false)
+        setTimeout(()=>bottomRef.current?.scrollIntoView({behavior:'smooth'}),50)
+      }).catch(()=>setLoading(false))
+  }
+
+  useEffect(()=>{
+    load()
+    pollRef.current=setInterval(load,5000)
+    return()=>clearInterval(pollRef.current)
+  },[])
+
+  async function toggleChat(){
+    const next=!chatEnabled
+    await fetch(api+'/api/chat/admin/toggle',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({enabled:next})})
+    setChatEnabled(next)
+    showToast(next?'Chat ativado':'Chat desativado')
+  }
+
+  async function deleteMsg(id:string){
+    await fetch(api+'/api/chat/admin/messages/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+token}})
+    setMessages(m=>m.filter(x=>x.id!==id))
+    showToast('Mensagem removida')
+  }
+
+  return(
+    <div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:'12px'}}>
+        <div>
+          <h1 style={{fontSize:'20px',fontWeight:700,fontFamily:"'Manrope',sans-serif",margin:0}}>Chat ao Vivo</h1>
+          <p style={{fontSize:'12px',color:'#666',margin:'4px 0 0'}}>Monitore e modere mensagens em tempo real</p>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+          <button onClick={load} style={{padding:'8px 14px',borderRadius:'8px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'#aaa',fontSize:'12px',cursor:'pointer',display:'flex',alignItems:'center',gap:'6px'}}>
+            <RefreshCw size={13}/> Atualizar
+          </button>
+          <div style={{display:'flex',alignItems:'center',gap:'10px',padding:'8px 16px',borderRadius:'10px',background:chatEnabled?'rgba(34,197,94,0.08)':'rgba(239,68,68,0.08)',border:`1px solid ${chatEnabled?'rgba(34,197,94,0.25)':'rgba(239,68,68,0.25)'}`}}>
+            <span style={{fontSize:'12px',fontWeight:600,color:chatEnabled?'#4ade80':'#f87171'}}>{chatEnabled?'Chat ATIVO':'Chat INATIVO'}</span>
+            <button onClick={toggleChat} style={{position:'relative',width:'40px',height:'22px',borderRadius:'11px',border:'none',background:chatEnabled?'#22c55e':'#ef4444',cursor:'pointer',transition:'background 0.2s',flexShrink:0}}>
+              <div style={{position:'absolute',top:'3px',left:chatEnabled?'21px':'3px',width:'16px',height:'16px',borderRadius:'50%',background:'#fff',transition:'left 0.2s'}}/>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'12px'}}>
+        {[
+          {label:'Total de Mensagens',val:messages.length,color:'#60a5fa'},
+          {label:'Mercados com Chat',val:new Set(messages.map((m:any)=>m.market_id)).size,color:'#4ade80'},
+          {label:'Usuários Únicos',val:new Set(messages.map((m:any)=>m.username)).size,color:'#f59e0b'},
+        ].map(s=>(
+          <div key={s.label} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',padding:'16px'}}>
+            <div style={{fontSize:'24px',fontWeight:800,color:s.color}}>{s.val}</div>
+            <div style={{fontSize:'11px',color:'#666',marginTop:'4px'}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Feed de mensagens */}
+      <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'14px',overflow:'hidden'}}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:'8px'}}>
+          <span style={{width:'7px',height:'7px',borderRadius:'50%',background:'#ff4444',display:'inline-block',animation:'pulse 1.2s infinite'}}/>
+          <span style={{fontSize:'13px',fontWeight:600}}>Feed ao vivo</span>
+          <span style={{marginLeft:'auto',fontSize:'11px',color:'#555'}}>atualiza a cada 5s</span>
+        </div>
+        <div style={{maxHeight:'500px',overflowY:'auto',padding:'12px'}}>
+          {loading&&<div style={{textAlign:'center',padding:'40px',color:'#555'}}>Carregando...</div>}
+          {!loading&&messages.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#555'}}>Nenhuma mensagem ainda</div>}
+          {[...messages].reverse().map((msg:any)=>(
+            <div key={msg.id} style={{display:'flex',alignItems:'flex-start',gap:'12px',padding:'10px 12px',borderRadius:'10px',marginBottom:'6px',background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.05)',transition:'background 0.15s'}}>
+              <div style={{width:'32px',height:'32px',borderRadius:'50%',background:'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'12px',fontWeight:700,color:'#818cf8'}}>
+                {maskName(msg.username)[0]?.toUpperCase()}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'3px',flexWrap:'wrap'}}>
+                  <span style={{fontSize:'12px',fontWeight:700,color:'#818cf8'}}>{maskName(msg.username)}</span>
+                  <span style={{fontSize:'10px',color:'#555',background:'rgba(255,255,255,0.04)',borderRadius:'4px',padding:'1px 6px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'200px'}}>{msg.market_question}</span>
+                  <span style={{fontSize:'10px',color:'#444',marginLeft:'auto'}}>{new Date(msg.created_at).toLocaleTimeString('pt-BR')}</span>
+                </div>
+                <p style={{fontSize:'13px',color:'#ccc',margin:0,wordBreak:'break-word'}}>{msg.message}</p>
+              </div>
+              <button onClick={()=>deleteMsg(msg.id)} title="Remover" style={{padding:'5px',borderRadius:'6px',border:'none',background:'rgba(239,68,68,0.08)',color:'#f87171',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <Trash2 size={13}/>
+              </button>
+            </div>
+          ))}
+          <div ref={bottomRef}/>
+        </div>
+      </div>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
     </div>
   )
 }

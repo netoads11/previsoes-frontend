@@ -64,6 +64,7 @@ export default function Home() {
   const [chatMessages, setChatMessages] = useState<{id:string,username:string,message:string,created_at:string}[]>([])
   const [chatInput, setChatInput] = useState('')
   const [chatSending, setChatSending] = useState(false)
+  const [chatGlobalEnabled, setChatGlobalEnabled] = useState(true)
   const chatPollRef = useRef<any>(null)
   const chatBottomRef = useRef<HTMLDivElement>(null)
 
@@ -131,6 +132,13 @@ export default function Home() {
     return () => clearInterval(id)
   }, [marketModal])
 
+  function maskName(name: string) {
+    if (!name) return 'u***'
+    const clean = name.trim()
+    if (clean.length <= 2) return clean[0] + '***'
+    return clean.slice(0, 2) + '***'
+  }
+
   // Chat ao vivo — polling
   useEffect(() => {
     if (!marketModal || marketModal.status !== 'live') {
@@ -138,6 +146,9 @@ export default function Home() {
       setChatMessages([])
       return
     }
+    // Verifica se chat está ativo globalmente
+    fetch(API + '/api/chat/admin/messages').then(r=>r.json()).then(d=>{ if(typeof d.chat_enabled==='boolean') setChatGlobalEnabled(d.chat_enabled) }).catch(()=>{})
+
     const load = () => {
       fetch(API + '/api/chat/' + marketModal.id)
         .then(r => r.json())
@@ -995,10 +1006,10 @@ export default function Home() {
                   {chatMessages.map(msg => (
                     <div key={msg.id} style={{display:'flex',gap:'8px',alignItems:'flex-start'}}>
                       <div style={{width:'26px',height:'26px',borderRadius:'50%',background:'rgba(var(--primary-rgb,34,197,94),0.15)',border:'1px solid rgba(var(--primary-rgb,34,197,94),0.3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'10px',fontWeight:700,color:'var(--primary)'}}>
-                        {msg.username?.[0]?.toUpperCase() || '?'}
+                        u
                       </div>
                       <div style={{flex:1,minWidth:0}}>
-                        <span style={{fontSize:'11px',fontWeight:700,color:'var(--primary)'}}>{msg.username} </span>
+                        <span style={{fontSize:'11px',fontWeight:700,color:'var(--primary)'}}>{maskName(msg.username)} </span>
                         <span style={{fontSize:'12px',color:'rgba(255,255,255,0.75)',wordBreak:'break-word'}}>{msg.message}</span>
                       </div>
                     </div>
@@ -1007,23 +1018,29 @@ export default function Home() {
                 </div>
                 {/* Input */}
                 <div style={{display:'flex',gap:'8px',padding:'10px 12px',background:'rgba(255,255,255,0.03)',borderTop:'1px solid rgba(255,255,255,0.06)'}}>
-                  <input
-                    type="text"
-                    placeholder={user ? 'Comentar...' : 'Entre para comentar'}
-                    value={chatInput}
-                    maxLength={200}
-                    onChange={e => setChatInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && sendChatMessage()}
-                    disabled={!user}
-                    style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',outline:'none',opacity:user?1:0.5}}
-                  />
-                  <button
-                    onClick={sendChatMessage}
-                    disabled={!user || chatSending || !chatInput.trim()}
-                    style={{padding:'8px 14px',borderRadius:'8px',border:'none',background:'var(--primary)',color:'#000',fontWeight:700,fontSize:'12px',cursor:(!user||chatSending||!chatInput.trim())?'not-allowed':'pointer',opacity:(!user||chatSending||!chatInput.trim())?0.4:1,whiteSpace:'nowrap',transition:'opacity 0.15s'}}
-                  >
-                    {chatSending ? '...' : 'Enviar'}
-                  </button>
+                  {chatGlobalEnabled ? (
+                    <>
+                      <input
+                        type="text"
+                        placeholder={user ? 'Comentar...' : 'Entre para comentar'}
+                        value={chatInput}
+                        maxLength={200}
+                        onChange={e => setChatInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && sendChatMessage()}
+                        disabled={!user}
+                        style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',outline:'none',opacity:user?1:0.5}}
+                      />
+                      <button
+                        onClick={sendChatMessage}
+                        disabled={!user || chatSending || !chatInput.trim()}
+                        style={{padding:'8px 14px',borderRadius:'8px',border:'none',background:'var(--primary)',color:'#000',fontWeight:700,fontSize:'12px',cursor:(!user||chatSending||!chatInput.trim())?'not-allowed':'pointer',opacity:(!user||chatSending||!chatInput.trim())?0.4:1,whiteSpace:'nowrap',transition:'opacity 0.15s'}}
+                      >
+                        {chatSending ? '...' : 'Enviar'}
+                      </button>
+                    </>
+                  ) : (
+                    <span style={{flex:1,textAlign:'center',fontSize:'12px',color:'rgba(255,255,255,0.3)',padding:'8px'}}>Chat desativado pelo administrador</span>
+                  )}
                 </div>
               </div>
             )}
