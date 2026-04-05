@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import BottomNav from './components/BottomNav'
@@ -61,6 +61,11 @@ export default function Home() {
   const [banners, setBanners] = useState<any[]>([])
   const [bannerIdx, setBannerIdx] = useState(0)
   const [cats, setCats] = useState<{name:string}[]>([{name:'Live'},{name:'Explorar'}])
+  const [chatMessages, setChatMessages] = useState<{id:string,username:string,message:string,created_at:string}[]>([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatSending, setChatSending] = useState(false)
+  const chatPollRef = useRef<any>(null)
+  const chatBottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const u = localStorage.getItem('user')
@@ -125,6 +130,44 @@ export default function Home() {
     const id = setInterval(calc, 1000)
     return () => clearInterval(id)
   }, [marketModal])
+
+  // Chat ao vivo — polling
+  useEffect(() => {
+    if (!marketModal || marketModal.status !== 'live') {
+      clearInterval(chatPollRef.current)
+      setChatMessages([])
+      return
+    }
+    const load = () => {
+      fetch(API + '/api/chat/' + marketModal.id)
+        .then(r => r.json())
+        .then(d => { if (Array.isArray(d)) { setChatMessages(d); setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50) } })
+        .catch(() => {})
+    }
+    load()
+    chatPollRef.current = setInterval(load, 4000)
+    return () => clearInterval(chatPollRef.current)
+  }, [marketModal?.id, marketModal?.status])
+
+  async function sendChatMessage() {
+    if (!chatInput.trim() || chatSending) return
+    const token = localStorage.getItem('token')
+    if (!token) { setAuthModal(true); return }
+    setChatSending(true)
+    try {
+      await fetch(API + '/api/chat/' + marketModal!.id, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body: JSON.stringify({ message: chatInput.trim() })
+      })
+      setChatInput('')
+      // Recarrega imediatamente
+      const r = await fetch(API + '/api/chat/' + marketModal!.id)
+      const d = await r.json()
+      if (Array.isArray(d)) { setChatMessages(d); setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50) }
+    } catch {}
+    setChatSending(false)
+  }
 
   function getInitials(name: string) {
     return name.split(' ').filter(Boolean).map((n:string)=>n[0]).slice(0,2).join('').toUpperCase()
@@ -930,6 +973,58 @@ export default function Home() {
                 <span style={{fontSize:'12px',color:'var(--muted-foreground)'}}>Retorno potencial: </span>
                 <span style={{fontSize:'14px',fontWeight:700,color:'var(--primary)'}}>R$ {mGain}</span>
                 <span style={{fontSize:'11px',color:'#444'}}> (odd {mOdd.toFixed(2)}x)</span>
+              </div>
+            )}
+
+            {/* ── CHAT AO VIVO ── */}
+            {marketModal.status === 'live' && (
+              <div style={{margin:'16px 20px 0',borderRadius:'16px',overflow:'hidden',border:'1px solid rgba(255,255,255,0.07)'}}>
+                {/* Header chat */}
+                <div style={{background:'rgba(255,0,0,0.08)',borderBottom:'1px solid rgba(255,255,255,0.06)',padding:'10px 14px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <span style={{width:'7px',height:'7px',borderRadius:'50%',background:'#ff4444',display:'inline-block',animation:'livePulse 1.2s infinite'}}/>
+                  <span style={{fontSize:'11px',fontWeight:700,color:'#fff',letterSpacing:'0.08em',textTransform:'uppercase'}}>Chat ao vivo</span>
+                  <span style={{marginLeft:'auto',fontSize:'10px',color:'rgba(255,255,255,0.3)'}}>{chatMessages.length} msgs</span>
+                </div>
+                {/* Mensagens */}
+                <div style={{height:'180px',overflowY:'auto',padding:'10px 14px',background:'rgba(255,255,255,0.02)',display:'flex',flexDirection:'column',gap:'8px'}}>
+                  {chatMessages.length === 0 && (
+                    <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontSize:'12px',color:'rgba(255,255,255,0.2)'}}>Seja o primeiro a comentar!</span>
+                    </div>
+                  )}
+                  {chatMessages.map(msg => (
+                    <div key={msg.id} style={{display:'flex',gap:'8px',alignItems:'flex-start'}}>
+                      <div style={{width:'26px',height:'26px',borderRadius:'50%',background:'rgba(var(--primary-rgb,34,197,94),0.15)',border:'1px solid rgba(var(--primary-rgb,34,197,94),0.3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'10px',fontWeight:700,color:'var(--primary)'}}>
+                        {msg.username?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <span style={{fontSize:'11px',fontWeight:700,color:'var(--primary)'}}>{msg.username} </span>
+                        <span style={{fontSize:'12px',color:'rgba(255,255,255,0.75)',wordBreak:'break-word'}}>{msg.message}</span>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={chatBottomRef}/>
+                </div>
+                {/* Input */}
+                <div style={{display:'flex',gap:'8px',padding:'10px 12px',background:'rgba(255,255,255,0.03)',borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+                  <input
+                    type="text"
+                    placeholder={user ? 'Comentar...' : 'Entre para comentar'}
+                    value={chatInput}
+                    maxLength={200}
+                    onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendChatMessage()}
+                    disabled={!user}
+                    style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',outline:'none',opacity:user?1:0.5}}
+                  />
+                  <button
+                    onClick={sendChatMessage}
+                    disabled={!user || chatSending || !chatInput.trim()}
+                    style={{padding:'8px 14px',borderRadius:'8px',border:'none',background:'var(--primary)',color:'#000',fontWeight:700,fontSize:'12px',cursor:(!user||chatSending||!chatInput.trim())?'not-allowed':'pointer',opacity:(!user||chatSending||!chatInput.trim())?0.4:1,whiteSpace:'nowrap',transition:'opacity 0.15s'}}
+                  >
+                    {chatSending ? '...' : 'Enviar'}
+                  </button>
+                </div>
               </div>
             )}
 
