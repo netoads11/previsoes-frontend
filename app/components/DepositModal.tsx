@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { CreditCard } from 'lucide-react'
 
 export default function DepositModal({onClose, balance, setBalance, minDeposit, API}: {
@@ -9,14 +9,16 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
   minDeposit: string
   API: string
 }) {
-  const [step, setStep]             = useState<'amount'|'cpf'|'pix'>('amount')
+  const [step, setStep]             = useState<'amount'|'cpf'|'pix'|'done'>('amount')
   const [amount, setAmount]         = useState('')
   const [cpf, setCpf]               = useState('')
+  const [txId, setTxId]             = useState('')
   const [pixCode, setPixCode]       = useState('')
   const [qrCodeImage, setQrCodeImage] = useState('')
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState('')
   const [copied, setCopied]         = useState(false)
+  const pollRef = useRef<any>(null)
 
   const num = Number(amount) || 0
   const min = Number(minDeposit) || 10
@@ -52,7 +54,23 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar depósito')
       setPixCode(data.pix_code || '')
       setQrCodeImage(data.qr_code_image || '')
+      setTxId(data.id || '')
       setStep('pix')
+      // Polling a cada 5s para detectar pagamento confirmado
+      pollRef.current = setInterval(async () => {
+        try {
+          const t = localStorage.getItem('token')
+          const r = await fetch(API + '/api/wallet/transaction/' + data.id + '/status', {
+            headers: { 'Authorization': 'Bearer ' + (t||'') }
+          })
+          const d = await r.json()
+          if (d.status === 'completed') {
+            clearInterval(pollRef.current)
+            setBalance((b: number) => b + num)
+            setStep('done')
+          }
+        } catch {}
+      }, 5000)
     } catch(e:any) {
       setError(e.message)
     } finally {
@@ -206,6 +224,23 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
               O saldo será creditado automaticamente após a confirmação do pagamento
             </p>
             <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+          </div>
+        )}
+
+        {/* ── Tela de sucesso ── */}
+        {step === 'done' && (
+          <div style={{padding:'0 20px',textAlign:'center',paddingTop:'48px'}}>
+            <div style={{width:'72px',height:'72px',borderRadius:'50%',background:'rgba(var(--primary-rgb,106,221,0),0.15)',border:'2px solid var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <h3 style={{fontSize:'22px',fontWeight:900,color:'#fff',marginBottom:'8px'}}>Pagamento confirmado!</h3>
+            <p style={{fontSize:'15px',color:'rgba(255,255,255,0.5)',marginBottom:'4px'}}>
+              <span style={{color:'var(--primary)',fontWeight:800,fontSize:'22px'}}>+R$ {num.toFixed(2).replace('.',',')}</span>
+            </p>
+            <p style={{fontSize:'13px',color:'rgba(255,255,255,0.4)',marginBottom:'36px'}}>já disponível na sua carteira</p>
+            <button onClick={onClose} style={{width:'100%',padding:'17px',borderRadius:'14px',border:'none',background:'var(--primary)',color:'#000',fontWeight:900,fontSize:'16px',cursor:'pointer',boxShadow:'0 0 28px rgba(var(--primary-rgb,106,221,0),0.35)',fontFamily:'Kanit,sans-serif'}}>
+              APOSTAR AGORA
+            </button>
           </div>
         )}
 
