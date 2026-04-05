@@ -737,8 +737,8 @@ export default function Home() {
                       {/* Título + barra */}
                       <div style={{fontSize:'13px',fontWeight:600,color:'#fff',marginBottom:'6px'}}>{opt.title}</div>
                       <div style={{height:'3px',borderRadius:'2px',overflow:'hidden',display:'flex',marginBottom:'4px'}}>
-                        <div style={{width:`${yp}%`,background:'var(--primary)',transition:'width 0.3s'}}/>
-                        <div style={{flex:1,background:'rgba(255,255,255,0.1)'}}/>
+                        <div style={{width:`${yp}%`,background:'var(--sim)',transition:'width 0.3s'}}/>
+                        <div style={{flex:1,background:'#ef4444'}}/>
                       </div>
                       <div style={{fontSize:'10px',color:'var(--muted-foreground)',marginBottom:'10px'}}>{yp}% · {yOdd}x</div>
                       {/* Botões: SIM/NÃO ou Escolha única */}
