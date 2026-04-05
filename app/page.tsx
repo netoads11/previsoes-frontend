@@ -241,7 +241,6 @@ export default function Home() {
   const [balanceBonus, setBalanceBonus] = useState(0)
   const [rolloverRequired, setRolloverRequired] = useState(0)
   const [rolloverDone, setRolloverDone] = useState(0)
-  const [autoWithdrawModal, setAutoWithdrawModal] = useState(false)
 
   // BET PANEL VALUES
   const betMarket = betPanel?.market
@@ -386,12 +385,7 @@ export default function Home() {
                         background:'rgba(255,255,255,0.05)',color:'#fff',fontSize:'12px',
                         cursor:'pointer',textAlign:'left',marginBottom:'6px',
                       }}>👤 Meu Perfil</button>
-                      <button onClick={()=>{setUserMenuOpen(false);setAutoWithdrawModal(true)}} style={{
-                        width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
-                        background:'rgba(255,255,255,0.05)',color:'#fff',fontSize:'12px',
-                        cursor:'pointer',textAlign:'left',marginBottom:'6px',
-                      }}>⚙️ Saque Automático</button>
-                      <button onClick={handleLogout} style={{
+<button onClick={handleLogout} style={{
                         width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
                         background:'rgba(239,68,68,0.08)',color:'#ef4444',fontSize:'12px',
                         cursor:'pointer',textAlign:'left',
