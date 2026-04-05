@@ -37,6 +37,7 @@ export default function Cadastrar() {
 
   function goStep2() {
     if (!name.trim()) { setError('Informe seu nome completo'); return }
+    if (phone.replace(/\D/g,'').length < 10) { setError('Informe seu telefone com DDD'); return }
     setError('')
     setStep(2)
     setTimeout(() => emailRef.current?.focus(), 100)
@@ -214,7 +215,7 @@ export default function Cadastrar() {
 
               <div>
                 <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>
-                  Telefone com DDD <span style={{color:'rgba(255,255,255,0.2)',fontWeight:400}}>(opcional)</span>
+                  Telefone com DDD
                 </label>
                 <div style={{position:'relative'}}>
                   <Phone style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
