@@ -1039,7 +1039,7 @@ export default function Home() {
                       </button>
                     </>
                   ) : (
-                    <span style={{flex:1,textAlign:'center',fontSize:'12px',color:'rgba(255,255,255,0.3)',padding:'8px'}}>Chat desativado pelo administrador</span>
+                    <span style={{flex:1,textAlign:'center',fontSize:'12px',color:'rgba(255,255,255,0.3)',padding:'8px'}}>Chat desativado</span>
                   )}
                 </div>
               </div>
