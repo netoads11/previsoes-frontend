@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { io as socketIO, Socket } from 'socket.io-client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import BottomNav from './components/BottomNav'
@@ -65,7 +66,7 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('')
   const [chatSending, setChatSending] = useState(false)
   const [chatGlobalEnabled, setChatGlobalEnabled] = useState(true)
-  const chatPollRef = useRef<any>(null)
+  const socketRef = useRef<Socket|null>(null)
   const chatBottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -139,25 +140,41 @@ export default function Home() {
     return clean.slice(0, 2) + '***'
   }
 
-  // Chat ao vivo — polling
+  // Chat ao vivo — Socket.io
   useEffect(() => {
     if (!marketModal || marketModal.status !== 'live') {
-      clearInterval(chatPollRef.current)
+      socketRef.current?.disconnect()
+      socketRef.current = null
       setChatMessages([])
       return
     }
-    // Verifica se chat está ativo globalmente
-    fetch(API + '/api/chat/admin/messages').then(r=>r.json()).then(d=>{ if(typeof d.chat_enabled==='boolean') setChatGlobalEnabled(d.chat_enabled) }).catch(()=>{})
 
-    const load = () => {
-      fetch(API + '/api/chat/' + marketModal.id)
-        .then(r => r.json())
-        .then(d => { if (Array.isArray(d)) { setChatMessages(d); setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50) } })
-        .catch(() => {})
+    // Verifica se chat está ativo
+    fetch(API + '/api/chat/admin/messages')
+      .then(r => r.json())
+      .then(d => { if (typeof d.chat_enabled === 'boolean') setChatGlobalEnabled(d.chat_enabled) })
+      .catch(() => {})
+
+    // Carrega histórico inicial
+    fetch(API + '/api/chat/' + marketModal.id)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) { setChatMessages(d); setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50) } })
+      .catch(() => {})
+
+    // Conecta Socket.io
+    const socket = socketIO(API, { transports: ['websocket', 'polling'] })
+    socketRef.current = socket
+    socket.emit('join_market', marketModal.id)
+    socket.on('new_message', (msg: any) => {
+      setChatMessages(prev => [...prev, msg])
+      setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50)
+    })
+
+    return () => {
+      socket.emit('leave_market', marketModal.id)
+      socket.disconnect()
+      socketRef.current = null
     }
-    load()
-    chatPollRef.current = setInterval(load, 4000)
-    return () => clearInterval(chatPollRef.current)
   }, [marketModal?.id, marketModal?.status])
 
   async function sendChatMessage() {
@@ -171,15 +188,8 @@ export default function Home() {
         headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
         body: JSON.stringify({ message: chatInput.trim() })
       })
-      if (!res.ok) {
-        const err = await res.json()
-        if (err.error === 'Saldo insuficiente') { setChatSending(false); return }
-        setChatSending(false); return
-      }
+      if (!res.ok) { setChatSending(false); return }
       setChatInput('')
-      const r = await fetch(API + '/api/chat/' + marketModal!.id)
-      const d = await r.json()
-      if (Array.isArray(d)) { setChatMessages(d); setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50) }
     } catch {}
     setChatSending(false)
   }
