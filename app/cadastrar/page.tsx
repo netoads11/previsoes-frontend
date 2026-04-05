@@ -2,19 +2,22 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { User, Mail, Lock, Eye, EyeOff, X } from 'lucide-react'
+import { User, Mail, Lock, Eye, EyeOff, Phone, X } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://ww5y7zdj6dn9y63m6zk4ec7r.187.77.248.115.sslip.io'
 
 export default function Cadastrar() {
   const router = useRouter()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPass, setShowPass] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [refCode, setRefCode] = useState('')
+  const [name, setName]           = useState('')
+  const [phone, setPhone]         = useState('')
+  const [email, setEmail]         = useState('')
+  const [password, setPassword]   = useState('')
+  const [confirm, setConfirm]     = useState('')
+  const [showPass, setShowPass]   = useState(false)
+  const [showConf, setShowConf]   = useState(false)
+  const [error, setError]         = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [refCode, setRefCode]     = useState('')
 
   useEffect(() => {
     if (localStorage.getItem('token')) { router.push('/'); return }
@@ -23,15 +26,30 @@ export default function Cadastrar() {
     if (r) setRefCode(r.toUpperCase())
   }, [])
 
+  function fmtPhone(v: string) {
+    const d = v.replace(/\D/g,'').slice(0,11)
+    if (d.length <= 2) return d.length ? '('+d : d
+    if (d.length <= 7) return '('+d.slice(0,2)+') '+d.slice(2)
+    return '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7)
+  }
+
   async function handleCadastro(e: any) {
     e.preventDefault()
+    if (password !== confirm) { setError('As senhas não coincidem'); return }
+    if (password.length < 8)  { setError('Senha deve ter no mínimo 8 caracteres'); return }
     setLoading(true)
     setError('')
     try {
       const res = await fetch(API + '/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, ...(refCode ? { ref: refCode } : {}) })
+        body: JSON.stringify({
+          name,
+          phone: phone.replace(/\D/g,'') || undefined,
+          email,
+          password,
+          ...(refCode ? { ref: refCode } : {})
+        })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -45,53 +63,43 @@ export default function Cadastrar() {
     }
   }
 
+  const inputStyle: React.CSSProperties = {
+    width:'100%', background:'rgba(255,255,255,0.06)',
+    border:'1px solid rgba(255,255,255,0.1)', borderRadius:'10px',
+    padding:'13px 13px 13px 40px', color:'#fff', fontSize:'14px',
+    outline:'none', fontFamily:'Kanit,sans-serif', boxSizing:'border-box'
+  }
+  const focus = (e: React.FocusEvent<HTMLInputElement>) => e.target.style.borderColor='rgba(106,221,0,0.5)'
+  const blur  = (e: React.FocusEvent<HTMLInputElement>) => e.target.style.borderColor='rgba(255,255,255,0.1)'
+
   return (
     <>
       <style>{`
-        .auth-container {
-          display: flex;
-          min-height: 100vh;
-          background: #0d0d0d;
-          font-family: Kanit, sans-serif;
-        }
+        .auth-container { display:flex; min-height:100vh; background:#0d0d0d; font-family:Kanit,sans-serif; }
         .auth-left {
-          flex: 1;
-          background: linear-gradient(135deg, #0a0a0a 0%, #0d1a00 50%, #0a0f00 100%);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 48px;
-          position: relative;
-          overflow: hidden;
+          flex:1; background:linear-gradient(135deg,#0a0a0a 0%,#0d1a00 50%,#0a0f00 100%);
+          display:flex; flex-direction:column; justify-content:space-between;
+          padding:48px; position:relative; overflow:hidden;
         }
         .auth-right {
-          width: 480px;
-          flex-shrink: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 48px;
-          border-left: 1px solid rgba(255,255,255,0.06);
+          width:480px; flex-shrink:0; display:flex; flex-direction:column;
+          justify-content:center; padding:48px;
+          border-left:1px solid rgba(255,255,255,0.06);
         }
-        @media (max-width: 768px) {
-          .auth-container { flex-direction: column; }
-          .auth-left { display: none; }
-          .auth-right {
-            width: 100%;
-            padding: 40px 24px;
-            border-left: none;
-            justify-content: flex-start;
-            padding-top: 60px;
-          }
+        @media(max-width:768px){
+          .auth-container{ flex-direction:column; }
+          .auth-left{ display:none; }
+          .auth-right{ width:100%; padding:40px 24px; border-left:none; justify-content:flex-start; padding-top:60px; }
         }
       `}</style>
+
       <div className="auth-container">
-        <button
-          onClick={() => router.push('/')}
-          style={{position:'fixed',top:'16px',right:'16px',width:'36px',height:'36px',borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'1px solid rgba(255,255,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:50}}
-        >
+        <button onClick={()=>router.push('/')}
+          style={{position:'fixed',top:'16px',right:'16px',width:'36px',height:'36px',borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'1px solid rgba(255,255,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:50}}>
           <X style={{width:'18px',height:'18px',color:'#fff'}}/>
         </button>
+
+        {/* Left panel */}
         <div className="auth-left">
           <div style={{position:'absolute',top:'-80px',right:'-80px',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.15) 0%,transparent 70%)'}}/>
           <div style={{position:'absolute',bottom:'-60px',left:'-60px',width:'250px',height:'250px',borderRadius:'50%',background:'radial-gradient(circle,rgba(106,221,0,0.08) 0%,transparent 70%)'}}/>
@@ -126,8 +134,9 @@ export default function Cadastrar() {
           <p style={{color:'rgba(255,255,255,0.2)',fontSize:'12px',position:'relative'}}>© 2026 Previmarket</p>
         </div>
 
+        {/* Right panel — form */}
         <div className="auth-right">
-          <div style={{marginBottom:'32px'}}>
+          <div style={{marginBottom:'28px'}}>
             <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'24px'}}>
               <div style={{width:'30px',height:'30px',borderRadius:'7px',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center'}}>
                 <span style={{color:'#0a0a0a',fontWeight:800,fontSize:'13px'}}>P</span>
@@ -135,7 +144,7 @@ export default function Cadastrar() {
               <span style={{color:'#fff',fontWeight:700,fontSize:'16px'}}>Previmarket</span>
             </div>
             <h2 style={{fontSize:'26px',fontWeight:800,color:'#fff',marginBottom:'6px'}}>Crie sua conta!</h2>
-            <p style={{color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>Comece a concorrer a premios hoje!</p>
+            <p style={{color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>Comece a concorrer a prêmios hoje!</p>
           </div>
 
           {refCode && (
@@ -145,48 +154,86 @@ export default function Cadastrar() {
           )}
 
           {error && (
-            <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'8px',padding:'12px 16px',marginBottom:'20px',color:'#f87171',fontSize:'14px'}}>
+            <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'8px',padding:'12px 16px',marginBottom:'16px',color:'#f87171',fontSize:'14px'}}>
               {error}
             </div>
           )}
 
           <form onSubmit={handleCadastro} style={{display:'flex',flexDirection:'column',gap:'14px'}}>
+            {/* Nome */}
             <div>
               <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Nome completo</label>
               <div style={{position:'relative'}}>
                 <User style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
-                <input type="text" value={name} onChange={e=>setName(e.target.value)} required placeholder="Seu nome"
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px 13px 13px 40px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}
-                  onFocus={e=>e.target.style.borderColor='rgba(106,221,0,0.5)'}
-                  onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.1)'}/>
+                <input type="text" value={name} onChange={e=>setName(e.target.value)} required
+                  placeholder="Seu nome completo" style={inputStyle} onFocus={focus} onBlur={blur}/>
               </div>
             </div>
+
+            {/* Telefone */}
+            <div>
+              <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Telefone com DDD</label>
+              <div style={{position:'relative'}}>
+                <Phone style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
+                <input type="text" value={phone} onChange={e=>setPhone(fmtPhone(e.target.value))}
+                  placeholder="(11) 99999-9999" inputMode="numeric" style={inputStyle} onFocus={focus} onBlur={blur}/>
+              </div>
+            </div>
+
+            {/* Email */}
             <div>
               <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Email</label>
               <div style={{position:'relative'}}>
                 <Mail style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
-                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="exemplo@gmail.com"
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px 13px 13px 40px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}
-                  onFocus={e=>e.target.style.borderColor='rgba(106,221,0,0.5)'}
-                  onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.1)'}/>
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required
+                  placeholder="exemplo@gmail.com" style={inputStyle} onFocus={focus} onBlur={blur}/>
               </div>
             </div>
+
+            {/* Senha */}
             <div>
               <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Senha</label>
               <div style={{position:'relative'}}>
                 <Lock style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
-                <input type={showPass?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} required minLength={8} placeholder="Minimo 8 caracteres"
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'13px 40px 13px 40px',color:'#fff',fontSize:'14px',outline:'none',fontFamily:'Kanit,sans-serif'}}
-                  onFocus={e=>e.target.style.borderColor='rgba(106,221,0,0.5)'}
-                  onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.1)'}/>
-                <button type="button" onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:'13px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,0.3)',padding:'0'}}>
+                <input type={showPass?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)}
+                  required minLength={8} placeholder="Mínimo 8 caracteres"
+                  style={{...inputStyle, paddingRight:'40px'}} onFocus={focus} onBlur={blur}/>
+                <button type="button" onClick={()=>setShowPass(!showPass)}
+                  style={{position:'absolute',right:'13px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,0.3)',padding:0,display:'flex'}}>
                   {showPass?<EyeOff style={{width:'15px',height:'15px'}}/>:<Eye style={{width:'15px',height:'15px'}}/>}
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={loading}
-              style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',cursor:loading?'not-allowed':'pointer',background:'var(--primary)',color:'#0a0a0a',fontWeight:800,fontSize:'15px',fontFamily:'Kanit,sans-serif',boxShadow:'0 0 24px rgba(106,221,0,0.35)',opacity:loading?0.7:1,marginTop:'6px',letterSpacing:'0.02em'}}>
-              {loading?'Criando conta...':'CRIAR CONTA'}
+
+            {/* Confirmar senha */}
+            <div>
+              <label style={{fontSize:'12px',color:'rgba(255,255,255,0.5)',display:'block',marginBottom:'6px'}}>Confirmar senha</label>
+              <div style={{position:'relative'}}>
+                <Lock style={{position:'absolute',left:'13px',top:'50%',transform:'translateY(-50%)',width:'15px',height:'15px',color:'rgba(255,255,255,0.3)'}}/>
+                <input type={showConf?'text':'password'} value={confirm} onChange={e=>setConfirm(e.target.value)}
+                  required placeholder="Repita a senha"
+                  style={{...inputStyle, paddingRight:'40px',
+                    borderColor: confirm && confirm !== password ? 'rgba(239,68,68,0.5)' : undefined
+                  }}
+                  onFocus={focus} onBlur={blur}/>
+                <button type="button" onClick={()=>setShowConf(!showConf)}
+                  style={{position:'absolute',right:'13px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,0.3)',padding:0,display:'flex'}}>
+                  {showConf?<EyeOff style={{width:'15px',height:'15px'}}/>:<Eye style={{width:'15px',height:'15px'}}/>}
+                </button>
+              </div>
+              {confirm && confirm !== password && (
+                <p style={{fontSize:'11px',color:'#f87171',marginTop:'4px'}}>As senhas não coincidem</p>
+              )}
+            </div>
+
+            <button type="submit" disabled={loading || (!!confirm && confirm !== password)}
+              style={{width:'100%',padding:'15px',borderRadius:'10px',border:'none',
+                cursor:(loading||(!!confirm&&confirm!==password))?'not-allowed':'pointer',
+                background:'var(--primary)',color:'#0a0a0a',fontWeight:800,fontSize:'15px',
+                fontFamily:'Kanit,sans-serif',boxShadow:'0 0 24px rgba(106,221,0,0.35)',
+                opacity:(loading||(!!confirm&&confirm!==password))?0.6:1,
+                marginTop:'6px',letterSpacing:'0.02em',transition:'opacity 0.2s'}}>
+              {loading ? 'Criando conta...' : 'CRIAR CONTA'}
             </button>
           </form>
 
@@ -197,7 +244,7 @@ export default function Cadastrar() {
           </div>
 
           <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>
-            Ja tem uma conta?{' '}
+            Já tem uma conta?{' '}
             <Link href="/login" style={{color:'var(--primary)',fontWeight:600,textDecoration:'none'}}>Entrar</Link>
           </p>
         </div>
