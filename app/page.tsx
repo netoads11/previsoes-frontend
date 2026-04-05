@@ -166,13 +166,17 @@ export default function Home() {
     if (!token) { setAuthModal(true); return }
     setChatSending(true)
     try {
-      await fetch(API + '/api/chat/' + marketModal!.id, {
+      const res = await fetch(API + '/api/chat/' + marketModal!.id, {
         method: 'POST',
         headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
         body: JSON.stringify({ message: chatInput.trim() })
       })
+      if (!res.ok) {
+        const err = await res.json()
+        if (err.error === 'Saldo insuficiente') { setChatSending(false); return }
+        setChatSending(false); return
+      }
       setChatInput('')
-      // Recarrega imediatamente
       const r = await fetch(API + '/api/chat/' + marketModal!.id)
       const d = await r.json()
       if (Array.isArray(d)) { setChatMessages(d); setTimeout(() => chatBottomRef.current?.scrollIntoView({behavior:'smooth'}), 50) }
@@ -1022,18 +1026,18 @@ export default function Home() {
                     <>
                       <input
                         type="text"
-                        placeholder={user ? 'Comentar...' : 'Entre para comentar'}
+                        placeholder={!user ? 'Entre para comentar' : balance <= 0 ? 'Deposite para participar do chat' : 'Comentar...'}
                         value={chatInput}
                         maxLength={200}
                         onChange={e => setChatInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && sendChatMessage()}
-                        disabled={!user}
-                        style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',outline:'none',opacity:user?1:0.5}}
+                        disabled={!user || balance <= 0}
+                        style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',padding:'8px 12px',color:'#fff',fontSize:'13px',outline:'none',opacity:(user&&balance>0)?1:0.5}}
                       />
                       <button
                         onClick={sendChatMessage}
-                        disabled={!user || chatSending || !chatInput.trim()}
-                        style={{padding:'8px 14px',borderRadius:'8px',border:'none',background:'var(--primary)',color:'#000',fontWeight:700,fontSize:'12px',cursor:(!user||chatSending||!chatInput.trim())?'not-allowed':'pointer',opacity:(!user||chatSending||!chatInput.trim())?0.4:1,whiteSpace:'nowrap',transition:'opacity 0.15s'}}
+                        disabled={!user || balance<=0 || chatSending || !chatInput.trim()}
+                        style={{padding:'8px 14px',borderRadius:'8px',border:'none',background:'var(--primary)',color:'#000',fontWeight:700,fontSize:'12px',cursor:(!user||balance<=0||chatSending||!chatInput.trim())?'not-allowed':'pointer',opacity:(!user||balance<=0||chatSending||!chatInput.trim())?0.4:1,whiteSpace:'nowrap',transition:'opacity 0.15s'}}
                       >
                         {chatSending ? '...' : 'Enviar'}
                       </button>
