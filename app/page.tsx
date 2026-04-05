@@ -1002,7 +1002,7 @@ export default function Home() {
             )}
 
             {/* ── CHAT AO VIVO ── */}
-            {marketModal.status === 'live' && (
+            {marketModal.status === 'live' && chatGlobalEnabled && (
               <div style={{margin:'16px 20px 0',borderRadius:'16px',overflow:'hidden',border:'1px solid rgba(255,255,255,0.07)'}}>
                 {/* Header chat */}
                 <div style={{background:'rgba(255,0,0,0.08)',borderBottom:'1px solid rgba(255,255,255,0.06)',padding:'10px 14px',display:'flex',alignItems:'center',gap:'8px'}}>
