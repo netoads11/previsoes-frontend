@@ -11,6 +11,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
   const [step, setStep] = useState<'amount'|'pix'|'done'>('amount')
   const [amount, setAmount] = useState<string>('')
   const [pixCode, setPixCode] = useState<string>('')
+  const [qrCodeImage, setQrCodeImage] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [copied, setCopied] = useState<boolean>(false)
@@ -32,7 +33,8 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar depósito')
-      setPixCode(data.pix_code || data.code || `PIX-${Date.now()}`)
+      setPixCode(data.pix_code || data.qr_code || data.code || '')
+      setQrCodeImage(data.qr_code_image || '')
       setStep('pix')
     } catch(e:any) {
       setError(e.message)
@@ -43,11 +45,6 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
 
   function copyPix() {
     navigator.clipboard.writeText(pixCode).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2500) }).catch(()=>{})
-  }
-
-  function simulateConfirm() {
-    setBalance((b:number) => b + num)
-    setStep('done')
   }
 
   return (
@@ -142,8 +139,11 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
       {step === 'pix' && (
         <div style={{padding:'0 20px'}}>
           <div style={{marginTop:'24px',textAlign:'center'}}>
-            <div style={{width:'180px',height:'180px',borderRadius:'16px',margin:'0 auto 16px',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 40px rgba(var(--primary-rgb, 0,230,118),0.15)'}}>
-              <div style={{textAlign:'center'}}><div style={{fontSize:'48px'}}>📱</div><div style={{fontSize:'10px',color:'#333',fontWeight:700,marginTop:'4px'}}>QR CODE PIX</div></div>
+            <div style={{width:'180px',height:'180px',borderRadius:'16px',margin:'0 auto 16px',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 40px rgba(var(--primary-rgb, 0,230,118),0.15)',overflow:'hidden'}}>
+              {qrCodeImage
+                ? <img src={qrCodeImage} alt="QR Code PIX" style={{width:'100%',height:'100%',objectFit:'contain'}}/>
+                : <div style={{textAlign:'center'}}><div style={{fontSize:'11px',color:'#333',fontWeight:700,padding:'8px'}}>Use o código abaixo</div></div>
+              }
             </div>
             <p style={{fontSize:'13px',color:'var(--muted-foreground)',marginBottom:'6px'}}>Valor: <span style={{color:'#fff',fontWeight:700}}>R$ {num.toFixed(2).replace('.',',')}</span></p>
             <p style={{fontSize:'11px',color:'#444',marginBottom:'16px'}}>Escaneie o QR ou copie o código abaixo</p>
@@ -152,13 +152,15 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
             <p style={{fontSize:'9px',color:'var(--muted-foreground)',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'6px'}}>CÓDIGO PIX COPIA E COLA</p>
             <p style={{fontSize:'12px',color:'#ccc',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.5}}>{pixCode}</p>
           </div>
-          <button onClick={copyPix} style={{width:'100%',padding:'15px',borderRadius:'12px',border:'none',background:copied?'rgba(var(--primary-rgb, 0,230,118),0.15)':'var(--primary)',color:copied?'var(--primary)':'#000',fontWeight:900,fontSize:'15px',cursor:'pointer',marginBottom:'10px',outline:copied?'1px solid rgba(var(--primary-rgb, 0,230,118),0.4)':'none',transition:'all 0.2s'}}>
-            {copied ? '✓ CÓDIGO COPIADO!' : '📋 COPIAR CÓDIGO PIX'}
+          {pixCode && (
+            <button onClick={copyPix} style={{width:'100%',padding:'15px',borderRadius:'12px',border:'none',background:copied?'rgba(var(--primary-rgb, 0,230,118),0.15)':'var(--primary)',color:copied?'var(--primary)':'#000',fontWeight:900,fontSize:'15px',cursor:'pointer',marginBottom:'10px',outline:copied?'1px solid rgba(var(--primary-rgb, 0,230,118),0.4)':'none',transition:'all 0.2s'}}>
+              {copied ? '✓ CÓDIGO COPIADO!' : 'COPIAR CÓDIGO PIX'}
+            </button>
+          )}
+          <button onClick={onClose} style={{width:'100%',padding:'13px',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.1)',background:'transparent',color:'var(--muted-foreground)',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>
+            Fechar
           </button>
-          <button onClick={simulateConfirm} style={{width:'100%',padding:'13px',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.1)',background:'transparent',color:'var(--muted-foreground)',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>
-            Já paguei — confirmar depósito
-          </button>
-          <p style={{fontSize:'10px',color:'#333',textAlign:'center',marginTop:'12px'}}>O saldo será creditado automaticamente após confirmação do pagamento</p>
+          <p style={{fontSize:'10px',color:'#444',textAlign:'center',marginTop:'12px'}}>O saldo será creditado automaticamente após a confirmação do pagamento</p>
         </div>
       )}
 
