@@ -11,6 +11,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
   const [step, setStep] = useState<'amount'|'cpf'|'pix'>('amount')
   const [amount, setAmount] = useState<string>('')
   const [cpf, setCpf] = useState<string>('')
+  const [phone, setPhone] = useState<string>('')
   const [pixCode, setPixCode] = useState<string>('')
   const [qrCodeImage, setQrCodeImage] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -29,6 +30,13 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
     return d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6,9)+'-'+d.slice(9)
   }
 
+  function formatPhone(v: string) {
+    const d = v.replace(/\D/g,'').slice(0,11)
+    if (d.length <= 2) return d.length ? '('+d : d
+    if (d.length <= 7) return '('+d.slice(0,2)+') '+d.slice(2)
+    return '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7)
+  }
+
   function goToCpf() {
     if (num < min) { setError(`Valor mínimo: R$ ${Number(min).toFixed(2).replace('.',',')}`) ; return }
     setError('')
@@ -36,8 +44,10 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
   }
 
   async function requestDeposit() {
-    const rawCpf = cpf.replace(/\D/g,'')
-    if (rawCpf.length !== 11) { setError('CPF inválido — informe os 11 dígitos'); return }
+    const rawCpf   = cpf.replace(/\D/g,'')
+    const rawPhone = phone.replace(/\D/g,'')
+    if (rawCpf.length !== 11)  { setError('CPF inválido — informe os 11 dígitos'); return }
+    if (rawPhone.length < 10)  { setError('Telefone inválido — informe DDD + número'); return }
     setError('')
     setLoading(true)
     try {
@@ -45,7 +55,7 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
       const res = await fetch(API + '/api/wallet/deposit', {
         method: 'POST',
         headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+(token||'')},
-        body: JSON.stringify({ amount: num, cpf: rawCpf })
+        body: JSON.stringify({ amount: num, cpf: rawCpf, phone: rawPhone })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar depósito')
@@ -151,15 +161,25 @@ export default function DepositModal({onClose, balance, setBalance, minDeposit, 
             <p style={{fontSize:'24px',fontWeight:900,color:'var(--primary)'}}>R$ {num.toFixed(2).replace('.',',')}</p>
           </div>
 
-          <p style={{fontSize:'13px',color:'#fff',fontWeight:700,margin:'20px 0 6px'}}>Informe seu CPF</p>
-          <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'12px'}}>Necessário para identificação do pagamento PIX</p>
+          <p style={{fontSize:'13px',color:'#fff',fontWeight:700,margin:'20px 0 6px'}}>Seus dados para o PIX</p>
+          <p style={{fontSize:'11px',color:'var(--muted-foreground)',marginBottom:'12px'}}>Necessário para identificação do pagamento</p>
 
           <div style={inputBox}>
             <input
-              type="text" placeholder="000.000.000-00" value={cpf}
+              type="text" placeholder="CPF: 000.000.000-00" value={cpf}
               onChange={e=>{ setCpf(formatCpf(e.target.value)); setError('') }}
               inputMode="numeric"
-              style={{flex:1,padding:'0 16px',height:'52px',background:'transparent',border:'none',color:'#fff',fontSize:'20px',fontWeight:700,outline:'none',letterSpacing:'0.05em'}}
+              style={{flex:1,padding:'0 16px',height:'52px',background:'transparent',border:'none',color:'#fff',fontSize:'18px',fontWeight:700,outline:'none',letterSpacing:'0.05em'}}
+              onFocus={focusIn} onBlur={focusOut}
+            />
+          </div>
+
+          <div style={{...inputBox, marginTop:'10px'}}>
+            <input
+              type="text" placeholder="Telefone: (11) 99999-9999" value={phone}
+              onChange={e=>{ setPhone(formatPhone(e.target.value)); setError('') }}
+              inputMode="numeric"
+              style={{flex:1,padding:'0 16px',height:'52px',background:'transparent',border:'none',color:'#fff',fontSize:'18px',fontWeight:700,outline:'none',letterSpacing:'0.04em'}}
               onFocus={focusIn} onBlur={focusOut}
             />
           </div>
