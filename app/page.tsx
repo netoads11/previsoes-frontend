@@ -76,7 +76,7 @@ export default function Home() {
     if (t) {
       fetch(API + '/api/wallet/balance', { headers: { 'Authorization': 'Bearer ' + t } })
         .then(r => r.json())
-        .then(d => setBalance(Number(d.balance) || 0))
+        .then(d => { setBalance(Number(d.balance)||0); setBalanceBonus(Number(d.balance_bonus)||0); setRolloverRequired(Number(d.rollover_required)||0); setRolloverDone(Number(d.rollover_done)||0) })
         .catch(() => {})
     }
     const check = () => setIsMobile(window.innerWidth <= 768)
@@ -238,6 +238,10 @@ export default function Home() {
   },[])
 
   const [balance, setBalance] = useState(0)
+  const [balanceBonus, setBalanceBonus] = useState(0)
+  const [rolloverRequired, setRolloverRequired] = useState(0)
+  const [rolloverDone, setRolloverDone] = useState(0)
+  const [autoWithdrawModal, setAutoWithdrawModal] = useState(false)
 
   // BET PANEL VALUES
   const betMarket = betPanel?.market
@@ -364,12 +368,29 @@ export default function Home() {
                         <div style={{fontSize:'13px',fontWeight:700,color:'#fff'}}>{user.name||'Usuário'}</div>
                         <div style={{fontSize:'11px',color:'var(--muted-foreground)',marginTop:'2px'}}>{user.email}</div>
                         <div style={{fontSize:'12px',color:'var(--primary)',fontWeight:700,marginTop:'4px'}}>R$ {balance.toFixed(2)}</div>
+                        {balanceBonus > 0 && (
+                          <div style={{marginTop:'8px'}}>
+                            <div style={{display:'flex',justifyContent:'space-between',fontSize:'10px',color:'#fbbf24',marginBottom:'4px'}}>
+                              <span>Bônus: R$ {balanceBonus.toFixed(2)}</span>
+                              <span>{Math.min(100,Math.round((rolloverDone/rolloverRequired)*100))}% rollover</span>
+                            </div>
+                            <div style={{height:'4px',borderRadius:'2px',background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
+                              <div style={{height:'100%',width:`${Math.min(100,(rolloverDone/rolloverRequired)*100)}%`,background:'#fbbf24',borderRadius:'2px',transition:'width 0.3s'}}/>
+                            </div>
+                            <div style={{fontSize:'9px',color:'rgba(255,255,255,0.3)',marginTop:'3px'}}>Aposte R$ {Math.max(0,rolloverRequired-rolloverDone).toFixed(2)} para liberar o bônus</div>
+                          </div>
+                        )}
                       </div>
                       <button onClick={()=>{setUserMenuOpen(false);router.push('/perfil')}} style={{
                         width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
                         background:'rgba(255,255,255,0.05)',color:'#fff',fontSize:'12px',
                         cursor:'pointer',textAlign:'left',marginBottom:'6px',
                       }}>👤 Meu Perfil</button>
+                      <button onClick={()=>{setUserMenuOpen(false);setAutoWithdrawModal(true)}} style={{
+                        width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
+                        background:'rgba(255,255,255,0.05)',color:'#fff',fontSize:'12px',
+                        cursor:'pointer',textAlign:'left',marginBottom:'6px',
+                      }}>⚙️ Saque Automático</button>
                       <button onClick={handleLogout} style={{
                         width:'100%',padding:'8px 10px',borderRadius:'8px',border:'none',
                         background:'rgba(239,68,68,0.08)',color:'#ef4444',fontSize:'12px',
