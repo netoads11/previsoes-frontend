@@ -149,8 +149,8 @@ export default function Home() {
       return
     }
 
-    // Verifica se chat está ativo
-    fetch(API + '/api/chat/admin/messages')
+    // Verifica se chat está ativo (rota pública)
+    fetch(API + '/api/chat/status')
       .then(r => r.json())
       .then(d => { if (typeof d.chat_enabled === 'boolean') setChatGlobalEnabled(d.chat_enabled) })
       .catch(() => {})
