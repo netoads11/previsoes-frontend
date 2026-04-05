@@ -822,9 +822,14 @@ export default function Home() {
               {/* Row: label + value | APOSTAR button */}
               {modalOption && marketModal.type === 'multiple' && (
                 <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
-                  <span style={{flex:1,padding:'8px 12px',borderRadius:'8px',background:'rgba(var(--primary-rgb, 34,197,94),0.08)',border:'1px solid rgba(var(--primary-rgb, 34,197,94),0.2)',fontSize:'12px',fontWeight:600,color:'var(--primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                    📌 {modalOption.title}
-                  </span>
+                  <div style={{flex:1,padding:'8px 12px',borderRadius:'8px',background:'rgba(var(--primary-rgb, 34,197,94),0.08)',border:'1px solid rgba(var(--primary-rgb, 34,197,94),0.2)',display:'flex',alignItems:'center',gap:'8px',minWidth:0}}>
+                    <span style={{fontSize:'11px',fontWeight:700,color:'var(--primary)',whiteSpace:'nowrap',background:'rgba(var(--primary-rgb,34,197,94),0.15)',borderRadius:'6px',padding:'2px 8px'}}>
+                      {modalBetChoice === 'yes' ? 'SIM' : 'NÃO'} · {mOdd.toFixed(2)}x
+                    </span>
+                    <span style={{fontSize:'11px',color:'rgba(255,255,255,0.4)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                      {modalOption.title}
+                    </span>
+                  </div>
                   <button onClick={() => { setModalOption(null); setModalBetChoice(null) }}
                     style={{padding:'7px 12px',borderRadius:'8px',border:'1px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.05)',color:'var(--muted-foreground)',fontSize:'11px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
                     Trocar
